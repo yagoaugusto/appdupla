@@ -22,7 +22,7 @@ require_once 'system-classes/Funcoes.php' ?>
                     <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-pink-500 to-red-600 mb-3 tracking-tight drop-shadow-lg">Registrar Partida</h1>
                     <p class="text-base text-gray-600 font-medium">Cada ponto é uma conquista. Compartilhe sua jornada no Beach Tennis e inspire outros atletas!</p>
                 </div>
-                <form action="controller-partida/salvar-partida.php" method="POST" class="w-full space-y-8">
+                <form id="formPlacar" action="controller-partida/salvar-partida.php" method="POST" class="w-full space-y-8">
                     <fieldset class="border-2 border-blue-300 rounded-2xl p-6 bg-blue-50/70 shadow-inner">
                         <legend class="text-lg font-semibold text-blue-700 px-3">Seu Time</legend>
                         <div class="flex items-center gap-4 mt-4">
@@ -69,11 +69,11 @@ require_once 'system-classes/Funcoes.php' ?>
                     <div class="grid grid-cols-2 gap-6 mt-2">
                         <div class="bg-blue-100 rounded-xl p-6 shadow flex flex-col items-center">
                             <label class="block mb-2 text-sm font-semibold text-blue-700">Seu placar</label>
-                            <input type="number" name="placar_a" class="input input-bordered w-24 text-center text-xl font-bold focus:ring-2 focus:ring-blue-400" required min="0">
+                            <input type="number" id="placarA" name="placar_a" class="input input-bordered w-24 text-center text-xl font-bold focus:ring-2 focus:ring-blue-400" required min="0">
                         </div>
                         <div class="bg-red-100 rounded-xl p-6 shadow flex flex-col items-center">
                             <label class="block mb-2 text-sm font-semibold text-red-700">Placar adversário</label>
-                            <input type="number" name="placar_b" class="input input-bordered w-24 text-center text-xl font-bold focus:ring-2 focus:ring-red-400" required min="0">
+                            <input type="number" id="placarB" name="placar_b" class="input input-bordered w-24 text-center text-xl font-bold focus:ring-2 focus:ring-red-400" required min="0">
                         </div>
                     </div>
 
@@ -90,6 +90,18 @@ require_once 'system-classes/Funcoes.php' ?>
                         <?php endforeach; ?>
                     </datalist>
                 </form>
+
+<!-- Modal -->
+<div id="modalAlerta" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-lg shadow-lg p-6 max-w-md text-center">
+    <h2 class="text-xl font-bold mb-4" id="modalTitulo">Atenção</h2>
+    <p id="modalMensagem" class="text-gray-700 mb-6">Mensagem do modal aqui.</p>
+    <button onclick="fecharModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+      Ok
+    </button>
+  </div>
+</div>
+
             </section>
             <footer class="w-full max-w-xl text-center mt-4 text-xs text-gray-400">
                 Beach Tennis é mais do que um jogo. É sobre evolução, amizade e superação. Compartilhe cada vitória!
@@ -331,6 +343,51 @@ require_once 'system-classes/Funcoes.php' ?>
             });
         });
     </script>
+
+<script>
+  const form = document.getElementById('formPlacar');
+  const modal = document.getElementById('modalAlerta');
+  const modalTitulo = document.getElementById('modalTitulo');
+  const modalMensagem = document.getElementById('modalMensagem');
+
+  function abrirModal(titulo, mensagem) {
+    modalTitulo.textContent = titulo;
+    modalMensagem.textContent = mensagem;
+    modal.classList.remove('hidden');
+  }
+
+  function fecharModal() {
+    modal.classList.add('hidden');
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const a = parseInt(document.getElementById('placarA').value);
+    const b = parseInt(document.getElementById('placarB').value);
+
+    if (isNaN(a) || isNaN(b)) {
+      abrirModal('Erro de preenchimento', 'Preencha os dois placares antes de enviar.');
+      return;
+    }
+
+    if (a === b) {
+      abrirModal('Placar inválido', 'Empates não são permitidos.');
+      return;
+    }
+
+    const vencedor = Math.max(a, b);
+    const permitidos = [4, 6, 7];
+
+    if (!permitidos.includes(vencedor)) {
+      abrirModal('Placar inválido', 'O vencedor só pode ter 4, 6 ou 7 pontos.');
+      return;
+    }
+
+    // Se tudo estiver certo, envie o formulário
+    form.submit();
+  });
+</script>
 
 </body>
 
