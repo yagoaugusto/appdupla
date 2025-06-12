@@ -1,0 +1,109 @@
+/* DUPLA UI - CSS BASE */
+
+:root {
+  --color-primary: #00b894;
+  --color-secondary: #0984e3;
+  --color-light: #f1f2f6;
+  --color-dark: #2d3436;
+  --color-success: #00cec9;
+  --color-error: #d63031;
+
+  --font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--color-light);
+  color: var(--color-dark);
+  padding: 20px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.logo {
+  height: 48px;
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+}
+
+/* Inputs e Select */
+.input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+select.input {
+  appearance: none;
+  background-color: white;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'14'%20height%3D'10'%20xmlns%3D'http%3A//www.w3.org/2000/svg'%3E%3Cpath%20fill%3D'%23333'%20d%3D'M7%2010L0%200h14z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+/* Botões */
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* Card */
+.card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+/* Alertas */
+.alert {
+  padding: 12px;
+  border-radius: 6px;
+  color: white;
+  margin-bottom: 16px;
+}
+
+.alert-success {
+  background-color: var(--color-success);
+}
+
+.alert-error {
+  background-color: var(--color-error);
+}
