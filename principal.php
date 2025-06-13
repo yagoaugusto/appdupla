@@ -296,11 +296,20 @@ foreach ($hist_rating as $registro) {
     const labels = <?= json_encode($labels) ?>;
     const dados = <?= json_encode($dados) ?>;
 
-    // Função para mostrar apenas o primeiro, meio e último label
+    // Função para mostrar apenas o primeiro, meio e último label e rating
     function customXTicks(value, index, ticks) {
       if (index === 0) return labels[0];
       if (index === Math.floor((labels.length - 1) / 2)) return labels[Math.floor((labels.length - 1) / 2)];
       if (index === labels.length - 1) return labels[labels.length - 1];
+      return '';
+    }
+
+    // Função para mostrar apenas o primeiro, meio e último valor no gráfico
+    function customPointLabels(context) {
+      const idx = context.dataIndex;
+      if (idx === 0 || idx === Math.floor((dados.length - 1) / 2) || idx === dados.length - 1) {
+        return dados[idx];
+      }
       return '';
     }
 
@@ -312,11 +321,11 @@ foreach ($hist_rating as $registro) {
         datasets: [{
           label: 'Rating',
           data: dados,
-          borderColor: 'rgba(59,130,246,1)', // azul moderno
-          backgroundColor: 'rgba(59,130,246,0.08)', // azul claro
-          tension: 0.5, // curva suave
+          borderColor: 'rgba(59,130,246,1)',
+          backgroundColor: 'rgba(59,130,246,0.08)',
+          tension: 0.5,
           fill: true,
-          pointRadius: 0, // sem bolinhas
+          pointRadius: 0,
           pointHoverRadius: 0,
           borderWidth: 3,
           pointBackgroundColor: 'rgba(59,130,246,1)',
@@ -328,7 +337,19 @@ foreach ($hist_rating as $registro) {
         maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
-          datalabels: { display: false }
+          datalabels: {
+            display: function(context) {
+              const idx = context.dataIndex;
+              return idx === 0 || idx === Math.floor((dados.length - 1) / 2) || idx === dados.length - 1;
+            },
+            align: 'top',
+            anchor: 'end',
+            font: { weight: 'bold', size: 13 },
+            color: '#2563eb',
+            formatter: function(value, context) {
+              return value;
+            }
+          }
         },
         scales: {
           x: {
@@ -358,13 +379,14 @@ foreach ($hist_rating as $registro) {
             }
           }
         }
-      }
+      },
+      plugins: [ChartDataLabels]
     });
   </script>
   <style>
     #graficoRating {
-      max-height: 220px;
-      min-height: 120px;
+      max-height: 150px;
+      min-height: 80px;
     }
   </style>
 
