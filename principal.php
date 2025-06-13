@@ -31,7 +31,7 @@ foreach ($hist_rating as $registro) {
 }
 ?>
 
-<body class="bg-gray-100 min-h-screen text-gray-800">
+<body class="bg-gray-100 min-h-screen text-gray-800 text-sm sm:text-base">
 
   <?php require_once '_nav_superior.php'; ?>
 
