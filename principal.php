@@ -8,7 +8,7 @@ $usuario = Usuario::posicao_usuario($_SESSION['DuplaUserId'] ?? null);
 $usuario_id = $_SESSION['DuplaUserId'] ?? null;
 
 $partidas_usuario = Usuario::partidas_usuario($usuario_id);
-$variacao_rating = Usuario::variacao_rating($usuario_id,10);
+$variacao_rating = Usuario::variacao_rating($usuario_id, 10);
 
 $ranking_superior = Usuario::ranking_superior_tela_principal($usuario_id, 2);
 $ranking_superior = array_reverse($ranking_superior);
@@ -46,32 +46,32 @@ foreach ($hist_rating as $registro) {
         <!-- Botão Nova Partida -->
         <!-- Boas-vindas animada -->
         <?php
-          $mensagens_boas_vindas = [
-            "Bem-vindo de volta, <strong>{$usuario[0]['nome']}</strong>! Pronto para mais uma rodada de desafios?",
-            "Olá, <strong>{$usuario[0]['nome']}</strong>! Que tal subir no ranking hoje?",
-            "É hora do show, <strong>{$usuario[0]['nome']}</strong>! Mostre seu talento!",
-            "Que a sorte esteja com você, <strong>{$usuario[0]['nome']}</strong>! Vamos jogar?",
-            "Seja bem-vindo, <strong>{$usuario[0]['nome']}</strong>! Sua próxima vitória está logo ali.",
-            "Preparado para fazer história, <strong>{$usuario[0]['nome']}</strong>?",
-            "Os campeões nunca descansam, <strong>{$usuario[0]['nome']}</strong>! Boa sorte!",
-            "Hora de brilhar, <strong>{$usuario[0]['nome']}</strong>! O topo te espera.",
-"Vamos com tudo, <strong>{$usuario[0]['nome']}</strong>! Hoje é dia de subir no pódio!",
-"Você está de volta, <strong>{$usuario[0]['nome']}</strong>! Bora mostrar quem manda na quadra.",
-"Chegou o momento, <strong>{$usuario[0]['nome']}</strong>! Cada ponto conta.",
-"Com garra e talento, <strong>{$usuario[0]['nome']}</strong>! Vamos conquistar mais uma.",
-"Seu ranking agradece, <strong>{$usuario[0]['nome']}</strong>! Hora de jogar sério.",
-"Foco, força e raquete, <strong>{$usuario[0]['nome']}</strong>! Vamos pra cima!",
-"É só você e a rede, <strong>{$usuario[0]['nome']}</strong>! Mostre do que é feito.",
-"Ninguém segura você hoje, <strong>{$usuario[0]['nome']}</strong>!",
-"Você nasceu pra esse jogo, <strong>{$usuario[0]['nome']}</strong>! Partiu vitória.",
-"Está preparado, <strong>{$usuario[0]['nome']}</strong>? As quadras te esperam!",
-"Mais um dia, mais uma chance de vencer, <strong>{$usuario[0]['nome']}</strong>!",
-"A energia está no ar, <strong>{$usuario[0]['nome']}</strong>! Traga sua melhor versão.",
-"Desafios à vista, <strong>{$usuario[0]['nome']}</strong>! E você está pronto.",
-"O topo é seu destino, <strong>{$usuario[0]['nome']}</strong>! Continue escalando.",
-"Confiança no saque e coragem no smash, <strong>{$usuario[0]['nome']}</strong>! Vamos!"
-          ];
-          $mensagem_aleatoria = $mensagens_boas_vindas[array_rand($mensagens_boas_vindas)];
+        $mensagens_boas_vindas = [
+          "Bem-vindo de volta, <strong>{$usuario[0]['nome']}</strong>! Pronto para mais uma rodada de desafios?",
+          "Olá, <strong>{$usuario[0]['nome']}</strong>! Que tal subir no ranking hoje?",
+          "É hora do show, <strong>{$usuario[0]['nome']}</strong>! Mostre seu talento!",
+          "Que a sorte esteja com você, <strong>{$usuario[0]['nome']}</strong>! Vamos jogar?",
+          "Seja bem-vindo, <strong>{$usuario[0]['nome']}</strong>! Sua próxima vitória está logo ali.",
+          "Preparado para fazer história, <strong>{$usuario[0]['nome']}</strong>?",
+          "Os campeões nunca descansam, <strong>{$usuario[0]['nome']}</strong>! Boa sorte!",
+          "Hora de brilhar, <strong>{$usuario[0]['nome']}</strong>! O topo te espera.",
+          "Vamos com tudo, <strong>{$usuario[0]['nome']}</strong>! Hoje é dia de subir no pódio!",
+          "Você está de volta, <strong>{$usuario[0]['nome']}</strong>! Bora mostrar quem manda na quadra.",
+          "Chegou o momento, <strong>{$usuario[0]['nome']}</strong>! Cada ponto conta.",
+          "Com garra e talento, <strong>{$usuario[0]['nome']}</strong>! Vamos conquistar mais uma.",
+          "Seu ranking agradece, <strong>{$usuario[0]['nome']}</strong>! Hora de jogar sério.",
+          "Foco, força e raquete, <strong>{$usuario[0]['nome']}</strong>! Vamos pra cima!",
+          "É só você e a rede, <strong>{$usuario[0]['nome']}</strong>! Mostre do que é feito.",
+          "Ninguém segura você hoje, <strong>{$usuario[0]['nome']}</strong>!",
+          "Você nasceu pra esse jogo, <strong>{$usuario[0]['nome']}</strong>! Partiu vitória.",
+          "Está preparado, <strong>{$usuario[0]['nome']}</strong>? As quadras te esperam!",
+          "Mais um dia, mais uma chance de vencer, <strong>{$usuario[0]['nome']}</strong>!",
+          "A energia está no ar, <strong>{$usuario[0]['nome']}</strong>! Traga sua melhor versão.",
+          "Desafios à vista, <strong>{$usuario[0]['nome']}</strong>! E você está pronto.",
+          "O topo é seu destino, <strong>{$usuario[0]['nome']}</strong>! Continue escalando.",
+          "Confiança no saque e coragem no smash, <strong>{$usuario[0]['nome']}</strong>! Vamos!"
+        ];
+        $mensagem_aleatoria = $mensagens_boas_vindas[array_rand($mensagens_boas_vindas)];
         ?>
         <div class="mb-8">
           <div class="flex items-center gap-4 bg-gradient-to-r from-blue-600 via-blue-400 to-indigo-500 text-white rounded-2xl px-6 py-5 shadow-lg animate-fade-in-down">
@@ -110,7 +110,7 @@ foreach ($hist_rating as $registro) {
             <div class="text-sm text-gray-500 mt-1">Conquistas</div>
           </div>
           <div class="bg-white rounded-2xl shadow p-4 text-center border-t-4 border-purple-500">
-            <div class="text-3xl font-bold text-purple-600">📈 <?= round($variacao_rating[0]['variacao_rating'],3) ?></div>
+            <div class="text-3xl font-bold text-purple-600">📈 <?= round($variacao_rating[0]['variacao_rating'], 3) ?></div>
             <div class="text-sm text-gray-500 mt-1">Variação (últimos 10 dias)</div>
           </div>
         </div>
