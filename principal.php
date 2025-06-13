@@ -254,7 +254,7 @@ foreach ($hist_rating as $registro) {
                 <div class="text-xs font-bold mb-1">MEU PATO</div>
                 <div class="text-xs">🟡 Vitórias contra:</div>
                 <div class="text-sm font-semibold truncate"><?= $adversario_vitoria[0]['adversario_nome'] ?></div>
-                <div class="text-xs mt-1">🔁 <b><?= $adversario_vitoria[0]['partidas'] ?></b> · ✅ <b><?= $adversario_vitoria[0]['vitorias'] ?></b></div>
+                <div class="text-xs mt-1">🔁 <b><?= $adversario_vitoria[0]['partidas'] ?></b> · ✅ <b><?= $adversario_vitoria[0]['vitorias'] ?> Vitórias</b></div>
               </div>
               <!-- Meu Carrasco -->
               <div class="bg-red-500 text-white rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
@@ -262,7 +262,7 @@ foreach ($hist_rating as $registro) {
                 <div class="text-xs font-bold mb-1">MEU CARRASCO</div>
                 <div class="text-xs">🔴 Derrotas para:</div>
                 <div class="text-sm font-semibold truncate"><?= $adversario_derrota[0]['adversario_nome'] ?></div>
-                <div class="text-xs mt-1">🔁 <b><?= $adversario_derrota[0]['partidas'] ?></b> · ❌ <b><?= $adversario_derrota[0]['derrotas'] ?></b></div>
+                <div class="text-xs mt-1">🔁 <b><?= $adversario_derrota[0]['partidas'] ?></b> · ❌ <b><?= $adversario_derrota[0]['derrotas'] ?> Derrotas</b></div>
               </div>
               <!-- Dupla Forte -->
               <div class="bg-lime-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
@@ -278,7 +278,7 @@ foreach ($hist_rating as $registro) {
                 <div class="text-xs font-bold mb-1">SÓ ATRAPALHA</div>
                 <div class="text-xs">⚫ Com:</div>
                 <div class="text-sm font-semibold truncate"><?= $parceiro_derrota[0]['parceiro_nome'] ?></div>
-                <div class="text-xs mt-1">🤷 <b><?= $parceiro_derrota[0]['partidas'] ?></b> · ❌ <b><?= $parceiro_vitoria[0]['derrotas'] ?></b></div>
+                <div class="text-xs mt-1">🤷 <b><?= $parceiro_derrota[0]['partidas'] ?></b> · ❌ <b><?= $parceiro_vitoria[0]['derrotas'] ?> Derrotas</b></div>
               </div>
             </div>
             <div class="mt-4 text-center">
