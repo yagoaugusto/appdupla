@@ -293,66 +293,80 @@ foreach ($hist_rating as $registro) {
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
   <script>
+    const labels = <?= json_encode($labels) ?>;
+    const dados = <?= json_encode($dados) ?>;
+
+    // Função para mostrar apenas o primeiro, meio e último label
+    function customXTicks(value, index, ticks) {
+      if (index === 0) return labels[0];
+      if (index === Math.floor((labels.length - 1) / 2)) return labels[Math.floor((labels.length - 1) / 2)];
+      if (index === labels.length - 1) return labels[labels.length - 1];
+      return '';
+    }
+
     const ctx = document.getElementById('graficoRating').getContext('2d');
     const graficoRating = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: <?= json_encode($labels) ?>,
+        labels: labels,
         datasets: [{
           label: 'Rating',
-          data: <?= json_encode($dados) ?>,
-          borderColor: '#2563EB',
-          backgroundColor: 'rgba(37, 99, 235, 0.1)',
-          tension: 0.4,
+          data: dados,
+          borderColor: 'rgba(59,130,246,1)', // azul moderno
+          backgroundColor: 'rgba(59,130,246,0.08)', // azul claro
+          tension: 0.5, // curva suave
           fill: true,
-          pointRadius: 6,
-          pointHoverRadius: 8,
-          pointBackgroundColor: '#1D4ED8',
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 2,
+          pointRadius: 0, // sem bolinhas
+          pointHoverRadius: 0,
+          borderWidth: 3,
+          pointBackgroundColor: 'rgba(59,130,246,1)',
+          pointBorderColor: '#fff',
         }]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          legend: {
-            display: false
-          },
-          datalabels: {
-            anchor: 'end',
-            align: 'top',
-            color: '#1E40AF',
-            font: {
-              weight: 'bold'
-            },
-            formatter: function(value) {
-              return value;
-            }
-          }
+          legend: { display: false },
+          datalabels: { display: false }
         },
         scales: {
           x: {
             ticks: {
-              color: '#374151'
+              color: '#64748b',
+              font: { size: 12, weight: 'bold' },
+              callback: customXTicks,
+              maxRotation: 0,
+              minRotation: 0,
+              autoSkip: false,
             },
             grid: {
-              color: 'rgba(0,0,0,0.05)'
+              color: 'rgba(100,116,139,0.07)',
+              drawBorder: false,
             }
           },
           y: {
             beginAtZero: false,
             ticks: {
-              color: '#374151'
+              color: '#64748b',
+              font: { size: 12 },
+              padding: 6,
             },
             grid: {
-              color: 'rgba(0,0,0,0.05)'
+              color: 'rgba(100,116,139,0.07)',
+              drawBorder: false,
             }
           }
         }
-      },
-      plugins: [ChartDataLabels]
+      }
     });
   </script>
+  <style>
+    #graficoRating {
+      max-height: 220px;
+      min-height: 120px;
+    }
+  </style>
 
 </body>
 
