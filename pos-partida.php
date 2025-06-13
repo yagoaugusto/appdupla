@@ -184,7 +184,7 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
 
           <?php
           // CASO O TIME DO USUARIO SEJA O VENCEDOR
-          if ($resultado === "win") {
+          if ($resultado == 'win') {
             // SE O USUARIO GANHOU E É O TIME A
             if ($time_usuario === 'A') {
           ?>
