@@ -38,7 +38,7 @@ foreach ($hist_rating as $registro) {
   <div class="flex pt-16">
     <?php require_once '_nav_lateral.php'; ?>
 
-    <main class="flex-1 flex flex-col min-h-screen p-6">
+    <main class="flex-1 flex flex-col min-h-screen p-2">
       <section class="max-w-6xl mx-auto w-full">
 
 
@@ -78,61 +78,56 @@ foreach ($hist_rating as $registro) {
             <svg class="w-10 h-10 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 2l2.39 4.84 5.34.78-3.87 3.77.91 5.32L10 13.27l-4.77 2.51.91-5.32-3.87-3.77 5.34-.78L10 2z" />
             </svg>
-            <div class="text-lg md:text-xl font-bold drop-shadow-sm">
+            <div class="text-base font-bold drop-shadow-sm">
               <?= $mensagem_aleatoria ?>
             </div>
           </div>
         </div>
 
         <!-- Botão Nova Partida estilizado -->
-        <div class="mb-8 flex justify-left">
+        <div class="mb-3 flex justify-left">
           <a href="nova-partida.php"
-            class="relative group block w-full sm:w-auto text-center px-8 py-4 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-700 text-white font-bold text-lg rounded-2xl shadow-[0_4px_24px_0_rgba(37,99,235,0.18)] border-b-4 border-blue-900 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 uppercase tracking-wide overflow-hidden"
-            style="letter-spacing:0.08em;">
-            <span class="absolute inset-0 rounded-2xl border-2 border-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></span>
+            class="group block w-full sm:w-auto text-center px-4 py-2 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-700 text-white font-bold text-base rounded-xl shadow border-b-2 border-blue-900 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 uppercase tracking-wide overflow-hidden"
+            style="letter-spacing:0.06em;">
             Registrar Partida
-            <span class="inline-block align-middle ml-2 text-2xl animate-pulse drop-shadow-sm">➕</span>
+            <span class="inline-block align-middle ml-1 text-xl animate-pulse drop-shadow-sm">➕</span>
           </a>
         </div>
 
         <!-- Cards de informações -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div class="bg-white rounded-2xl shadow p-4 text-center border-t-4 border-blue-500">
-            <div class="text-3xl font-bold text-blue-600">⭐ <?= $usuario[0]['rating'] ?></div>
-            <div class="text-sm text-gray-500 mt-1">Rating Atual</div>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div class="bg-white rounded-xl shadow p-2 text-center border-t-2 border-blue-500">
+            <div class="text-xl font-bold text-blue-600">⭐ <?= $usuario[0]['rating'] ?></div>
+            <div class="text-xs text-gray-500 mt-1">Rating</div>
           </div>
-          <div class="bg-white rounded-2xl shadow p-4 text-center border-t-4 border-green-500">
-            <div class="text-3xl font-bold text-green-600">🏅 <?= $partidas_usuario[0]['total_partidas'] ?> | <?= $partidas_usuario[0]['vitorias'] ?></div>
-            <div class="text-sm text-gray-500 mt-1">Partidas | Vitórias</div>
+          <div class="bg-white rounded-xl shadow p-2 text-center border-t-2 border-green-500">
+            <div class="text-xl font-bold text-green-600">🏅 <?= $partidas_usuario[0]['total_partidas'] ?> | <?= $partidas_usuario[0]['vitorias'] ?></div>
+            <div class="text-xs text-gray-500 mt-1">Partidas | Vitórias</div>
           </div>
-          <div class="bg-white rounded-2xl shadow p-4 text-center border-t-4 border-yellow-500">
-            <div class="text-3xl font-bold text-yellow-600">🎖️ ?? </div>
-            <div class="text-sm text-gray-500 mt-1">Conquistas</div>
+          <div class="bg-white rounded-xl shadow p-2 text-center border-t-2 border-yellow-500">
+            <div class="text-xl font-bold text-yellow-600">🎖️ ?? </div>
+            <div class="text-xs text-gray-500 mt-1">Conquistas</div>
           </div>
-          <div class="bg-white rounded-2xl shadow p-4 text-center border-t-4 border-purple-500">
-            <div class="text-3xl font-bold text-purple-600">📈 <?= round($variacao_rating[0]['variacao_rating'], 3) ?></div>
-            <div class="text-sm text-gray-500 mt-1">Variação (últimos 10 dias)</div>
+          <div class="bg-white rounded-xl shadow p-2 text-center border-t-2 border-purple-500">
+            <div class="text-xl font-bold text-purple-600">📈 <?= round($variacao_rating[0]['variacao_rating'], 3) ?></div>
+            <div class="text-xs text-gray-500 mt-1">Variação (10d)</div>
           </div>
         </div>
 
-        <!-- Seção com gráfico e ranking -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-
-          <!-- Gráfico (2/3) -->
-          <div class="col-span-2 bg-white rounded-xl shadow p-6">
-            <h3 class="text-lg font-semibold mb-4">📊 Histórico de Rating</h3>
-            <canvas id="graficoRating" height="150"></canvas>
+        <!-- Gráfico e ranking -->
+        <div class="grid grid-cols-1 gap-3 mb-3">
+          <div class="bg-white rounded-xl shadow p-3">
+            <h3 class="text-base font-semibold mb-2">📊 Histórico de Rating</h3>
+            <canvas id="graficoRating" height="100"></canvas>
           </div>
-
-          <!-- Ranking (1/3) -->
-          <div class="bg-white rounded-xl shadow p-6">
-            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
-              <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+          <div class="bg-white rounded-xl shadow p-3">
+            <h3 class="text-base font-semibold mb-2 flex items-center gap-1">
+              <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 2l2.39 4.84 5.34.78-3.87 3.77.91 5.32L10 13.27l-4.77 2.51.91-5.32-3.87-3.77 5.34-.78L10 2z" />
               </svg>
-              Sua Posição no Ranking
+              Ranking
             </h3>
-            <ul class="space-y-2">
+            <ul class="space-y-1">
               <!-- Jogadores acima da posição do usuário -->
               <?php foreach ($ranking_superior as $rank): ?>
                 <li class="flex items-center gap-3 bg-gradient-to-r from-yellow-100 to-yellow-50 rounded-lg px-4 py-2 shadow-sm border-l-4 border-yellow-400 hover:scale-105 transition-transform">
@@ -175,8 +170,8 @@ foreach ($hist_rating as $registro) {
               <?php $p_inf = $p_inf + 1;
               endforeach; ?>
             </ul>
-            <div class="mt-4 text-center">
-              <a href="ranking.php" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold px-4 py-2 rounded-full shadow transition-colors">
+            <div class="mt-2 text-center">
+              <a href="ranking.php" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold px-2 py-1 rounded-full shadow transition-colors text-xs">
                 Ver ranking completo &rarr;
               </a>
             </div>
