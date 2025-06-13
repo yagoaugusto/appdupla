@@ -186,7 +186,7 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
           // CASO O TIME DO USUARIO SEJA O VENCEDOR
           if ($resultado == 'win') {
             // SE O USUARIO GANHOU E É O TIME A
-            if ($time_usuario === 'A') {
+            if ($time_usuario == 'A') {
           ?>
               <!-- Dupla Vencedora -->
               <div class="relative z-10 bg-gradient-to-r from-green-200 via-green-100 to-white border-l-4 border-green-500 rounded-xl p-3 mb-2 shadow">
@@ -258,7 +258,7 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
             // CASO O TIME DO USUARIO SEJA O PERDEDOR
           } else {
             // SE O USUARIO PERDEU E É O TIME A
-            if ($time_usuario === 'A') {
+            if ($time_usuario == 'A') {
             ?>
               <!-- Dupla Vencedora -->
               <div class="relative z-10 bg-gradient-to-r from-green-200 via-green-100 to-white border-l-4 border-green-500 rounded-xl p-3 mb-2 shadow">
