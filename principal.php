@@ -73,8 +73,8 @@ foreach ($hist_rating as $registro) {
         ];
         $mensagem_aleatoria = $mensagens_boas_vindas[array_rand($mensagens_boas_vindas)];
         ?>
-        <div class="mb-8">
-          <div class="flex items-center gap-4 bg-gradient-to-r from-blue-600 via-blue-400 to-indigo-500 text-white rounded-2xl px-6 py-5 shadow-lg animate-fade-in-down">
+        <div class="mb-4">
+          <div class="flex items-center gap-4 bg-gradient-to-r from-blue-600 via-blue-400 to-indigo-500 text-white rounded-2xl px-6 py-4 shadow-lg animate-fade-in-down">
             <svg class="w-10 h-10 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 2l2.39 4.84 5.34.78-3.87 3.77.91 5.32L10 13.27l-4.77 2.51.91-5.32-3.87-3.77 5.34-.78L10 2z" />
             </svg>
@@ -85,7 +85,7 @@ foreach ($hist_rating as $registro) {
         </div>
 
         <!-- Botão Nova Partida estilizado -->
-        <div class="mb-3 flex justify-left">
+        <div class="mb-2 flex justify-left">
           <a href="nova-partida.php"
             class="group block w-full sm:w-auto text-center px-4 py-2 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-700 text-white font-bold text-base rounded-xl shadow border-b-2 border-blue-900 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 uppercase tracking-wide overflow-hidden"
             style="letter-spacing:0.06em;">
