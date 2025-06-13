@@ -86,7 +86,7 @@
 </head>
 <body>
   <div class="container">
-    <img src="img/dupla.PNG" alt="Logo Dupla" class="logo">
+    <img src="img/dupla.png" alt="Logo Dupla" class="logo">
     <form action="system-autenticacao/valida.php" method="post">
       <input type="tel" name="telefone" placeholder="Telefone" required>
       <input type="password" name="senha" placeholder="Senha" required>
