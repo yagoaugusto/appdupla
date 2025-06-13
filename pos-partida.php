@@ -1,6 +1,67 @@
+<?php require_once '#_global.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <?php require_once '_head.php'; ?>
+
+<?php
+$partida = $_GET['p']; // Obtém o token da partida via GET
+$usuario = $_SESSION['DuplaUserId'];
+
+$info_p = Partida::info_partida($partida);
+if (empty($info_p)) {
+  header('Location: principal.php');
+  exit;
+}
+
+$jogadores = [
+  [
+    'id' => $info_p[0]['jogador1_id'],
+    'nome' => $info_p[0]['nomej1'],
+    'time' => 'A',
+    'validado' => $info_p[0]['validado_jogador1'],
+    'rejeitado' => $info_p[0]['rejeitado_jogador1']
+  ],
+  [
+    'id' => $info_p[0]['jogador2_id'],
+    'nome' => $info_p[0]['nomej2'],
+    'time' => 'A',
+    'validado' => $info_p[0]['validado_jogador2'],
+    'rejeitado' => $info_p[0]['rejeitado_jogador2']
+  ],
+  [
+    'id' => $info_p[0]['jogador3_id'],
+    'nome' => $info_p[0]['nomej3'],
+    'time' => 'B',
+    'validado' => $info_p[0]['validado_jogador3'],
+    'rejeitado' => $info_p[0]['rejeitado_jogador3']
+  ],
+  [
+    'id' => $info_p[0]['jogador4_id'],
+    'nome' => $info_p[0]['nomej4'],
+    'time' => 'B',
+    'validado' => $info_p[0]['validado_jogador4'],
+    'rejeitado' => $info_p[0]['rejeitado_jogador4']
+  ]
+];
+
+
+
+// Verifica em qual time o usuário está
+if ($usuario == $info_p[0]['jogador1_id'] || $usuario == $info_p[0]['jogador2_id']) {
+  $time_usuario = 'A';
+} elseif ($usuario == $info_p[0]['jogador3_id'] || $usuario == $info_p[0]['jogador4_id']) {
+  $time_usuario = 'B';
+} else {
+  $time_usuario = null; // não está em nenhum time (erro ou usuário não relacionado à partida)
+}
+
+if ($info_p[0]['vencedor'] == $time_usuario) {
+  $resultado = 'win'; // ou 'lose'
+} else {
+  $resultado = 'lose'; // ou 'lose'
+}
+
+?>
 
 <body class="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 min-h-screen text-gray-800">
 
@@ -14,7 +75,7 @@
         <?php
         // Defina o resultado da partida (exemplo: 'win' ou 'lose')
         // Em produção, substitua por lógica real para determinar o resultado do usuário logado
-        $resultado = 'win'; // ou 'lose'
+
 
         // Imagens de perfil para vitória e derrota
         $imagemVitoria = 'img/2.png'; // Substitua pelo caminho real da imagem de vitória
@@ -108,71 +169,221 @@
         </div>
 
         <!-- Resultado da partida -->
-<div class="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-300 bg-white p-8 mb-10 max-w-2xl mx-auto ring-1 ring-blue-100">
-  
-  <!-- Fundo decorativo com blur -->
-  <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 opacity-30 blur-xl"></div>
+        <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-300 bg-white p-8 mb-10 max-w-2xl mx-auto ring-1 ring-blue-100">
 
-  <!-- Título -->
-  <div class="relative z-10 flex flex-col items-center mb-8">
-    <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-900 tracking-tight text-center drop-shadow-sm">
-      Resultado da Partida
-    </h2>
-    <div class="w-16 h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full mt-3"></div>
-  </div>
+          <!-- Fundo decorativo com blur -->
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 opacity-30 blur-xl"></div>
 
-  <!-- Dupla Vencedora -->
-  <div class="relative z-10 bg-gradient-to-r from-green-200 via-green-100 to-white border-l-8 border-green-500 rounded-2xl p-6 mb-4 shadow-md">
-    <div class="flex justify-between items-center">
-      <div>
-        <p class="text-lg font-bold text-green-800">🏆 Davi Ballerini</p>
-        <p class="text-lg font-bold text-green-800">🏆 Mateus Busnardo Buemo</p>
-      </div>
-      <div class="text-right">
-        <span class="text-5xl font-extrabold text-green-600">6</span>
-        <span class="text-green-600 text-2xl align-middle ml-1">✔</span>
-      </div>
-    </div>
-    <p class="mt-2 text-sm text-green-700 italic">Venceram com estilo!</p>
-  </div>
+          <!-- Título -->
+          <div class="relative z-10 flex flex-col items-center mb-8">
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-900 tracking-tight text-center drop-shadow-sm">
+              Resultado da Partida
+            </h2>
+            <div class="w-16 h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full mt-3"></div>
+          </div>
 
-  <!-- Dupla Derrotada -->
-  <div class="relative z-10 bg-gradient-to-r from-red-100 via-white to-gray-100 border-l-8 border-red-400 rounded-2xl p-6 shadow-sm">
-    <div class="flex justify-between items-center">
-      <div>
-        <p class="text-lg font-semibold text-red-800">😓 Vinicius Yohan Belusso</p>
-        <p class="text-lg font-semibold text-red-800">😓 Denzel West Sousa West</p>
-      </div>
-      <div class="text-right">
-        <span class="text-5xl font-extrabold text-gray-400">0</span>
-      </div>
-    </div>
-    <p class="mt-2 text-sm text-red-600 italic">Derrota com dignidade</p>
-  </div>
+          <?php
+          // CASO O TIME DO SUARIO SEJA O VENCEDOR
+          if ($info_p[0]['vencedor'] == $time_usuario) {
+            // SE O USUARIO GANHOU E É O TIME A
+            if ($time_usuario === 'A') {
+          ?>
+              <!-- Dupla Vencedora -->
+              <div class="relative z-10 bg-gradient-to-r from-green-200 via-green-100 to-white border-l-8 border-green-500 rounded-2xl p-6 mb-4 shadow-md">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-lg font-bold text-green-800">🏆 <?= $info_p[0]['nomej1'] ?></p>
+              <p class="text-lg font-bold text-green-800">🏆 <?= $info_p[0]['nomej2'] ?></p>
+            </div>
+            <div class="text-right">
+              <span class="text-5xl font-extrabold text-green-600"><?= $info_p[0]['placar_a'] ?></span>
+              <span class="text-yellow-500 text-2xl align-middle ml-1" title="Medalha de Ouro">🥇</span>
+            </div>
+          </div>
+          <p class="mt-2 text-sm text-green-700 italic">Venceram com estilo!</p>
+              </div>
 
-  <!-- Rodapé decorativo -->
-  <div class="relative z-10 text-center mt-6">
-    <span class="inline-block text-sm text-gray-500 italic">Compartilhe com seus amigos e desafie para a revanche! 🔁</span>
-  </div>
-</div>
+              <!-- Dupla Derrotada -->
+              <div class="relative z-10 bg-gradient-to-r from-red-100 via-white to-gray-100 border-l-8 border-red-400 rounded-2xl p-6 shadow-sm">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-lg font-semibold text-red-800">😓 <?= $info_p[0]['nomej3'] ?></p>
+              <p class="text-lg font-semibold text-red-800">😓 <?= $info_p[0]['nomej4'] ?></p>
+            </div>
+            <div class="text-right">
+              <span class="text-5xl font-extrabold text-gray-400"><?= $info_p[0]['placar_b'] ?></span>
+              <span class="text-gray-400 text-2xl align-middle ml-1" title="Medalha de Prata">🥈</span>
+            </div>
+          </div>
+          <p class="mt-2 text-sm text-red-600 italic">Derrota com dignidade</p>
+              </div>
+            <?php
+              //SE O USUARIO GANHOU E É O TIME B
+            } else {
+            ?>
+              <!-- Dupla Vencedora -->
+              <div class="relative z-10 bg-gradient-to-r from-green-200 via-green-100 to-white border-l-8 border-green-500 rounded-2xl p-6 mb-4 shadow-md">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-lg font-bold text-green-800">🏆 <?= $info_p[0]['nomej3'] ?></p>
+              <p class="text-lg font-bold text-green-800">🏆 <?= $info_p[0]['nomej4'] ?></p>
+            </div>
+            <div class="text-right">
+              <span class="text-5xl font-extrabold text-green-600"><?= $info_p[0]['placar_b'] ?></span>
+              <span class="text-yellow-500 text-2xl align-middle ml-1" title="Medalha de Ouro">🥇</span>
+            </div>
+          </div>
+          <p class="mt-2 text-sm text-green-700 italic">Venceram com estilo!</p>
+              </div>
+
+              <!-- Dupla Derrotada -->
+              <div class="relative z-10 bg-gradient-to-r from-red-100 via-white to-gray-100 border-l-8 border-red-400 rounded-2xl p-6 shadow-sm">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-lg font-semibold text-red-800">😓 <?= $info_p[0]['nomej1'] ?></p>
+              <p class="text-lg font-semibold text-red-800">😓 <?= $info_p[0]['nomej2'] ?></p>
+            </div>
+            <div class="text-right">
+              <span class="text-5xl font-extrabold text-gray-400"><?= $info_p[0]['placar_a'] ?></span>
+              <span class="text-gray-400 text-2xl align-middle ml-1" title="Medalha de Prata">🥈</span>
+            </div>
+          </div>
+          <p class="mt-2 text-sm text-red-600 italic">Derrota com dignidade</p>
+              </div>
+
+            <?php
+            }
+            ?>
+
+            <?php
+            // CASO O TIME DO USUARIO SEJA O PERDEDOR
+          } else {
+            // SE O USUARIO PERDEU E É O TIME A
+            if ($time_usuario === 'A') {
+            ?>
+              <!-- Dupla Vencedora -->
+              <div class="relative z-10 bg-gradient-to-r from-green-200 via-green-100 to-white border-l-8 border-green-500 rounded-2xl p-6 mb-4 shadow-md">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-lg font-bold text-green-800">🏆 <?= $info_p[0]['nomej3'] ?></p>
+              <p class="text-lg font-bold text-green-800">🏆 <?= $info_p[0]['nomej4'] ?></p>
+            </div>
+            <div class="text-right">
+              <span class="text-5xl font-extrabold text-green-600"><?= $info_p[0]['placar_b'] ?></span>
+              <span class="text-yellow-500 text-2xl align-middle ml-1" title="Medalha de Ouro">🥇</span>
+            </div>
+          </div>
+          <p class="mt-2 text-sm text-green-700 italic">Venceram com estilo!</p>
+              </div>
+
+              <!-- Dupla Derrotada -->
+              <div class="relative z-10 bg-gradient-to-r from-red-100 via-white to-gray-100 border-l-8 border-red-400 rounded-2xl p-6 shadow-sm">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-lg font-semibold text-red-800">😓 <?= $info_p[0]['nomej1'] ?></p>
+              <p class="text-lg font-semibold text-red-800">😓 <?= $info_p[0]['nomej2'] ?></p>
+            </div>
+            <div class="text-right">
+              <span class="text-5xl font-extrabold text-gray-400"><?= $info_p[0]['placar_a'] ?></span>
+              <span class="text-gray-400 text-2xl align-middle ml-1" title="Medalha de Prata">🥈</span>
+            </div>
+          </div>
+          <p class="mt-2 text-sm text-red-600 italic">Derrota com dignidade</p>
+              </div>
+            <?php
+              // SE O USUARIO PERDEU E É O TIME B
+            } else {
+            ?>
+              <!-- Dupla Vencedora -->
+              <div class="relative z-10 bg-gradient-to-r from-green-200 via-green-100 to-white border-l-8 border-green-500 rounded-2xl p-6 mb-4 shadow-md">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-lg font-bold text-green-800">🏆 <?= $info_p[0]['nomej1'] ?></p>
+              <p class="text-lg font-bold text-green-800">🏆 <?= $info_p[0]['nomej2'] ?></p>
+            </div>
+            <div class="text-right">
+              <span class="text-5xl font-extrabold text-green-600"><?= $info_p[0]['placar_a'] ?></span>
+              <span class="text-yellow-500 text-2xl align-middle ml-1" title="Medalha de Ouro">🥇</span>
+            </div>
+          </div>
+          <p class="mt-2 text-sm text-green-700 italic">Venceram com estilo!</p>
+              </div>
+
+              <!-- Dupla Derrotada -->
+              <div class="relative z-10 bg-gradient-to-r from-red-100 via-white to-gray-100 border-l-8 border-red-400 rounded-2xl p-6 shadow-sm">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-lg font-semibold text-red-800">😓 <?= $info_p[0]['nomej3'] ?></p>
+              <p class="text-lg font-semibold text-red-800">😓 <?= $info_p[0]['nomej4'] ?></p>
+            </div>
+            <div class="text-right">
+              <span class="text-5xl font-extrabold text-gray-400"><?= $info_p[0]['placar_b'] ?></span>
+              <span class="text-gray-400 text-2xl align-middle ml-1" title="Medalha de Prata">🥈</span>
+            </div>
+          </div>
+          <p class="mt-2 text-sm text-red-600 italic">Derrota com dignidade</p>
+              </div>
+
+          <?php
+            }
+          }
+          ?>
+          <!-- Rodapé decorativo -->
+          <div class="relative z-10 text-center mt-6">
+            <span class="inline-block text-sm text-gray-500 italic">Compartilhe com seus amigos e desafie para a revanche! 🔁</span>
+          </div>
+          <!-- Logo discreta no topo direito -->
+            <div class="flex justify-center">
+            <img src="img/dupla.png" alt="Logo Dupla" class="h-20 w-auto" loading="lazy">
+            </div>
+        </div>
 
         <!-- Status de validação -->
-        <div class="mb-8">
-          <h3 class="font-semibold mb-3 text-gray-700 text-lg">Status de Confirmação</h3>
-          <ul class="grid grid-cols-2 gap-3 text-base">
-            <li class="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg shadow-sm">
-              <span class="text-lg">✔</span> Davi Ballerini confirmou
-            </li>
-            <li class="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg shadow-sm">
-              <span class="text-lg">✔</span> Mateus Buemo confirmou
-            </li>
-            <li class="flex items-center gap-2 bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg shadow-sm">
-              <span class="text-lg">⌛</span> Vinicius Belusso pendente
-            </li>
-            <li class="flex items-center gap-2 bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg shadow-sm">
-              <span class="text-lg">⌛</span> Denzel West pendente
-            </li>
-          </ul>
+        <div class="mb-10">
+            <h3 class="font-semibold mb-6 text-gray-900 text-2xl flex items-center gap-3 justify-center bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 rounded-xl py-3 px-6 shadow-lg border-b-4 border-blue-400 tracking-wide">
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/90 text-white shadow-lg mr-2">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </span>
+            Status de Confirmação dos Jogadores
+            </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <?php foreach($jogadores as $jogador): ?>
+
+            <?php if($jogador['validado'] == true){ ?>
+            <div class="flex items-center gap-3 bg-green-100 border-l-4 border-green-500 px-5 py-4 rounded-xl shadow-sm">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-500 text-white text-xl font-bold shadow">
+                ✔
+              </span>
+              <div>
+                <span class="block font-semibold text-green-800"><?= htmlspecialchars($jogador['nome']) ?></span>
+                <span class="text-xs text-green-700">Confirmado</span>
+              </div>
+            </div>
+            <?php } elseif($jogador['rejeitado'] == true){ ?>
+            <div class="flex items-center gap-3 bg-red-100 border-l-4 border-red-500 px-5 py-4 rounded-xl shadow-sm">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-500 text-white text-xl font-bold shadow">
+                ✖
+              </span>
+              <div>
+                <span class="block font-semibold text-red-800"><?= htmlspecialchars($jogador['nome']) ?></span>
+                <span class="text-xs text-red-700">Rejeitado</span>
+              </div>
+            </div>
+            <?php } else { ?>
+            <div class="flex items-center gap-3 bg-yellow-100 border-l-4 border-yellow-400 px-5 py-4 rounded-xl shadow-sm">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-400 text-white text-xl font-bold shadow">
+                ⌛
+              </span>
+              <div>
+                <span class="block font-semibold text-yellow-800"><?= htmlspecialchars($jogador['nome']) ?></span>
+                <span class="text-xs text-yellow-700">Pendente</span>
+              </div>
+            </div>
+            <?php } ?>
+            <?php endforeach; ?>
+          </div>
         </div>
         <hr>
         <!-- Botões de compartilhamento e início -->
@@ -200,9 +411,9 @@
             Início
           </a>
 
-                      <p class="mb-3 text-center text-gray-600">
-              Não esqueça de tirar um print desta tela e compartilhe o resultado nas suas redes sociais favoritas!
-            </p>
+          <p class="mb-3 text-center text-gray-600">
+            Não esqueça de tirar um print desta tela e compartilhe o resultado nas suas redes sociais favoritas!
+          </p>
         </div>
       </section>
     </main>

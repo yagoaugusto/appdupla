@@ -42,7 +42,7 @@ foreach ($jogadores as $jogador) {
     $mensagem .= "Obrigado por fazer parte da comunidade *DUPLA*!";
 
     $params = array(
-    //    'token' => 'vtts75qh13n0jdc7',
+        'token' => 'vtts75qh13n0jdc7',
         'to' => $telefone,
         'body' => $mensagem
     );
