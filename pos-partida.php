@@ -5,7 +5,7 @@
 
 <?php
 $partida = $_GET['p']; // Obtém o token da partida via GET
-$usuario = $_SESSION['DuplaUserId'];
+$usuario = $_GET['j']; // Obtém o ID do usuário via GET
 
 $info_p = Partida::info_partida($partida);
 if (empty($info_p)) {
@@ -158,6 +158,38 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
           $mensagem = $mensagensDerrota[array_rand($mensagensDerrota)];
         }
         ?>
+
+
+
+        <?php
+        // Busca o jogador correspondente ao usuário
+        $jogador_usuario = null;
+        $coluna_validado = null;
+        foreach ($jogadores as $idx => $jogador) {
+          if ($jogador['id'] == $usuario) {
+            $jogador_usuario = $jogador;
+            // O índice do array +1 corresponde ao número do jogador (1 a 4)
+            $coluna_validado = 'validado_jogador' . ($idx + 1);
+            break;
+          }
+        }
+        ?>
+
+        <?php if ($jogador_usuario && !$jogador_usuario['validado'] && !$jogador_usuario['rejeitado']): ?>
+          <form action="controller-partida/validar-partida.php" method="post" class="flex flex-col items-center mb-4 w-full">
+            <input type="hidden" name="partida" value="<?= htmlspecialchars($partida) ?>">
+            <input type="hidden" name="usuario" value="<?= htmlspecialchars($usuario) ?>">
+            <input type="hidden" name="coluna_validado" value="<?= htmlspecialchars($coluna_validado) ?>">
+            <button type="submit" name="acao" value="validar"
+              class="w-full max-w-xs sm:max-w-sm md:max-w-md bg-gradient-to-r from-green-500 via-green-600 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-extrabold py-2 px-4 rounded-full shadow-lg transition-all duration-150 text-base tracking-wide border-2 border-green-700 outline-none focus:ring-4 focus:ring-green-300 flex items-center justify-center gap-2"
+              style="min-width:0;">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              Clique para validar partida
+            </button>
+          </form>
+        <?php endif; ?>
 
         <div class="flex flex-col items-center mb-6">
           <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-yellow-400 shadow-lg mb-3 bg-white flex items-center justify-center">

@@ -101,6 +101,15 @@ require_once 'system-classes/Funcoes.php' ?>
                         </button>
                     </div>
                 </div>
+
+                <!-- Modal de Loading Divertido -->
+                <div id="modalLoading" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+                    <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center gap-3 max-w-xs text-center">
+                        <div class="animate-spin rounded-full border-4 border-blue-400 border-t-transparent h-12 w-12 mb-2"></div>
+                        <div class="font-bold text-blue-700 text-base" id="loadingMensagem">Validando sua partida...</div>
+                        <div class="text-xs text-gray-500">Aguarde um instante 🏖️</div>
+                    </div>
+                </div>
             </section>
             <footer class="w-full max-w-md text-center mt-2 text-[10px] text-gray-400">
                 Beach Tennis é mais do que um jogo. É sobre evolução, amizade e superação.
@@ -348,6 +357,31 @@ require_once 'system-classes/Funcoes.php' ?>
         const modal = document.getElementById('modalAlerta');
         const modalTitulo = document.getElementById('modalTitulo');
         const modalMensagem = document.getElementById('modalMensagem');
+        const modalLoading = document.getElementById('modalLoading');
+        const loadingMensagem = document.getElementById('loadingMensagem');
+
+        const mensagensLoading = [
+            "Estamos planejando a quadra...",
+            "Fomos buscar a bolinha...",
+            "Estamos tratando a raquete...",
+            "Passando protetor solar...",
+            "Tirando a areia do short...",
+            "Aquecendo os motores...",
+            "Conferindo a rede...",
+            "Trocando a água do cooler...",
+            "Limpando os óculos de sol...",
+            "Ajeitando o chapéu de palha...",
+            "Dando aquela esticada...",
+            "Tirando selfie com a galera...",
+            "Ajeitando a faixa do campeão...",
+            "Tirando foto para o ranking...",
+            "Aplaudindo a torcida...",
+            "Tirando a selfie da vitória...",
+            "Ajeitando o placar eletrônico...",
+            "Tirando a areia da raquete...",
+            "Dando aquela respirada funda...",
+            "Fazendo dancinha da vitória..."
+        ];
 
         function abrirModal(titulo, mensagem) {
             modalTitulo.textContent = titulo;
@@ -357,6 +391,12 @@ require_once 'system-classes/Funcoes.php' ?>
 
         function fecharModal() {
             modal.classList.add('hidden');
+        }
+
+        function mostrarLoadingAleatorio() {
+            const msg = mensagensLoading[Math.floor(Math.random() * mensagensLoading.length)];
+            loadingMensagem.textContent = msg;
+            modalLoading.classList.remove('hidden');
         }
 
         form.addEventListener('submit', function(e) {
@@ -383,8 +423,9 @@ require_once 'system-classes/Funcoes.php' ?>
                 return;
             }
 
-            // Se tudo estiver certo, envie o formulário
-            form.submit();
+            // Mostra loading divertido e envia o formulário
+            mostrarLoadingAleatorio();
+            setTimeout(() => form.submit(), 900); // Pequeno delay para o loading aparecer
         });
     </script>
 

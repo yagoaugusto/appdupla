@@ -39,4 +39,22 @@ class Partida
         $lista = $resultado->fetchAll();
         return $lista;
     }
+
+    public function validar_partida($partida, $coluna_validado)
+    {
+        $query =
+            "UPDATE partidas set {$coluna_validado} = 1 where token_validacao = '{$partida}'";
+        $conexao = Conexao::pegarConexao();
+        $stmt = $conexao->prepare($query);
+        $stmt->execute();
+    }
+
+        public function att_status_partida($partida, $status)
+    {
+        $query =
+            "UPDATE partidas set status = '{$status}' where token_validacao = '{$partida}'";
+        $conexao = Conexao::pegarConexao();
+        $stmt = $conexao->prepare($query);
+        $stmt->execute();
+    }
 }
