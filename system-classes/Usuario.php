@@ -110,7 +110,7 @@ total AS (
     t.total,
   ROUND({$id}0 * (t.total - r.posicao) / (t.total - 1), 2) AS percentual_abaixo
 FROM rankeados r, total t
-WHERE r.id = {$id};";
+WHERE r.id = {$id}";
     $conexao = Conexao::pegarConexao();
     $resultado = $conexao->query($query);
     $lista = $resultado->fetchAll();
@@ -324,7 +324,7 @@ ORDER BY derrotas DESC";
     return $lista;
   }
 
-  public static function variacao_rating($id,$dias)
+  public static function variacao_rating($id, $dias)
   {
     $query =
       "SELECT 
