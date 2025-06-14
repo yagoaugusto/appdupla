@@ -4,6 +4,8 @@
 <?php require_once '_head.php'; ?>
 
 <?php
+unset($_SESSION['DuplaUserId']);
+
 $partida = $_GET['p']; // Obtém o token da partida via GET
 $usuario = $_GET['j']; // Obtém o ID do usuário via GET
 
@@ -65,17 +67,9 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
 
 <body class="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 min-h-screen text-gray-800">
 
-  <?php require_once '_nav_superior.php'; ?>
 
   <div class="flex pt-16">
 
-    <?php
-    if (isset($_SESSION['DuplaUserId'])) {
-      require_once '_nav_lateral.php';
-    } else {
-    }
-    ?>
-    <?php require_once '_nav_lateral.php'; ?>
 
     <main class="flex-1 flex flex-col min-h-screen p-6">
       <section id="resultadoPartida" class="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 max-w-3xl mx-auto border border-gray-200">
@@ -437,13 +431,15 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
               <?php endif; ?>
             </p>
           </div>
-          <a href="principal.php"
-            class="w-full max-w-xs inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all duration-200 text-base">
+
+          <a href="index.php"
+            class="w-full max-w-xs inline-flex items-center justify-center gap-2 bg-white border-2 border-blue-600 text-blue-700 font-bold px-6 py-3 rounded-full shadow-md hover:bg-blue-600 hover:text-white transition-all duration-200 text-base">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10a1 1 0 0 0 1 1h3m10-11v10a1 1 0 0 1-1 1h-3" />
             </svg>
-            Início
+            Login
           </a>
+
           <p class="text-center text-xs text-gray-600 mt-2">
             Tire um print desta tela e compartilhe o resultado nas suas redes sociais!
           </p>

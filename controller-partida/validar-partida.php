@@ -97,4 +97,4 @@ if ($validacoes > 2) {
     $partida->execute([$j1['id'], $j2['id'], $j3['id'], $j4['id'], $vencedor]);
 }
 
-header('Location: ../pos-partida.php?p=' . $partida_tk . '&j=' . $jogador);
+header('Location: ../v.php?p=' . $partida_tk . '&j=' . $jogador);
