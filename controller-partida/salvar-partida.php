@@ -37,7 +37,7 @@ foreach ($jogadores as $jogador) {
     $mensagem .= "Uma nova partida foi registrada no *DUPLA* com você como participante.\n\n";
     $mensagem .= "Por favor, valide o resultado clicando no link abaixo:\n";
     $mensagem .= "🔗 *[VALIDAR PARTIDA]*\n";
-    $mensagem .= "https://dupla.app/pos-partida.php?p={$token}?j={$jogador_id}\n\n";
+    $mensagem .= "https://dupla.app/v/{$token}?j={$jogador_id}\n\n";
     $mensagem .= "💡 _A validação é importante para manter o ranking justo e atualizado._\n";
     $mensagem .= "Obrigado por fazer parte da comunidade *DUPLA*!";
 
