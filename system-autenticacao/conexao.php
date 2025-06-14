@@ -1,12 +1,12 @@
 <?php
 
 $servidor = "localhost";
-//$usuario = "root";
-//$senha = "";
-//$dbname = "rating_beachtennis";
-$usuario = "u580429014_app";
-$senha = "Caninde.123";
-$dbname = "u580429014_app";
+$usuario = "root";
+$senha = "";
+$dbname = "rating_beachtennis";
+//$usuario = "u580429014_app";
+//$senha = "Caninde.123";
+//$dbname = "u580429014_app";
 //Criar a conexao
 $conn = mysqli_connect($servidor, $usuario, $senha, $dbname);
 
