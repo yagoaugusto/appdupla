@@ -41,6 +41,7 @@ foreach ($jogadores as $jogador) {
     $mensagem .= "💡 _A validação é importante para manter o ranking justo e atualizado._\n";
     $mensagem .= "Obrigado por fazer parte da comunidade *DUPLA*!";
 
+    
     $params = array(
         'token' => 'vtts75qh13n0jdc7',
         'to' => $telefone,
