@@ -193,9 +193,13 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
           <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-yellow-400 shadow-lg mb-3 bg-white flex items-center justify-center">
             <img src="<?= $imagemPerfil ?>" alt="Foto de perfil">
           </div>
-          <h2 class="text-3xl font-extrabold mb-2 text-gray-800 text-center">
-            <?php echo htmlspecialchars($mensagem); ?>
-          </h2>
+          <div class="w-full flex flex-col items-center">
+            <div class="bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 rounded-xl px-4 py-2 shadow-md border border-blue-200 max-w-xs">
+              <p class="text-base sm:text-sm font-semibold text-gray-700 text-center leading-snug tracking-tight">
+                <?= htmlspecialchars($mensagem); ?>
+              </p>
+            </div>
+          </div>
         </div>
 
         <!-- Resultado da partida -->
@@ -437,10 +441,10 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
             </p>
           </div>
 
-            <a href="hist-partidas.php"
+          <a href="hist-partidas.php"
             class="w-full max-w-xs inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all duration-200 text-base">
             Minhas Partidas
-            </a>
+          </a>
 
           <p class="text-center text-xs text-gray-600 mt-2">
             Tire um print desta tela e compartilhe o resultado nas suas redes sociais!
