@@ -183,6 +183,7 @@ foreach ($hist_rating as $registro) {
           </div>
         </div>
 
+        
         <?php if (empty($parceiro_vitoria)) { ?>
 
 <!-- Quadro de Honra (ou nem tanto) - Versão Futurista -->
@@ -197,7 +198,7 @@ foreach ($hist_rating as $registro) {
                 <div class="text-2xl font-bold absolute top-1 right-2">🦆</div>
                 <div class="text-xs font-bold mb-1">MEU PATO</div>
                 <div class="text-xs">🟡 Vitórias contra:</div>
-                <div class="text-sm font-semibold truncate">???></div>
+                <div class="text-sm font-semibold truncate">???</div>
                 <div class="text-xs mt-1">🔁 <b>???</b> · ✅ <b>??? Vitórias</b></div>
               </div>
               <!-- Meu Carrasco -->
