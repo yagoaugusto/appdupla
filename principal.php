@@ -2,13 +2,13 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <?php require_once '_head.php';
-$usuario = Usuario::posicao_usuario($_SESSION['DuplaUserId'] ?? null);
 
-
-$usuario_id = $_SESSION['DuplaUserId'] ?? null;
+$usuario_id = $_SESSION['DuplaUserId'];
+$usuario = Usuario::posicao_usuario($usuario_id);
 
 $partidas_usuario = Usuario::partidas_usuario($usuario_id);
 $variacao_rating = Usuario::variacao_rating($usuario_id, 10);
+$qtd_partida_pendente = Partida::qtd_partida_pendente($usuario_id);
 
 $ranking_superior = Usuario::ranking_superior_tela_principal($usuario_id, 2);
 $ranking_superior = array_reverse($ranking_superior);
@@ -93,7 +93,7 @@ foreach ($hist_rating as $registro) {
             class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow transition flex items-center gap-2 justify-center">
             Validar Partidas
             <span class="ml-2 bg-white text-blue-700 font-bold px-2 py-0.5 rounded-full text-xs">
-              0
+              <?= $qtd_partida_pendente[0]['quantidade'] ?>
             </span>
           </a>
         </div>

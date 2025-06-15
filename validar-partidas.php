@@ -4,7 +4,7 @@
 <?php require_once '_head.php'; ?>
 <?php
 $jogador = $_SESSION['DuplaUserId'];
-$partidas = Partida::partidas_jogador($jogador);
+$partidas = Partida::partidas_pendente_jogador($jogador);
 ?>
 
 <body class="bg-gray-100 min-h-screen text-gray-800">
@@ -18,7 +18,7 @@ $partidas = Partida::partidas_jogador($jogador);
                 <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Histórico de Partidas
+                Partidas aguardando validação
             </h1>
 
             <div class="space-y-4">
@@ -35,37 +35,11 @@ $partidas = Partida::partidas_jogador($jogador);
                     $classe_resultado_adv = !$venceu ? 'green' : 'red';
                     $data = date('d M Y', strtotime($p['data']));
                     $cor_resultado = $venceu ? '#DFF2BF' : '#FFBABA';
-                    $status = $p['status'];
                     ?>
                     <div class="relative bg-white rounded-xl shadow p-3 border border-gray-100 flex flex-col items-center" style="background-color:<?= $cor_resultado ?>;">
-                        <!-- Botão de Visualizar Detalhes -->
-                        <a href="pos-partida.php?j=<?= urlencode($jogador) ?>&p=<?= urlencode($p['token_validacao']) ?>"
-                            class="absolute -top-2 left-4 z-20 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-lg transition-all duration-200 flex items-center gap-2 border-2 border-white focus:outline-none focus:ring-2 focus:ring-blue-300"
-                            title="Ver detalhes da partida"
-                            style="transform: translateY(0);">
-                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 0c0 5-9 9-9 9s-9-4-9-9a9 9 0 0118 0z" />
-                             </svg>
-                             <span class="font-semibold text-sm">Ver partida</span>
-                        </a>
                         <!-- Tarja de Resultado Centralizada -->
                         <div class="absolute left-1/2 -top-3 -translate-x-1/2 px-4 py-1 rounded-full bg-<?= $classe_resultado ?>-600 text-white text-xs font-bold shadow z-10 border-2 border-white flex items-center gap-1">
                             <?= $venceu ? 'Vitória' : 'Derrota' ?>
-                        </div>
-                        <!-- Tarja de Status da Partida -->
-                        <?php
-                            // Supondo que $p['status'] contenha o status da partida
-                            $status = $p['status'];
-                            if ($status === 'pendente') {
-                                $status_label = '⏳';
-                                $status_color = 'yellow';
-                            } else {
-                                $status_label = '✅';
-                                $status_color = 'blue';
-                            }
-                        ?>
-                        <div class="absolute right-4 top-4 px-3 py-1 rounded-full bg-<?= $status_color ?>-100 text-<?= $status_color ?>-700 text-xs font-semibold shadow border border-<?= $status_color ?>-200 flex items-center gap-1">
-                            <?= $status_label ?>
                         </div>
                         <!-- Times e Placar -->
                         <div class="flex items-center gap-4 w-full justify-center mt-4">
@@ -92,7 +66,29 @@ $partidas = Partida::partidas_jogador($jogador);
                             <span class="mx-1">•</span>
                             <span class="font-semibold text-gray-500">#<?= $p['id'] ?></span>
                         </div>
+                        <!-- Botão VALIDAR -->
+                        <form method="GET" action="v2.php" class="mt-3 w-full flex justify-center">
+                            <input type="hidden" name="p" value="<?= $p['token_validacao'] ?>">
+                            <input type="hidden" name="j" value="<?= $jogador ?>">
+                            <button type="submit" 
+                                class="bg-white text-black font-bold py-1.5 px-6 rounded-full shadow transition-colors text-sm border-2 border-green-400 animate-neon-green"
+                                style="border-color: #39FF14;">
+                                VALIDAR
+                            </button>
+                        </form>
                     </div>
+                    <!-- Neon Green Animation (less intense) -->
+                    <style>
+                    @keyframes neonGreenBlink {
+                        0%, 100% { box-shadow: 0 0 2px #39FF14, 0 0 4px #39FF14; border-color: #39FF14; }
+                        50% { box-shadow: 0 0 4px #39FF14, 0 0 8px #39FF14; border-color: #39FF14; }
+                    }
+                    .animate-neon-green {
+                        animation: neonGreenBlink 1s infinite alternate;
+                        border-color: #39FF14 !important;
+                        box-shadow: 0 0 2px #39FF14, 0 0 4px #39FF14;
+                    }
+                    </style>
                 <?php endforeach; ?>
                 <br><br>
 
