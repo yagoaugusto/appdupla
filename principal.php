@@ -278,7 +278,7 @@ foreach ($hist_rating as $registro) {
                 <div class="text-xs font-bold mb-1">SÓ ATRAPALHA</div>
                 <div class="text-xs">⚫ Com:</div>
                 <div class="text-sm font-semibold truncate"><?= $parceiro_derrota[0]['parceiro_nome'] ?></div>
-                <div class="text-xs mt-1">🤷 <b><?= $parceiro_derrota[0]['partidas'] ?></b> · ❌ <b><?= $parceiro_vitoria[0]['derrotas'] ?> Derrotas</b></div>
+                <div class="text-xs mt-1">🤷 <b><?= $parceiro_derrota[0]['partidas'] ?></b> · ❌ <b><?= $parceiro_derrota[0]['derrotas'] ?> Derrotas</b></div>
               </div>
             </div>
             <div class="mt-4 text-center">
