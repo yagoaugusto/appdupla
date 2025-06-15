@@ -68,9 +68,7 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
 
 <body class="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 min-h-screen text-gray-800">
 
-
-  <div class="flex pt-16">
-
+  <div class="flex">
 
     <main class="flex-1 flex flex-col min-h-screen p-6">
       <section id="resultadoPartida" class="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 max-w-3xl mx-auto border border-gray-200">
