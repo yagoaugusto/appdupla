@@ -185,56 +185,49 @@ foreach ($hist_rating as $registro) {
 
         <?php if (empty($parceiro_vitoria)) { ?>
 
-          <!-- Quadro de Honra (ou nem tanto) - Versão Futurista -->
-          <div class="bg-[#0f172a] rounded-3xl border border-blue-600 p-8 shadow-xl mb-12">
-            <h3 class="text-3xl font-black mb-10 text-blue-300 tracking-wide flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-3 uppercase">
+<!-- Quadro de Honra (ou nem tanto) - Versão Futurista -->
+          <div class="bg-[#0f172a] rounded-2xl border border-blue-600 p-4 shadow-lg mb-6">
+            <h3 class="text-lg font-black mb-4 text-blue-300 tracking-wide flex items-center gap-2 uppercase">
               🏅 Quadro de Honra
-              <span class="text-sm font-medium lowercase sm:ml-2 mt-1 sm:mt-0"> (ou nem tanto)</span>
+              <span class="text-xs font-medium lowercase">(ou nem tanto) | Você ainda não tem nenhuma partida para exibir.</span>
             </h3>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
+            <div class="grid grid-cols-2 gap-2">
               <!-- Meu Pato -->
-              <div class="bg-gradient-to-tr from-yellow-400 via-yellow-300 to-yellow-500 text-gray-900 rounded-2xl p-5 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 relative">
-                <div class="text-5xl font-bold absolute -top-5 -right-5 rotate-6 drop-shadow-md">🦆</div>
-                <h4 class="text-xl font-extrabold mb-2">MEU PATO</h4>
-                <p class="text-sm font-medium">🟡 Vitórias esmagadoras contra:</p>
-                <p class="text-lg font-semibold mt-1"> ???? </p>
-                <p class="text-sm mt-2">🔁 <strong> ?? jogos</strong> · ✅ <strong>?? vitórias</strong></p>
+              <div class="bg-yellow-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
+                <div class="text-2xl font-bold absolute top-1 right-2">🦆</div>
+                <div class="text-xs font-bold mb-1">MEU PATO</div>
+                <div class="text-xs">🟡 Vitórias contra:</div>
+                <div class="text-sm font-semibold truncate">???></div>
+                <div class="text-xs mt-1">🔁 <b>???</b> · ✅ <b>??? Vitórias</b></div>
               </div>
-
               <!-- Meu Carrasco -->
-              <div class="bg-gradient-to-tr from-red-600 via-red-500 to-pink-500 text-white rounded-2xl p-5 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 relative">
-                <div class="text-5xl font-bold absolute -top-5 -right-5 rotate-6 opacity-90 drop-shadow">💀</div>
-                <h4 class="text-xl font-extrabold mb-2">MEU CARRASCO</h4>
-                <p class="text-sm font-medium">🔴 Derrotas doloridas para:</p>
-                <p class="text-lg font-semibold mt-1">????</p>
-                <p class="text-sm mt-2">🔁 <strong>?? jogos</strong> · ❌ <strong>?? derrotas</strong></p>
+              <div class="bg-red-500 text-white rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
+                <div class="text-2xl font-bold absolute top-1 right-2">💀</div>
+                <div class="text-xs font-bold mb-1">MEU CARRASCO</div>
+                <div class="text-xs">🔴 Derrotas para:</div>
+                <div class="text-sm font-semibold truncate">???</div>
+                <div class="text-xs mt-1">🔁 <b>???</b> · ❌ <b>??? Derrotas</b></div>
               </div>
-
               <!-- Dupla Forte -->
-              <div class="bg-gradient-to-tr from-emerald-500 via-lime-400 to-green-400 text-gray-900 rounded-2xl p-5 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 relative">
-                <div class="text-5xl font-bold absolute -top-5 -right-5 rotate-6 drop-shadow-lg">🤝</div>
-                <h4 class="text-xl font-extrabold mb-2">DUPLA FORTE</h4>
-                <p class="text-sm font-medium">🟢 Vitória em sintonia com:</p>
-                <p class="text-lg font-semibold mt-1">????</p>
-                <p class="text-sm mt-2">🤝 <strong>?? jogos</strong> · ✅ <strong>?? vitórias</strong></p>
+              <div class="bg-lime-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
+                <div class="text-2xl font-bold absolute top-1 right-2">🤝</div>
+                <div class="text-xs font-bold mb-1">DUPLA FORTE</div>
+                <div class="text-xs">🟢 Com:</div>
+                <div class="text-sm font-semibold truncate">???</div>
+                <div class="text-xs mt-1">🤝 <b>???</b> · ✅ <b>??? Vitórias</b></div>
               </div>
-
               <!-- Só Atrapalha -->
-              <div class="bg-gradient-to-tr from-slate-500 via-slate-400 to-gray-300 text-gray-900 rounded-2xl p-5 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 relative">
-                <div class="text-5xl font-bold absolute -top-5 -right-5 rotate-6 drop-shadow-md opacity-80">🐢</div>
-                <h4 class="text-xl font-extrabold mb-2">SÓ ATRAPALHA</h4>
-                <p class="text-sm font-medium">⚫ Parceria que não rolou com:</p>
-                <p class="text-lg font-semibold mt-1">????</p>
-                <p class="text-sm mt-2">🤷 <strong>?? jogos</strong> · ❌ <strong>?? derrotas</strong></p>
+              <div class="bg-slate-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
+                <div class="text-2xl font-bold absolute top-1 right-2">🐢</div>
+                <div class="text-xs font-bold mb-1">SÓ ATRAPALHA</div>
+                <div class="text-xs">⚫ Com:</div>
+                <div class="text-sm font-semibold truncate">???</div>
+                <div class="text-xs mt-1">🤷 <b>???</b> · ❌ <b>??? Derrotas</b></div>
               </div>
-
             </div>
-
-            <div class="mt-10 text-center">
-              <a href="ranking.php" class="inline-block bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-600 text-white font-bold px-8 py-3 rounded-full shadow-xl tracking-wider uppercase transition">
-                Ver outras conquistas &rarr;
+            <div class="mt-4 text-center">
+              <a href="#" class="inline-block bg-blue-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-full shadow text-xs uppercase transition">
+                Ver conquistas &rarr;
               </a>
             </div>
           </div>
