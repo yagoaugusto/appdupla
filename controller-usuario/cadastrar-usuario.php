@@ -24,7 +24,7 @@ $mensagem = "Olá, $nome! 👋\n\n" .
             "Seja bem-vindo ao DUPLA, o sistema de ranking de Beach Tennis mais divertido do Brasil! 🎾🔥\n" .
             "Seu cadastro foi realizado com sucesso. Aqui está sua senha de acesso:\n\n" .
             "🔐 Senha: $senha\n\n" .
-            "Acesse o sistema e comece a jogar, pontuar e desbloquear conquistas!\n\n" .
+            "Acesse o sistema em https://beta.appdupla.com e comece a jogar, pontuar e desbloquear conquistas!\n\n" .
             "Deu game? Dá Ranking! 🏆\n— Equipe DUPLA";
 
 $params=array(

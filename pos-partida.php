@@ -6,6 +6,7 @@
 <?php
 $partida = $_GET['p']; // Obtém o token da partida via GET
 $usuario = $_GET['j']; // Obtém o ID do usuário via GET
+$parceiro = Parceiros::parceiro_aleatorio();
 
 $info_p = Partida::info_partida($partida);
 if (empty($info_p)) {
@@ -370,8 +371,16 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
             <span class="inline-block text-xs text-gray-500 italic">Compartilhe com seus amigos e desafie para a revanche! 🔁</span>
           </div>
           <!-- Logo discreta no topo direito -->
-          <div class="flex justify-center mt-2">
-            <img src="img/dupla.png" alt="Logo Dupla" class="h-12 w-auto" loading="lazy">
+          <div class="flex justify-center items-center gap-6 mt-2">
+            <div class="flex flex-col items-center">
+              <img src="img/dupla.png" alt="Logo Dupla" class="h-16 w-auto" loading="lazy">
+            </div>
+            <div class="flex flex-col items-center">
+              <img src="img/<?= $parceiro[0]['imagem'] ?>" alt="Logo Dupla" class="h-16 w-auto rounded-full border-2 border-gray-300" loading="lazy">
+            </div>
+            <div class="flex flex-col items-center">
+              <img src="img/<?= $parceiro[1]['imagem'] ?>" alt="Logo Dupla" class="h-16 w-auto rounded-full border-2 border-gray-300" loading="lazy">
+            </div>
           </div>
         </div>
 

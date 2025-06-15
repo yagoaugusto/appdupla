@@ -93,8 +93,8 @@ if ($validacoes > 2) {
     $update->execute([$players[3]->getRating(), $players[3]->getRd(), $players[3]->getVolatility(), $j4['id']]);
 
     // Salva a partida na tabela partidas
-    $partida = $conn->prepare("INSERT INTO partidas (jogador1_id, jogador2_id, jogador3_id, jogador4_id, vencedor) VALUES (?, ?, ?, ?, ?)");
-    $partida->execute([$j1['id'], $j2['id'], $j3['id'], $j4['id'], $vencedor]);
+    // $partida = $conn->prepare("INSERT INTO partidas (jogador1_id, jogador2_id, jogador3_id, jogador4_id, vencedor) VALUES (?, ?, ?, ?, ?)");
+    // $partida->execute([$j1['id'], $j2['id'], $j3['id'], $j4['id'], $vencedor]);
 }
 
 header('Location: ../v.php?p=' . $partida_tk . '&j=' . $jogador);

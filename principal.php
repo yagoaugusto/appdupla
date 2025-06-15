@@ -176,7 +176,7 @@ foreach ($hist_rating as $registro) {
                 <?php $p_inf = $p_inf + 1; endforeach; ?>
             </ul>
             <div class="mt-2 text-center">
-              <a href="ranking.php" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold px-2 py-1 rounded-full shadow transition-colors text-xs">
+              <a href="ranking-geral.php" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold px-2 py-1 rounded-full shadow transition-colors text-xs">
                 Ver ranking completo &rarr;
               </a>
             </div>
