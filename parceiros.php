@@ -41,6 +41,7 @@
       </div>
       <?php endforeach; ?>
       <!-- Repita o bloco acima para outros parceiros -->
+       <br><br><br>
     </div>
   </main>
 </div>

@@ -282,7 +282,7 @@ foreach ($hist_rating as $registro) {
               </div>
             </div>
             <div class="mt-4 text-center">
-              <a href="ranking.php" class="inline-block bg-blue-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-full shadow text-xs uppercase transition">
+              <a href="#" class="inline-block bg-blue-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-full shadow text-xs uppercase transition">
                 Ver conquistas &rarr;
               </a>
             </div>
