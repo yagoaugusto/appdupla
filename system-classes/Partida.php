@@ -72,7 +72,7 @@ class Partida
                 join usuario j2 on j2.id=jogador2_id
                 join usuario j3 on j3.id=jogador3_id
                 join usuario j4 on j4.id=jogador4_id
-                WHERE 2 IN (jogador1_id, jogador2_id, jogador3_id, jogador4_id)
+                WHERE '{$jogador}' IN (jogador1_id, jogador2_id, jogador3_id, jogador4_id)
                 ORDER BY data DESC";
         $conexao = Conexao::pegarConexao();
         $resultado = $conexao->query($query);
