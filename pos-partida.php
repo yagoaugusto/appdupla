@@ -368,13 +368,13 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
           ?>
           <!-- Rodapé decorativo -->
           <div class="relative z-10 text-center mt-3">
-            <span class="inline-block text-xs text-gray-500 italic">Compartilhe com seus amigos e desafie para a revanche! 🔁</span>
+            <span class="inline-block text-xs text-gray-500 italic">Compartilhe com seus amigos e desafie para a revanche! 🔁 @app.dupla</span>
           </div>
           <!-- Logo discreta no topo direito -->
           <div class="flex justify-center items-center gap-6 mt-2">
-            <div class="flex flex-col items-center">
+            <!-- <div class="flex flex-col items-center">
               <img src="img/dupla.png" alt="Logo Dupla" class="h-16 w-auto max-h-16 aspect-square object-contain" loading="lazy" style="max-width:4rem;">
-            </div>
+            </div> -->
             <div class="flex flex-col items-center">
               <img src="img/<?= $parceiro[0]['imagem'] ?>" alt="Logo Dupla" class="h-16 w-auto max-h-16 aspect-square object-contain rounded-full border-2 border-gray-300" loading="lazy" style="max-width:4rem;">
             </div>
