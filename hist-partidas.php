@@ -1,6 +1,11 @@
+<?php require_once '#_global.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <?php require_once '_head.php'; ?>
+<?php
+$jogador = $_SESSION['DuplaUserId'];
+$partidas = Partida::partidas_jogador($jogador);
+?>
 
 <body class="bg-gray-100 min-h-screen text-gray-800">
 
@@ -19,80 +24,51 @@
             <div class="space-y-4">
 
                 <!-- Partida 1 -->
-                <!-- Partida 1 -->
-                <div class="bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex flex-col gap-2 border border-gray-100 hover:shadow-xl transition-shadow duration-200 relative">
-                    <!-- Tarja de Resultado -->
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-green-500 text-white text-xs font-bold shadow-md z-10 flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M5 13l4 4L19 7" />
-                        </svg>
-                        Vitória
-                    </div>
-                    <div class="flex justify-between items-center text-xs text-gray-400 mb-1 mt-3">
-                        <span class="flex items-center gap-1">
-                            <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M8 7V3M16 7V3M4 11h16M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            12 Jun 2025
-                        </span>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-700">Yago</span>
-                            <span class="text-base font-bold text-green-700 bg-green-50 rounded px-2 py-0.5">6</span>
+                <?php foreach ($partidas as $p): ?>
+                    <?php
+                    $time_a = [$p['jogador1_id'], $p['jogador2_id']];
+                    $time_b = [$p['jogador3_id'], $p['jogador4_id']];
+                    $time_usuario = in_array($jogador, $time_a) ? 'A' : 'B';
+                    $vencedor = $p['vencedor'];
+                    $venceu = ($time_usuario == $vencedor);
+                    $classe_resultado = $venceu ? 'green' : 'red';
+                    $classe_resultado_adv = !$venceu ? 'green' : 'red';
+                    $data = date('d M Y', strtotime($p['data']));
+                    $cor_resultado = $venceu ? '#DFF2BF' : '#FFBABA';
+                    ?>
+                    <div class="relative bg-white rounded-xl shadow p-3 border border-gray-100 flex flex-col items-center" style="background-color:<?= $cor_resultado ?>;">
+                        <!-- Tarja de Resultado Centralizada -->
+                        <div class="absolute left-1/2 -top-3 -translate-x-1/2 px-4 py-1 rounded-full bg-<?= $classe_resultado ?>-600 text-white text-xs font-bold shadow z-10 border-2 border-white flex items-center gap-1">
+                            <?= $venceu ? 'Vitória' : 'Derrota' ?>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-700">Yago</span>
+                        <!-- Times e Placar -->
+                        <div class="flex items-center gap-4 w-full justify-center mt-4">
+                            <!-- Time A -->
+                            <div class="flex flex-col items-end flex-1">
+                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej1'] ?></span>
+                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej2'] ?></span>
+                            </div>
+                            <span class="text-base font-bold text-<?= ($time_usuario == 'A' ? $classe_resultado : $classe_resultado_adv) ?>-700 bg-<?= ($time_usuario == 'A' ? $classe_resultado : $classe_resultado_adv) ?>-100 rounded px-2 py-1 shadow"><?= $p['placar_a'] ?></span>
+                            <!-- VS Circle -->
+                            <span class="mx-2 flex items-center justify-center rounded-full bg-gray-200 text-gray-700 font-bold text-sm w-8 h-8 shadow-inner border border-gray-300">
+                                VS
+                            </span>
+                            <span class="text-base font-bold text-<?= ($time_usuario == 'B' ? $classe_resultado : $classe_resultado_adv) ?>-700 bg-<?= ($time_usuario == 'B' ? $classe_resultado : $classe_resultado_adv) ?>-100 rounded px-2 py-1 shadow"><?= $p['placar_b'] ?></span>
+                            <!-- Time B -->
+                            <div class="flex flex-col items-start flex-1">
+                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej3'] ?></span>
+                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej4'] ?></span>
+                            </div>
                         </div>
-                        <hr class="my-1 border-gray-200">
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-700">Bruno</span>
-                            <span class="text-base font-bold text-red-500 bg-red-50 rounded px-2 py-0.5">3</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-700">Bruno</span>
-                            <span></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Partida 2 -->
-                <div class="bg-white rounded-2xl shadow-lg p-3 sm:p-4 flex flex-col gap-2 border border-gray-100 hover:shadow-xl transition-shadow duration-200 relative">
-                    <!-- Tarja de Resultado -->
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-red-500 text-white text-xs font-bold shadow-md z-10 flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Derrota
-                    </div>
-                    <div class="flex justify-between items-center text-xs text-gray-400 mb-1 mt-3">
-                        <span class="flex items-center gap-1">
-                            <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M8 7V3M16 7V3M4 11h16M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            11 Jun 2025
-                        </span>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-700">Yago</span>
-                            <span class="text-base font-bold text-red-500 bg-red-50 rounded px-2 py-0.5">4</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-700">Yago</span>
-                            <span></span>
-                        </div>
-                        <hr class="my-1 border-gray-200">
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-700">Carlos</span>
-                            <span class="text-base font-bold text-green-700 bg-green-50 rounded px-2 py-0.5">6</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-gray-700">Carlos</span>
-                            <span></span>
+                        <!-- Data e ID Centralizados e Discretos -->
+                        <div class="mt-2 text-xs text-gray-400 text-center w-full">
+                            <span><?= $data ?></span>
+                            <span class="mx-1">•</span>
+                            <span class="font-semibold text-gray-500">#<?= $p['id'] ?></span>
                         </div>
                     </div>
-                </div>
+                <?php endforeach; ?>
+                <br><br>
 
             </div>
         </main>

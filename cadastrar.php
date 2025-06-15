@@ -134,7 +134,7 @@
 
       $('#cidade').on('input', function() {
         const termo = $(this).val();
-        if (termo.length >= 3) {
+        if (termo.length >= 5) {
           fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios`)
             .then(res => res.json())
             .then(data => {
