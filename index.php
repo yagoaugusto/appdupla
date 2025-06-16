@@ -1,3 +1,31 @@
+<?php 
+session_start();
+if (isset($_SESSION['DuplaUserId'])) {
+  header("Location: principal.php");
+  exit;
+}
+
+if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
+	include_once("system-autenticacao/conexao.php");
+	$token = $_COOKIE['DuplaLoginToken'];
+
+	$query = "SELECT * FROM usuario WHERE token_login = '{$token}' LIMIT 1";
+	$resultado = mysqli_query($conn, $query);
+	$usuario = mysqli_fetch_assoc($resultado);
+
+	if ($usuario) {
+		$_SESSION['DuplaUserId'] = $usuario['id'];
+		$_SESSION['DuplaUserNome'] = $usuario['nome'];
+		$_SESSION['DuplaUserTelefone'] = $usuario['telefone'];
+		$_SESSION['DuplaUserSenha'] = $usuario['senha'];
+		$_SESSION['DuplaUserCidade'] = $usuario['cidade'];
+		$_SESSION['DuplaUserEmpunhadura'] = $usuario['empunhadura'];
+	}
+  header("Location: principal.php");
+  exit;
+}
+
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -90,6 +118,12 @@
     <form action="system-autenticacao/valida.php" method="post">
       <input type="tel" name="telefone" placeholder="Telefone" required>
       <input type="password" name="senha" placeholder="Senha" required>
+      <div style="text-align:left; margin: 10px 0;">
+      <label style="display: flex; align-items: center; font-size: 15px; color: #555; cursor: pointer;">
+        <input type="checkbox" name="manter_logado" value="1" style="accent-color: #10ac84; width: 18px; height: 18px; margin-right: 8px;">
+        Manter logado
+      </label>
+      </div><br>
       <button type="submit">Entrar</button>
     </form>
     <div class="link-cadastro">

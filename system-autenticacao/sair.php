@@ -1,16 +1,16 @@
 <?php
 session_start();
-unset(
-$_SESSION['DuplaLogin'],
-$_SESSION['DuplaUserId'],
-$_SESSION['DuplaUserNome'],
-$_SESSION['DuplaUserSenha'],
-$_SESSION['DuplaUserTelefone'],
-$_SESSION['DuplaUserCidade'],
-$_SESSION['DuplaUserEmpunhadura'],
-);
+include_once("conexao.php");
 
+if (isset($_SESSION['DuplaUserId'])) {
+	$id = $_SESSION['DuplaUserId'];
+	mysqli_query($conn, "UPDATE usuario SET token_login = NULL WHERE id = {$id}");
+}
+
+// Expira o cookie
+setcookie('DuplaLoginToken', '', time() - 3600, "/");
+
+// Destroi a sessão
 session_destroy();
-?>
-<script>location.href='../index.php';</script> 
-<?php exit('Redirecionando...'); ?>
+header("Location: ../index.php");
+exit();
