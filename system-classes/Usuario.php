@@ -72,7 +72,7 @@ WHERE
   {
     $query =
       "SELECT id,apelido,nome,rating FROM usuario WHERE 
-    rating>(SELECT rating FROM usuario WHERE id={$id}) and usuario.id <> {$id} ORDER BY rating ASC LIMIT {$qtd}";
+    rating>(SELECT rating FROM usuario WHERE id={$id}) ORDER BY rating ASC LIMIT {$qtd}";
     $conexao = Conexao::pegarConexao();
     $resultado = $conexao->query($query);
     $lista = $resultado->fetchAll();
@@ -83,7 +83,7 @@ WHERE
   {
     $query =
       "SELECT id,apelido,nome,rating FROM usuario WHERE 
-    rating<=(SELECT rating FROM usuario WHERE id={$id}) ORDER BY rating DESC LIMIT {$qtd}";
+    rating<=(SELECT rating FROM usuario WHERE id={$id}) and usuario.id <> {$id} ORDER BY rating DESC LIMIT {$qtd}";
     $conexao = Conexao::pegarConexao();
     $resultado = $conexao->query($query);
     $lista = $resultado->fetchAll();
