@@ -47,7 +47,19 @@ $partidas = Partida::partidas_jogador($jogador);
                             <!-- Time A -->
                             <div class="flex flex-col items-end flex-1">
                                 <span class="font-semibold text-gray-800 truncate"><?= $p['nomej1'] ?></span>
-                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej2'] ?></span>
+                                <?php if ($p['status'] === 'validada'): ?>
+                                    <div class="flex gap-1 mt-0.5">
+                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['anterior_h1'],1) ?></span>
+                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h1'],1) ?></span>
+                                    </div>
+                                <?php endif; ?>
+                                <span class="font-semibold text-gray-800 truncate mt-2"><?= $p['nomej2'] ?></span>
+                                <?php if ($p['status'] === 'validada'): ?>
+                                    <div class="flex gap-1 mt-0.5">
+                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['anterior_h2'],1) ?></span>
+                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h2'],1) ?></span>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <span class="text-base font-bold text-<?= ($time_usuario == 'A' ? $classe_resultado : $classe_resultado_adv) ?>-700 bg-<?= ($time_usuario == 'A' ? $classe_resultado : $classe_resultado_adv) ?>-100 rounded px-2 py-1 shadow"><?= $p['placar_a'] ?></span>
                             <!-- VS Circle -->
@@ -58,7 +70,19 @@ $partidas = Partida::partidas_jogador($jogador);
                             <!-- Time B -->
                             <div class="flex flex-col items-start flex-1">
                                 <span class="font-semibold text-gray-800 truncate"><?= $p['nomej3'] ?></span>
-                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej4'] ?></span>
+                                <?php if ($p['status'] === 'validada'): ?>
+                                    <div class="flex gap-1 mt-0.5">
+                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['anterior_h3'],1) ?></span>
+                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h3'],1) ?></span>
+                                    </div>
+                                <?php endif; ?>
+                                <span class="font-semibold text-gray-800 truncate mt-2"><?= $p['nomej4'] ?></span>
+                                <?php if ($p['status'] === 'validada'): ?>
+                                    <div class="flex gap-1 mt-0.5">
+                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['anterior_h4'],1) ?></span>
+                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h4'],1) ?></span>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <!-- Data e ID Centralizados e Discretos -->

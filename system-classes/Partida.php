@@ -61,8 +61,16 @@ class Partida
     public static function partidas_jogador($jogador)
     {
         $query =
-            "SELECT partidas.id,data,token_validacao,placar_a,placar_b,status,vencedor,
+            "SELECT partidas.id,partidas.data,token_validacao,placar_a,placar_b,status,vencedor,
                 jogador1_id,jogador2_id,jogador3_id,jogador4_id,
+                h1.rating_anterior as anterior_h1,h1.rating_novo,
+                h2.rating_anterior as anterior_h2,h2.rating_novo,
+                h3.rating_anterior as anterior_h3,h3.rating_novo,
+                h4.rating_anterior as anterior_h4,h4.rating_novo,
+                (h1.rating_novo-h1.rating_anterior) as diff_h1,
+                (h2.rating_novo-h2.rating_anterior) as diff_h2,
+                (h3.rating_novo-h3.rating_anterior) as diff_h3,
+                (h4.rating_novo-h4.rating_anterior) as diff_h4,
                 j1.nome as nomej1,
                 j2.nome as nomej2,
                 j3.nome as nomej3,
@@ -72,6 +80,10 @@ class Partida
                 join usuario j2 on j2.id=jogador2_id
                 join usuario j3 on j3.id=jogador3_id
                 join usuario j4 on j4.id=jogador4_id
+                left join historico_rating h1 on h1.jogador_id = jogador1_id and h1.partida_token = partidas.token_validacao
+                left join historico_rating h2 on h2.jogador_id = jogador2_id and h2.partida_token = partidas.token_validacao
+                left join historico_rating h3 on h3.jogador_id = jogador3_id and h3.partida_token = partidas.token_validacao
+                left join historico_rating h4 on h4.jogador_id = jogador4_id and h4.partida_token = partidas.token_validacao
                 WHERE '{$jogador}' IN (jogador1_id, jogador2_id, jogador3_id, jogador4_id)
                 ORDER BY data DESC";
         $conexao = Conexao::pegarConexao();
