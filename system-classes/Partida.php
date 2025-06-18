@@ -52,7 +52,12 @@ class Partida
     public function att_status_partida($partida, $status)
     {
         $query =
-            "UPDATE partidas set status = '{$status}' where token_validacao = '{$partida}'";
+            "UPDATE partidas set status = '{$status}',
+            validado_jogador1 = 1,
+            validado_jogador2 = 1,
+            validado_jogador3 = 1,
+            validado_jogador4 = 1
+            where token_validacao = '{$partida}'";
         $conexao = Conexao::pegarConexao();
         $stmt = $conexao->prepare($query);
         $stmt->execute();

@@ -49,14 +49,12 @@ $partidas = Partida::partidas_jogador($jogador);
                                 <span class="font-semibold text-gray-800 truncate"><?= $p['nomej1'] ?></span>
                                 <?php if ($p['status'] === 'validada'): ?>
                                     <div class="flex gap-1 mt-0.5">
-                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['anterior_h1'],1) ?></span>
                                         <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h1'],1) ?></span>
                                     </div>
                                 <?php endif; ?>
                                 <span class="font-semibold text-gray-800 truncate mt-2"><?= $p['nomej2'] ?></span>
                                 <?php if ($p['status'] === 'validada'): ?>
                                     <div class="flex gap-1 mt-0.5">
-                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['anterior_h2'],1) ?></span>
                                         <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h2'],1) ?></span>
                                     </div>
                                 <?php endif; ?>
@@ -72,14 +70,12 @@ $partidas = Partida::partidas_jogador($jogador);
                                 <span class="font-semibold text-gray-800 truncate"><?= $p['nomej3'] ?></span>
                                 <?php if ($p['status'] === 'validada'): ?>
                                     <div class="flex gap-1 mt-0.5">
-                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['anterior_h3'],1) ?></span>
                                         <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h3'],1) ?></span>
                                     </div>
                                 <?php endif; ?>
                                 <span class="font-semibold text-gray-800 truncate mt-2"><?= $p['nomej4'] ?></span>
                                 <?php if ($p['status'] === 'validada'): ?>
                                     <div class="flex gap-1 mt-0.5">
-                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['anterior_h4'],1) ?></span>
                                         <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h4'],1) ?></span>
                                     </div>
                                 <?php endif; ?>

@@ -77,19 +77,19 @@ if ($validacoes > 2) {
 
     // Atualiza os dados no banco e salva histórico
     $update = $conn->prepare("UPDATE usuario SET rating = ?, rd = ?, vol = ? WHERE id = ?");
-    $historico = $conn->prepare("INSERT INTO historico_rating (jogador_id, partida_token, rating_anterior, rating_novo) VALUES (?, ?, ?, ?)");
+    $historico = $conn->prepare("INSERT INTO historico_rating (jogador_id, rating_anterior, rating_novo) VALUES (?, ?, ?)");
 
     // Jogador 1
-    $historico->execute([$j1['id'], $partida_tk, $j1['rating'], $players[0]->getRating()]);
+    $historico->execute([$j1['id'], $j1['rating'], $players[0]->getRating()]);
     $update->execute([$players[0]->getRating(), $players[0]->getRd(), $players[0]->getVolatility(), $j1['id']]);
     // Jogador 2
-    $historico->execute([$j2['id'], $partida_tk, $j2['rating'], $players[1]->getRating()]);
+    $historico->execute([$j2['id'], $j2['rating'], $players[1]->getRating()]);
     $update->execute([$players[1]->getRating(), $players[1]->getRd(), $players[1]->getVolatility(), $j2['id']]);
     // Jogador 3
-    $historico->execute([$j3['id'], $partida_tk, $j3['rating'], $players[2]->getRating()]);
+    $historico->execute([$j3['id'], $j3['rating'], $players[2]->getRating()]);
     $update->execute([$players[2]->getRating(), $players[2]->getRd(), $players[2]->getVolatility(), $j3['id']]);
     // Jogador 4
-    $historico->execute([$j4['id'], $partida_tk, $j4['rating'], $players[3]->getRating()]);
+    $historico->execute([$j4['id'], $j4['rating'], $players[3]->getRating()]);
     $update->execute([$players[3]->getRating(), $players[3]->getRd(), $players[3]->getVolatility(), $j4['id']]);
 
     // Salva a partida na tabela partidas
