@@ -28,7 +28,25 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-  <title>DUPLA</title>
+    <!-- SEO Meta Tags -->
+  <title>DUPLA - Seu Ranking de Beach Tennis</title>
+  <meta name="description" content="Registre partidas, evolua no ranking, crie comunidades e compartilhe seus resultados com amigos. DUPLA é o app ideal para beach tennis.">
+  <meta name="keywords" content="beach tennis, dupla, ranking, partidas, esportes, app, comunidades, torneios, validação de partidas">
+  <meta name="author" content="DUPLA">
+
+  <!-- Open Graph (Facebook, WhatsApp) -->
+  <meta property="og:title" content="DUPLA - Seu Ranking de Beach Tennis">
+  <meta property="og:description" content="Registre partidas e acompanhe rankings personalizados.">
+  <meta property="og:image" content="https://beta.appdupla.com/img/og.png"> <!-- imagem com dimensões 1200x630 -->
+  <meta property="og:url" content="https://beta.appdupla.com/">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DUPLA - Ranking de Beach Tennis">
+  <meta name="twitter:description" content="Valide partidas, suba no ranking e jogue com amigos!">
+  <meta name="twitter:image" content="https://beta.appdupla.com/img/og.jpg">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css" rel="stylesheet" type="text/css" />
 </head>

@@ -262,7 +262,7 @@ foreach ($hist_rating as $registro) {
               <div class="bg-lime-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
                 <div class="text-2xl font-bold absolute top-1 right-2">🤝</div>
                 <div class="text-xs font-bold mb-1">DUPLA FORTE</div>
-                <div class="text-xs">🟢 Com:</div>
+                <div class="text-xs">🟢 Venceu com:</div>
                 <div class="text-sm font-semibold truncate"><?= $parceiro_vitoria[0]['parceiro_nome'] ?></div>
                 <div class="text-xs mt-1">🤝 <b><?= $parceiro_vitoria[0]['partidas'] ?></b> · ✅ <b><?= $parceiro_vitoria[0]['vitorias'] ?> Vitórias</b></div>
               </div>
@@ -270,7 +270,7 @@ foreach ($hist_rating as $registro) {
               <div class="bg-slate-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
                 <div class="text-2xl font-bold absolute top-1 right-2">🐢</div>
                 <div class="text-xs font-bold mb-1">SÓ ATRAPALHA</div>
-                <div class="text-xs">⚫ Com:</div>
+                <div class="text-xs">⚫ Perdeu com:</div>
                 <div class="text-sm font-semibold truncate"><?= $parceiro_derrota[0]['parceiro_nome'] ?></div>
                 <div class="text-xs mt-1">🤷 <b><?= $parceiro_derrota[0]['partidas'] ?></b> · ❌ <b><?= $parceiro_derrota[0]['derrotas'] ?> Derrotas</b></div>
               </div>
