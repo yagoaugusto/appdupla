@@ -1,81 +1,97 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <?php require_once '_head.php'; ?>
-<body class="bg-gradient-to-br from-blue-100 via-white to-purple-100 min-h-screen text-gray-800">
 
-  <!-- Navbar superior -->
-  <?php require_once '_nav_superior.php' ?>
+<body class="bg-gray-50 min-h-screen text-gray-900">
 
-  <div class="flex pt-16">
-    <!-- Menu lateral -->
-    <?php require_once '_nav_lateral.php' ?>
+    <!-- Navbar superior -->
+    <?php require_once '_nav_superior.php' ?>
 
-    <!-- Conteúdo principal -->
-    <main class="flex-1 flex flex-col min-h-screen">
-      <section class="flex-grow p-6 md:p-12">
-        <div class="max-w-3xl mx-auto bg-white/90 rounded-3xl shadow-2xl p-8 md:p-12 border border-blue-100">
-          <div class="flex items-center gap-4 mb-6">
-            <img src="https://img.icons8.com/color/96/leaderboard.png" alt="Ranking" class="w-16 h-16">
-            <h1 class="text-4xl font-extrabold text-blue-700 drop-shadow-lg">Como funciona o ranking no DUPLA?</h1>
-          </div>
+    <div class="flex pt-14">
+        <!-- Menu lateral -->
+        <?php require_once '_nav_lateral.php' ?>
 
-          <p class="text-gray-700 text-lg mb-8">
-            O DUPLA utiliza o <span class="font-bold text-blue-600">Glicko-2</span>, um sistema moderno que avalia seu desempenho de forma <span class="font-bold text-purple-700">justa</span>, <span class="font-bold text-green-700">inteligente</span> e <span class="font-bold text-yellow-600">dinâmica</span>.
-          </p>
+        <!-- Conteúdo principal -->
+        <main class="flex-1 flex flex-col min-h-screen">
+            <section class="p-2 sm:p-6 md:p-10 max-w-5xl w-full mx-auto">
+                <div class="text-center mb-6">
+                    <span class="mx-auto w-14 h-14 flex items-center justify-center text-5xl mb-2" role="img" aria-label="Ranking">🏆</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-2">
+                        Como funciona o Ranking <span class="bg-gradient-to-r from-blue-600 via-pink-500 to-yellow-400 bg-clip-text text-transparent">DUPLA</span>?
+                    </h2>
+                    <p class="text-base sm:text-lg text-gray-600 font-medium mb-2">Nada de achismo. Aqui o <span class="text-orange-500 font-bold">Glicko-2</span> avalia <span class="font-bold">como</span> você joga, não só quantas partidas faz.</p>
+                </div>
 
-          <div class="grid md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-blue-50 border-l-8 border-blue-400 p-6 rounded-xl shadow">
-              <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">🎯 O que é o <span class="text-blue-700">Glicko-2</span>?</h2>
-              <p class="text-gray-800">É um sistema matemático que calcula seu nível de habilidade com base nos seus resultados e nos adversários que você enfrenta.</p>
-            </div>
-            <div class="bg-green-50 border-l-8 border-green-400 p-6 rounded-xl shadow">
-              <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">📈 Por que é melhor?</h2>
-              <ul class="list-disc list-inside space-y-1 text-gray-800">
-                <li>Considera a força dos adversários</li>
-                <li>Avalia o número de partidas jogadas</li>
-                <li>Premia vitórias surpreendentes</li>
-                <li>Reduz confiança no rating de quem joga pouco</li>
-              </ul>
-            </div>
-          </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    <!-- Rating -->
+                    <div class="bg-white rounded-xl shadow-lg flex flex-col items-center p-4 border-b-4 border-blue-500">
+                        <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500 text-white text-2xl mb-1 shadow">⭐</div>
+                        <div class="text-base font-bold text-blue-700 mb-1">Rating (R)</div>
+                        <ul class="text-xs text-gray-700 space-y-1 text-center">
+                            <li>Ganhou de alguém mais forte? <span class="font-bold text-green-600">Sobe mais</span> 🟢</li>
+                            <li>Perdeu pra alguém mais fraco? <span class="font-bold text-red-600">Cai mais</span> 🔴</li>
+                            <li>Quanto maior, melhor seu ranking.</li>
+                        </ul>
+                    </div>
+                    <!-- RD -->
+                    <div class="bg-white rounded-xl shadow-lg flex flex-col items-center p-4 border-b-4 border-pink-500">
+                        <div class="w-12 h-12 flex items-center justify-center rounded-full bg-pink-500 text-white text-2xl mb-1 shadow">📉</div>
+                        <div class="text-base font-bold text-pink-700 mb-1">RD (Desvio)</div>
+                        <ul class="text-xs text-gray-700 space-y-1 text-center">
+                            <li>Jogou pouco? <span class="font-bold text-orange-600">RD alto</span> 🤔</li>
+                            <li>Jogou muito? <span class="font-bold text-green-600">RD baixo</span> 💪</li>
+                            <li>Ficou inativo? RD sobe com o tempo ⏳</li>
+                        </ul>
+                    </div>
+                    <!-- Volatilidade -->
+                    <div class="bg-white rounded-xl shadow-lg flex flex-col items-center p-4 border-b-4 border-yellow-400">
+                        <div class="w-12 h-12 flex items-center justify-center rounded-full bg-yellow-400 text-white text-2xl mb-1 shadow">⚡</div>
+                        <div class="text-base font-bold text-yellow-700 mb-1">Volatilidade (σ)</div>
+                        <ul class="text-xs text-gray-700 space-y-1 text-center">
+                            <li>Instável? <span class="font-bold text-pink-600">σ alto</span> 🎢</li>
+                            <li>Consistente? <span class="font-bold text-green-600">σ baixo</span> 🧠</li>
+                        </ul>
+                    </div>
+                </div>
 
-          <div class="bg-yellow-50 border-l-8 border-yellow-400 p-6 rounded-xl shadow mb-8">
-            <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">🤔 Exemplo prático</h2>
-            <div class="flex flex-col md:flex-row items-center gap-4">
-              <div class="flex-1">
-                <p class="mb-2">Imagine:</p>
-                <ul class="list-disc list-inside text-gray-800">
-                  <li><span class="font-bold text-blue-700">Você</span> tem <span class="font-bold">1300 pontos</span></li>
-                  <li>Vence uma dupla com <span class="font-bold text-green-700">1700 pontos</span> ➔ <span class="font-bold text-green-700">Seu ranking sobe bastante!</span></li>
-                  <li>Perde para uma dupla com <span class="font-bold text-red-700">1100 pontos</span> ➔ <span class="font-bold text-red-700">Seu ranking cai mais do que o normal.</span></li>
-                </ul>
-              </div>
-              <img src="https://img.icons8.com/color/96/trophy.png" alt="Troféu" class="w-20 h-20">
-            </div>
-          </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow flex flex-col items-center p-4">
+                        <span class="text-4xl mb-2" role="img" aria-label="Dúvida">❓</span>
+                        <h3 class="text-base font-bold text-orange-500 mb-1">Como isso funciona na prática?</h3>
+                        <p class="text-xs text-gray-700 mb-1">Cada partida confirmada recalcula seu nível. O sistema analisa seus oponentes, o resultado e a dificuldade da vitória. A cada jogo, seu rating, RD e volatilidade são ajustados automaticamente.</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow flex flex-col items-center p-4">
+                        <span class="text-4xl mb-2" role="img" aria-label="Exemplo">📝</span>
+                        <h4 class="text-base font-bold text-green-600 mb-1">Exemplos práticos:</h4>
+                        <div class="space-y-1 text-xs text-gray-700 w-full">
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-600 text-lg">🟢</span>
+                                <span><b>Ganhou de um top:</b> Rating sobe bastante, RD cai, σ pode subir.</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-red-600 text-lg">🔴</span>
+                                <span><b>Perdeu pra um fraco:</b> Rating despenca, RD cai, σ sobe.</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-600 text-lg">⚪</span>
+                                <span><b>Vitória esperada:</b> Rating ajusta levemente, RD e σ quase não mudam.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-          <div class="bg-purple-50 border-l-8 border-purple-400 p-6 rounded-xl shadow mb-8">
-            <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">🚀 Vantagens para você</h2>
-            <ul class="list-disc list-inside space-y-1 text-gray-800">
-              <li><span class="font-bold text-purple-700">Ranking mais justo</span></li>
-              <li>Mais motivação para jogar e evoluir</li>
-              <li>Transparência nas partidas e resultados</li>
-              <li>Combate jogos arranjados ou registros falsos</li>
-            </ul>
-          </div>
+                <div class="mt-6 text-center">
+                    <span class="mx-auto text-5xl mb-2" role="img" aria-label="Alvo">🎯</span>
+                    <p class="text-base font-semibold text-gray-800">Quanto mais você joga, mais o DUPLA entende seu nível.<br> E quanto mais difícil a vitória, maior a recompensa.</p>
+                    <p class="text-orange-600 mt-2 text-sm">Não adianta só jogar muito. Tem que jogar bem. 💥</p>
+                </div>
+            </section>
+    </div>
 
-          <div class="text-center mt-8">
-            <a href="ranking.php" class="inline-block bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-8 rounded-full shadow-lg text-lg transition-all duration-200">
-              Ver Ranking Atual
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <!-- Footer -->
-      <?php require_once '_footer.php' ?>
+    <!-- Footer -->
+    <?php require_once '_footer.php' ?>
     </main>
-  </div>
-
+    </div>
 </body>
+
 </html>
