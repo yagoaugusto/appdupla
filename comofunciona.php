@@ -28,7 +28,7 @@
                         <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500 text-white text-2xl mb-1 shadow">⭐</div>
                         <div class="text-base font-bold text-blue-700 mb-1">Rating (R)</div>
                         <ul class="text-xs text-gray-700 space-y-1 text-center">
-                            <li>É o número que mostra o seu nível atual como jogador.</li>
+                            <li><strong>É o número que mostra o seu nível atual como jogador.</strong></li>
                             <li>Ganhou de alguém mais forte? <span class="font-bold text-green-600">Sobe mais</span> 🟢</li>
                             <li>Perdeu pra alguém mais fraco? <span class="font-bold text-red-600">Cai mais</span> 🔴</li>
                             <li>Quanto maior, melhor seu ranking.</li>
@@ -39,7 +39,7 @@
                         <div class="w-12 h-12 flex items-center justify-center rounded-full bg-pink-500 text-white text-2xl mb-1 shadow">📉</div>
                         <div class="text-base font-bold text-pink-700 mb-1">RD (Desvio)</div>
                         <ul class="text-xs text-gray-700 space-y-1 text-center">
-                            <li>Mostra o quanto o sistema confia no seu rating.</li>
+                            <li><strong>Mostra o quanto o sistema confia no seu rating.</strong></li>
                             <li>Jogou pouco? <span class="font-bold text-orange-600">RD alto</span> 🤔</li>
                             <li>Jogou muito? <span class="font-bold text-green-600">RD baixo</span> 💪</li>
                             <li>Ficou inativo? RD sobe com o tempo ⏳</li>
@@ -50,7 +50,7 @@
                         <div class="w-12 h-12 flex items-center justify-center rounded-full bg-yellow-400 text-white text-2xl mb-1 shadow">⚡</div>
                         <div class="text-base font-bold text-yellow-700 mb-1">Volatilidade (σ)</div>
                         <ul class="text-xs text-gray-700 space-y-1 text-center">
-                            <li>Mede o quanto seu desempenho varia de jogo pra jogo.</li>
+                            <li><strong>Mede o quanto seu desempenho varia de jogo pra jogo.</strong></li>
                             <li>Instável? <span class="font-bold text-pink-600">σ alto</span> 🎢</li>
                             <li>Consistente? <span class="font-bold text-green-600">σ baixo</span> 🧠</li>
                         </ul>
