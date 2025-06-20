@@ -1,37 +1,45 @@
 <?php 
 session_start();
+
+// 1. Se já está logado via session, redireciona
 if (isset($_SESSION['DuplaUserId'])) {
   header("Location: principal.php");
   exit;
 }
 
+// 2. Se não tem session mas tem cookie, tenta logar pelo cookie
 if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
-	include_once("system-autenticacao/conexao.php");
-	$token = $_COOKIE['DuplaLoginToken'];
+  include_once("system-autenticacao/conexao.php");
+  $token = $_COOKIE['DuplaLoginToken'];
 
-	$query = "SELECT * FROM usuario WHERE token_login = '{$token}' LIMIT 1";
-	$resultado = mysqli_query($conn, $query);
-	$usuario = mysqli_fetch_assoc($resultado);
+  $query = "SELECT * FROM usuario WHERE token_login = '{$token}' LIMIT 1";
+  $resultado = mysqli_query($conn, $query);
+  $usuario = mysqli_fetch_assoc($resultado);
 
-	if ($usuario) {
-		$_SESSION['DuplaUserId'] = $usuario['id'];
-		$_SESSION['DuplaUserNome'] = $usuario['nome'];
-		$_SESSION['DuplaUserTelefone'] = $usuario['telefone'];
-		$_SESSION['DuplaUserSenha'] = $usuario['senha'];
-		$_SESSION['DuplaUserCidade'] = $usuario['cidade'];
-		$_SESSION['DuplaUserEmpunhadura'] = $usuario['empunhadura'];
-	}
-  header("Location: principal.php");
-  exit;
+  if ($usuario) {
+    $_SESSION['DuplaUserId'] = $usuario['id'];
+    $_SESSION['DuplaUserNome'] = $usuario['nome'];
+    $_SESSION['DuplaUserTelefone'] = $usuario['telefone'];
+    $_SESSION['DuplaUserSenha'] = $usuario['senha'];
+    $_SESSION['DuplaUserCidade'] = $usuario['cidade'];
+    $_SESSION['DuplaUserEmpunhadura'] = $usuario['empunhadura'];
+    header("Location: principal.php");
+    exit;
+  } else {
+    // Cookie inválido: limpa e segue para login
+    setcookie('DuplaLoginToken', '', time() - 3600, '/');
+    // Não redireciona, mostra o formulário normalmente
+  }
 }
 
+// 3. Se não tem session nem cookie, mostra o formulário normalmente
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>DUPLA - Seu Ranking de Beach Tennis</title>
+  <title>DUPLA - Seu Ranking de Beach Tennis</title>
   <meta name="description" content="Registre partidas, evolua no ranking, crie comunidades e compartilhe seus resultados com amigos. DUPLA é o app ideal para beach tennis.">
   <meta name="keywords" content="beach tennis, dupla, ranking, partidas, esportes, app, comunidades, torneios, validação de partidas">
   <meta name="author" content="DUPLA">

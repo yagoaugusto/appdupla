@@ -16,6 +16,11 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
 		$_SESSION['DuplaUserSenha'] = $usuario['senha'];
 		$_SESSION['DuplaUserCidade'] = $usuario['cidade'];
 		$_SESSION['DuplaUserEmpunhadura'] = $usuario['empunhadura'];
+	} else {
+		// Token inválido: limpa o cookie e força login
+		setcookie('DuplaLoginToken', '', time() - 3600, '/');
+		header("Location: index.php");
+		exit;
 	}
  
 }else{

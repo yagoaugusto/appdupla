@@ -283,10 +283,45 @@ foreach ($hist_rating as $registro) {
           </div>
 
         <?php } ?>
-
+        <br><br>
       </section>
     </main>
   </div>
+
+    <footer class="w-full bg-white border-t border-gray-200 py-4 text-center bottom-0 left-0 z-50">
+        DUPLA - Deu Game? Dá Ranking!
+    </footer>
+
+  <!-- Botão fixo no rodapé -->
+<button id="btnArenas" class="fixed bottom-4 left-4 z-50 bg-blue-700 hover:bg-blue-800 text-white font-bold px-6 py-3 rounded-full shadow-xl flex items-center gap-2 text-base transition-all">
+  🏟️ Arenas
+</button>
+
+<!-- Modal de Arenas -->
+<div id="modalArenas" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-2xl shadow-2xl p-6 w-80 max-w-full flex flex-col items-center gap-4 relative">
+    <button id="fecharModalArenas" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+    <div class="text-2xl mb-2">🏟️ <span class="font-extrabold text-blue-700">Arenas</span></div>
+    <a href="minhas-arenas.php" class="w-full bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold py-3 rounded-xl shadow text-center transition">Ver minhas arenas</a>
+    <a href="criar-arena.php" class="w-full bg-green-100 hover:bg-green-200 text-green-800 font-semibold py-3 rounded-xl shadow text-center transition">Criar nova arena</a>
+    <a href="explorar-arenas.php" class="w-full bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-semibold py-3 rounded-xl shadow text-center transition">Explorar arenas</a>
+  </div>
+</div>
+
+<script>
+  // Abrir modal
+  document.getElementById('btnArenas').onclick = function() {
+    document.getElementById('modalArenas').classList.remove('hidden');
+  };
+  // Fechar modal
+  document.getElementById('fecharModalArenas').onclick = function() {
+    document.getElementById('modalArenas').classList.add('hidden');
+  };
+  // Fechar ao clicar fora do modal
+  document.getElementById('modalArenas').onclick = function(e) {
+    if (e.target === this) this.classList.add('hidden');
+  };
+</script>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
