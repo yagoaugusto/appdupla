@@ -76,31 +76,34 @@ $partidas = Partida::partidas_jogador($jogador);
                             <a href="pos-partida.php?j=<?= urlencode($jogador) ?>&p=<?= urlencode($p['token_validacao']) ?>" class="absolute inset-0 z-10" title="Ver detalhes da partida" style="border-radius: 0.75rem;"></a>
                             
                             <!-- Times e Placar -->
-                            <div class="flex items-center gap-4 w-full justify-center mt-4 relative z-20">
+                            <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 w-full mt-4 relative z-20">
                                 <!-- Time A -->
-                                <div class="flex flex-col items-end flex-1 space-y-2">
-                                    <div class="text-right">
-                                        <span class="font-semibold text-gray-800 truncate"><?= htmlspecialchars($p['nomej1'] . ' ' . ($p['sobrenomej1'] ?? '')) ?></span><br>
+                                <div class="flex flex-col items-end text-right space-y-1">
+                                    <div>
+                                        <span class="font-semibold text-sm text-gray-800 truncate block"><?= htmlspecialchars($p['nomej1'] . ' ' . ($p['sobrenomej1'] ?? '')) ?></span>
                                         <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h1']) : '' ?>
                                     </div>
-                                    <div class="text-right">
-                                        <span class="font-semibold text-gray-800 truncate"><?= htmlspecialchars($p['nomej2'] . ' ' . ($p['sobrenomej2'] ?? '')) ?></span><br>
+                                    <div>
+                                        <span class="font-semibold text-sm text-gray-800 truncate block"><?= htmlspecialchars($p['nomej2'] . ' ' . ($p['sobrenomej2'] ?? '')) ?></span>
                                         <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h2']) : '' ?>
                                     </div>
                                 </div>
                                 
-                                <span class="text-2xl font-bold text-gray-700 bg-gray-100 rounded-lg px-3 py-1 shadow-inner"><?= htmlspecialchars($p['placar_a']) ?></span>
-                                <span class="mx-1 text-gray-400 font-bold text-sm">VS</span>
-                                <span class="text-2xl font-bold text-gray-700 bg-gray-100 rounded-lg px-3 py-1 shadow-inner"><?= htmlspecialchars($p['placar_b']) ?></span>
+                                <!-- Placar -->
+                                <div class="flex items-center gap-2 text-center">
+                                    <span class="text-xl font-bold text-gray-700 bg-gray-100 rounded-md px-2 py-1 shadow-inner"><?= htmlspecialchars($p['placar_a']) ?></span>
+                                    <span class="text-gray-400 font-bold text-xs">VS</span>
+                                    <span class="text-xl font-bold text-gray-700 bg-gray-100 rounded-md px-2 py-1 shadow-inner"><?= htmlspecialchars($p['placar_b']) ?></span>
+                                </div>
                                 
                                 <!-- Time B -->
-                                <div class="flex flex-col items-start flex-1 space-y-2">
-                                    <div class="text-left">
-                                        <span class="font-semibold text-gray-800 truncate"><?= htmlspecialchars($p['nomej3'] . ' ' . ($p['sobrenomej3'] ?? '')) ?></span><br>
+                                <div class="flex flex-col items-start text-left space-y-1">
+                                    <div>
+                                        <span class="font-semibold text-sm text-gray-800 truncate block"><?= htmlspecialchars($p['nomej3'] . ' ' . ($p['sobrenomej3'] ?? '')) ?></span>
                                         <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h3']) : '' ?>
                                     </div>
-                                    <div class="text-left">
-                                        <span class="font-semibold text-gray-800 truncate"><?= htmlspecialchars($p['nomej4'] . ' ' . ($p['sobrenomej4'] ?? '')) ?></span><br>
+                                    <div>
+                                        <span class="font-semibold text-sm text-gray-800 truncate block"><?= htmlspecialchars($p['nomej4'] . ' ' . ($p['sobrenomej4'] ?? '')) ?></span>
                                         <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h4']) : '' ?>
                                     </div>
                                 </div>
