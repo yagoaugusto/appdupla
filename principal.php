@@ -364,19 +364,24 @@ if ($variacao_valor > 0) {
   <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
       <div class="flex items-center gap-2 bg-white/80 backdrop-blur-md border border-gray-200/80 rounded-full shadow-xl px-3 py-2">
           <!-- Botão Arenas -->
-          <button id="btnArenas" class="flex flex-col items-center justify-center text-gray-700 hover:text-blue-600 transition-colors w-20 h-14 rounded-full hover:bg-blue-50">
+          <button id="btnArenas" class="flex flex-col items-center justify-center text-gray-700 hover:text-blue-600 transition-colors w-16 h-14 rounded-full hover:bg-blue-50">
               <span class="text-2xl">🏟️</span>
               <span class="text-xs font-semibold">Arenas</span>
           </button>
           <!-- Botão Torneios -->
-          <button id="btnTorneios" class="flex flex-col items-center justify-center text-gray-700 hover:text-purple-600 transition-colors w-20 h-14 rounded-full hover:bg-purple-50">
+          <button id="btnTorneios" class="flex flex-col items-center justify-center text-gray-700 hover:text-purple-600 transition-colors w-16 h-14 rounded-full hover:bg-purple-50">
               <span class="text-2xl">🏆</span>
               <span class="text-xs font-semibold">Torneios</span>
           </button>
           <!-- Botão Inscrições -->
-          <button id="btnInscricoes" class="flex flex-col items-center justify-center text-gray-700 hover:text-green-600 transition-colors w-20 h-14 rounded-full hover:bg-green-50">
+          <button id="btnInscricoes" class="flex flex-col items-center justify-center text-gray-700 hover:text-green-600 transition-colors w-16 h-14 rounded-full hover:bg-green-50">
               <span class="text-2xl">📝</span>
               <span class="text-xs font-semibold">Inscrições</span>
+          </button>
+          <!-- Botão Análise IA -->
+          <button id="btnGpt" class="flex flex-col items-center justify-center text-gray-700 hover:text-indigo-600 transition-colors w-16 h-14 rounded-full hover:bg-indigo-50">
+              <span class="text-2xl">🤖</span>
+              <span class="text-xs font-semibold">Análise IA</span>
           </button>
       </div>
   </div>
@@ -386,25 +391,85 @@ if ($variacao_valor > 0) {
   <div class="bg-white rounded-2xl shadow-2xl p-6 w-80 max-w-full flex flex-col items-center gap-4 relative">
     <button id="fecharModalArenas" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
     <div class="text-2xl mb-2">🏟️ <span class="font-extrabold text-blue-700">Arenas</span></div>
-    <a href="minhas-arenas.php" class="w-full bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold py-3 rounded-xl shadow text-center transition">Ver minhas arenas</a>
-    <a href="criar-arena.php" class="w-full bg-green-100 hover:bg-green-200 text-green-800 font-semibold py-3 rounded-xl shadow text-center transition">Criar nova arena</a>
-    <a href="explorar-arenas.php" class="w-full bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-semibold py-3 rounded-xl shadow text-center transition">Explorar arenas</a>
+    <a href="criar-arena.php" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Criar Arena</a>
+    <a href="arenas.php" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Consultar Arenas</a>
+  </div>
+</div>
+
+<!-- Modal de Análise IA -->
+<div id="modalGpt" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md flex flex-col items-center gap-4 relative">
+    <button id="fecharModalGpt" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+    <div class="text-2xl mb-2">🤖 <span class="font-extrabold text-indigo-700">Análise de Desempenho</span></div>
+    <div id="gptContent" class="w-full text-left space-y-4 max-h-[60vh] overflow-y-auto p-2">
+      <!-- Loading state -->
+      <div id="gptLoading" class="text-center">
+        <div class="animate-spin rounded-full border-4 border-indigo-400 border-t-transparent h-12 w-12 mx-auto mb-4"></div>
+        <p class="font-semibold text-indigo-700">Analisando seus dados...</p>
+        <p class="text-xs text-gray-500">Aguarde, nossa IA está preparando dicas personalizadas para você!</p>
+      </div>
+      <!-- Content will be injected here -->
+    </div>
   </div>
 </div>
 
 <script>
-  // Abrir modal
-  document.getElementById('btnArenas').onclick = function() {
-    document.getElementById('modalArenas').classList.remove('hidden');
-  };
-  // Fechar modal
-  document.getElementById('fecharModalArenas').onclick = function() {
-    document.getElementById('modalArenas').classList.add('hidden');
-  };
-  // Fechar ao clicar fora do modal
-  document.getElementById('modalArenas').onclick = function(e) {
-    if (e.target === this) this.classList.add('hidden');
-  };
+    // Funções genéricas para modais
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.add('hidden');
+    }
+
+    // --- LÓGICA PARA MODAL DE ARENAS ---
+    document.getElementById('btnArenas').addEventListener('click', () => openModal('modalArenas'));
+    document.getElementById('fecharModalArenas').addEventListener('click', () => closeModal('modalArenas'));
+    document.getElementById('modalArenas').addEventListener('click', (e) => {
+        if (e.target.id === 'modalArenas') closeModal('modalArenas');
+    });
+
+    // --- LÓGICA PARA ANÁLISE DE IA ---
+    const btnGpt = document.getElementById('btnGpt');
+    const modalGpt = document.getElementById('modalGpt');
+    const fecharModalGpt = document.getElementById('fecharModalGpt');
+    const gptContent = document.getElementById('gptContent');
+    const gptLoading = document.getElementById('gptLoading');
+
+    if (btnGpt) {
+        btnGpt.addEventListener('click', async () => {
+            openModal('modalGpt');
+            gptContent.innerHTML = ''; // Limpa conteúdo anterior
+            gptLoading.style.display = 'block'; // Mostra o loading
+            gptContent.appendChild(gptLoading);
+
+            try {
+                const response = await fetch('controller-ia/analise-jogador.php');
+                const data = await response.json();
+
+                gptLoading.style.display = 'none'; // Esconde o loading
+
+                if (data.success) {
+                    gptContent.innerHTML = data.analysis;
+                } else {
+                    gptContent.innerHTML = `<p class="text-red-500 text-center font-semibold">${data.message || 'Ocorreu um erro.'}</p>`;
+                }
+            } catch (error) {
+                console.error('Erro ao buscar análise da IA:', error);
+                gptLoading.style.display = 'none';
+                gptContent.innerHTML = `<p class="text-red-500 text-center font-semibold">Não foi possível conectar ao servidor. Verifique sua conexão.</p>`;
+            }
+        });
+    }
+
+    // Fechar modal da IA
+    if (fecharModalGpt) fecharModalGpt.addEventListener('click', () => closeModal('modalGpt'));
+    if (modalGpt) modalGpt.addEventListener('click', (e) => {
+        if (e.target.id === 'modalGpt') closeModal('modalGpt');
+    });
 </script>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
