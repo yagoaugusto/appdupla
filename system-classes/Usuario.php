@@ -94,7 +94,7 @@ WHERE
   {
     $query =
       "WITH rankeados AS (
-  SELECT id, nome, rating, apelido,
+  SELECT id, nome, rating, apelido, rd, vol,
          RANK() OVER (ORDER BY rating DESC) AS posicao
   FROM usuario
 ),
@@ -106,6 +106,8 @@ total AS (
     r.id,
     r.nome,
     r.rating,
+    r.rd,
+    r.vol AS vol,
     r.posicao,
     t.total,
   ROUND({$id}0 * (t.total - r.posicao) / (t.total - 1), 2) AS percentual_abaixo
