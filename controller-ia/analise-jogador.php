@@ -12,6 +12,15 @@ if (!isset($_SESSION['DuplaUserId'])) {
 $usuario_id = $_SESSION['DuplaUserId'];
 
 try {
+    // 1. Tenta buscar a análise do cache
+    $cached_analysis = Usuario::getAnaliseCache($usuario_id);
+
+    if ($cached_analysis) {
+        // Se encontrou um cache válido, retorna ele e encerra a execução.
+        echo json_encode(['success' => true, 'analysis' => $cached_analysis]);
+        exit;
+    }
+
     // 1. Coleta os dados do jogador
     $stats_basicos = Usuario::posicao_usuario($usuario_id);
     $stats_partidas = Usuario::partidas_usuario($usuario_id);
@@ -37,7 +46,8 @@ try {
 - Total de Vitórias: {$partidas_vencidas}
 - Total de Derrotas: {$partidas_perdidas}
 
-Sua resposta DEVE ser em formato HTML, usando tags <h3>, <p>, <ul> e <li>. Não use as tags <html>, <head> ou <body>.
+Sua resposta DEVE ser em formato HTML, usando tags <h3>, <p>, <ul> e <li>.
+Não use as tags <html>, <head> ou <body> e não coloque a resposta dentro de um bloco de código markdown (```html).
 A resposta deve ter EXATAMENTE as seguintes 3 seções:
 
 <h3>📊 Análise Técnica dos Parâmetros</h3>
@@ -57,6 +67,13 @@ A resposta deve ter EXATAMENTE as seguintes 3 seções:
     // 🚨 IMPORTANTE: Substitua o valor abaixo pela sua NOVA chave de API do Google AI Studio.
     $apiKey = 'AIzaSyBTBwXy-VIqWC5pH1p64BT19U3zZCY0_9M';
     $apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $apiKey;
+
+    // Esta verificação impede a execução se a chave de API for o valor padrão (placeholder).
+    if ($apiKey != 'AIzaSyBTBwXy-VIqWC5pH1p64BT19U3zZCY0_9M') {
+        echo json_encode(['success' => false, 'message' => 'A chave de API do Gemini não foi configurada neste arquivo.']);
+        exit;
+    }
+
 
     // O Gemini não tem um "system role" separado como o OpenAI, então combinamos as instruções.
     $system_prompt = 'Você é um analista de dados e técnico de Beach Tennis divertido e motivacional, especializado no sistema de ranking Glicko-2. Seu nome é "Coach Dupla".';
@@ -103,6 +120,14 @@ A resposta deve ter EXATAMENTE as seguintes 3 seções:
 
     $result = json_decode($response, true);
     $ai_content = $result['candidates'][0]['content']['parts'][0]['text'] ?? 'Não foi possível gerar a análise no momento.';
+
+    // Limpa a resposta da IA, removendo o encapsulamento de markdown que ela às vezes adiciona.
+    $ai_content = preg_replace('/^```(html)?\s*/i', '', $ai_content);
+    $ai_content = preg_replace('/\s*```$/', '', $ai_content);
+    $ai_content = trim($ai_content);
+
+    // 4. Salva a nova análise no cache para uso futuro
+    Usuario::setAnaliseCache($usuario_id, $ai_content);
 
     echo json_encode(['success' => true, 'analysis' => $ai_content]);
 } catch (Exception $e) {

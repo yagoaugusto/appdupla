@@ -356,4 +356,34 @@ WHERE u.id ={$id}";
     $lista = $resultado->fetchAll();
     return $lista;
   }
+
+  /**
+   * Busca uma análise de IA em cache para um usuário.
+   * A análise é considerada válida se foi criada no mesmo dia.
+   *
+   * @param int $usuario_id O ID do usuário.
+   * @return string|false Retorna a análise em cache se for válida, ou false.
+   */
+  public static function getAnaliseCache($usuario_id)
+  {
+      $conn = Conexao::pegarConexao();
+      $stmt = $conn->prepare("SELECT analise_html FROM ia_analise_cache WHERE usuario_id = ? AND DATE(data_cache) = CURDATE()");
+      $stmt->execute([$usuario_id]);
+      $result = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $result ? $result['analise_html'] : false;
+  }
+
+  /**
+   * Salva ou atualiza a análise de IA de um usuário no cache.
+   *
+   * @param int $usuario_id O ID do usuário.
+   * @param string $analise_html O conteúdo HTML da análise.
+   * @return bool Retorna true em caso de sucesso.
+   */
+  public static function setAnaliseCache($usuario_id, $analise_html)
+  {
+      $conn = Conexao::pegarConexao();
+      $stmt = $conn->prepare("INSERT INTO ia_analise_cache (usuario_id, analise_html) VALUES (?, ?) ON DUPLICATE KEY UPDATE analise_html = VALUES(analise_html), data_cache = NOW()");
+      return $stmt->execute([$usuario_id, $analise_html]);
+  }
 }
