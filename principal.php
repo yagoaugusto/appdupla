@@ -9,6 +9,7 @@ $usuario = Usuario::posicao_usuario($usuario_id);
 $partidas_usuario = Usuario::partidas_usuario($usuario_id);
 $variacao_rating = Usuario::variacao_rating($usuario_id, 10);
 $qtd_partida_pendente = Partida::qtd_partida_pendente($usuario_id);
+$has_pending = ($qtd_partida_pendente[0]['quantidade'] ?? 0) > 0;
 
 $ranking_superior = Usuario::ranking_superior_tela_principal($usuario_id, 2);
 $ranking_superior = array_reverse($ranking_superior);
@@ -24,10 +25,47 @@ $adversario_derrota = Usuario::quadro_honra_adversario_derrota($usuario_id);
 $hist_rating = Usuario::historico_rating($usuario_id);
 $hist_rating = array_reverse($hist_rating);
 $labels = [];
-$dados = [];
+$dados = []; // Irá guardar os valores de rating
+
+// --- Novas variáveis para os cards de informação ---
+// Para Partidas | Vitórias
+$total_partidas = $partidas_usuario[0]['total_partidas'] ?? 0;
+$total_vitorias = $partidas_usuario[0]['vitorias'] ?? 0;
+$percent_vitorias = ($total_partidas > 0) ? round(($total_vitorias / $total_partidas) * 100) : 0;
+
+// Para Conquistas (assumindo 0 se não houver dados ou função implementada)
+// Se você tiver uma função para buscar o total de conquistas, substitua '0' por ela. Ex: Usuario::total_conquistas($usuario_id)
+$total_conquistas = 0; // Placeholder: substitua por uma função real que retorne o número de conquistas
+
+// Para Variação (10d)
+$variacao_valor = $variacao_rating[0]['variacao_rating'] ?? 0;
+$variacao_formatada = round($variacao_valor, 1); // Arredonda para 1 casa decimal
+$variacao_icon = '';
+$variacao_color_class = 'text-gray-600'; // Cor padrão
+
+$diffs = []; // Irá guardar a diferença do rating anterior
+$previous_rating = null;
+
 foreach ($hist_rating as $registro) {
   $labels[] = date('d M', strtotime($registro['data']));
-  $dados[] = $registro['rating_novo'];
+  $current_rating = (int)$registro['rating_novo'];
+  $dados[] = $current_rating;
+
+  if ($previous_rating !== null) {
+      $diffs[] = $current_rating - $previous_rating;
+  } else {
+      $diffs[] = 0; // Nenhuma diferença para o primeiro ponto
+  }
+  $previous_rating = $current_rating;
+}
+
+// Define o ícone e a cor da variação de rating
+if ($variacao_valor > 0) {
+    $variacao_icon = '⬆️';
+    $variacao_color_class = 'text-green-600';
+} elseif ($variacao_valor < 0) {
+    $variacao_icon = '⬇️';
+    $variacao_color_class = 'text-red-600';
 }
 ?>
 
@@ -73,216 +111,247 @@ foreach ($hist_rating as $registro) {
         ];
         $mensagem_aleatoria = $mensagens_boas_vindas[array_rand($mensagens_boas_vindas)];
         ?>
-        <div class="mb-3">
-          <div class="flex items-center gap-3 bg-blue-600 text-white rounded-xl px-4 py-2 shadow">
-            <span class="text-xl">👋</span>
-            <span class="font-medium"><?= $mensagem_aleatoria ?></span>
+        <div class="mb-3 p-1">
+          <div class="flex items-center gap-3 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 text-white rounded-xl px-4 py-3 shadow-lg">
+            <span class="text-2xl animate-bounce">👋</span>
+            <span class="font-medium text-sm"><?= $mensagem_aleatoria ?></span>
           </div>
         </div>
 
-        <!-- Botão Nova Partida estilizado -->
-        <div class="mb-2 flex gap-2">
-          <!-- Botão Nova Partida -->
+        <!-- Botões de Ação -->
+        <div class="grid grid-cols-5 gap-2 mb-3">
+          <!-- Botão Registrar Partida (ocupa 3 colunas) -->
           <a href="nova-partida.php"
-            class="flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow transition flex items-center gap-2 justify-center">
-            Registrar Partida
-            <span class="text-xl">➕</span>
+            class="col-span-3 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-extrabold rounded-xl shadow-md transition flex items-center gap-2 justify-center text-base transform hover:scale-105">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+            <span>Registrar Partida</span>
           </a>
-          <!-- Botão Validar Partidas -->
-          <a href="validar-partidas.php"
-            class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow transition flex items-center gap-2 justify-center">
-            Validar Partidas
-            <span class="ml-2 bg-white text-blue-700 font-bold px-2 py-0.5 rounded-full text-xs">
-              <?= $qtd_partida_pendente[0]['quantidade'] ?>
-            </span>
-          </a>
+          
+          <!-- Botão Validar Partidas (ocupa 2 colunas) -->
+          <?php if ($has_pending): ?>
+            <a href="validar-partidas.php"
+              class="col-span-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2 justify-center relative transform hover:scale-105">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>Validar</span>
+              <span class="absolute -top-2 -right-2 flex h-5 w-5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-white text-xs items-center justify-center">
+                  <?= $qtd_partida_pendente[0]['quantidade'] ?>
+                </span>
+              </span>
+            </a>
+          <?php else: ?>
+            <a href="validar-partidas.php"
+              class="col-span-2 px-4 py-3 bg-white hover:bg-gray-50 text-gray-600 font-bold rounded-xl shadow-md transition flex items-center gap-2 justify-center border border-gray-200">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>Validar</span>
+            </a>
+          <?php endif; ?>
         </div>
 
         <!-- Cards de informações -->
-        <div class="grid grid-cols-2 gap-2 mb-3">
-          <div class="bg-white rounded-xl shadow p-2 text-center border-t-2 border-blue-500">
-            <div class="text-xl font-bold text-blue-600">⭐ <?= $usuario[0]['rating'] ?></div>
-            <div class="text-xs text-gray-500 mt-1">Rating</div>
+        <div class="grid grid-cols-2 gap-3 mb-3">
+          <!-- Card Rating -->
+          <div class="bg-white rounded-xl shadow p-3 text-center flex flex-col items-center justify-center">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 text-lg mb-1">⭐</div>
+            <div class="text-xl font-bold text-blue-600"><?= $usuario[0]['rating'] ?></div>
+            <div class="text-xs text-gray-500 mt-1">Rating Atual</div>
           </div>
-          <div class="bg-white rounded-xl shadow p-2 text-center border-t-2 border-green-500">
-            <div class="text-xl font-bold text-green-600">🏅 <?= $partidas_usuario[0]['total_partidas'] ?> | <?= $partidas_usuario[0]['vitorias'] ?></div>
-            <div class="text-xs text-gray-500 mt-1">Partidas | Vitórias</div>
+
+          <!-- Card Partidas | Vitórias -->
+          <div class="bg-white rounded-xl shadow p-3 text-center flex flex-col items-center justify-center">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-green-100 text-green-600 text-lg mb-1">🎾</div>
+            <div class="text-xl font-bold text-green-600"><?= $total_partidas ?></div>
+            <div class="text-xs text-gray-500 mt-1">Partidas Jogadas</div>
+            <div class="text-sm text-gray-700 mt-1">Vitórias: <span class="font-semibold"><?= $total_vitorias ?> (<?= $percent_vitorias ?>%)</span></div>
           </div>
-          <div class="bg-white rounded-xl shadow p-2 text-center border-t-2 border-yellow-500">
-            <div class="text-xl font-bold text-yellow-600">🎖️ ?? </div>
-            <div class="text-xs text-gray-500 mt-1">Conquistas</div>
+
+          <!-- Card Conquistas -->
+          <div class="bg-white rounded-xl shadow p-3 text-center flex flex-col items-center justify-center">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-yellow-100 text-yellow-600 text-lg mb-1">🏆</div>
+            <div class="text-xl font-bold text-yellow-600"><?= $total_conquistas ?></div>
+            <div class="text-xs text-gray-500 mt-1">Conquistas Desbloqueadas</div>
           </div>
-          <div class="bg-white rounded-xl shadow p-2 text-center border-t-2 border-purple-500">
-            <div class="text-xl font-bold text-purple-600">📈 <?= round($variacao_rating[0]['variacao_rating'], 3) ?></div>
-            <div class="text-xs text-gray-500 mt-1">Variação (10d)</div>
+
+          <!-- Card Variação (10d) -->
+          <div class="bg-white rounded-xl shadow p-3 text-center flex flex-col items-center justify-center">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 text-lg mb-1">📈</div>
+            <div class="text-xl font-bold <?= $variacao_color_class ?>"><?= $variacao_formatada ?> <?= $variacao_icon ?></div>
+            <div class="text-xs text-gray-500 mt-1">Variação de Rating (10d)</div>
           </div>
         </div>
 
         <!-- Gráfico e ranking -->
         <div class="grid grid-cols-1 gap-3 mb-3">
-            <div class="bg-white rounded-xl shadow p-3 flex flex-col gap-2">
-              <div class="flex items-center gap-2 mb-1">
-              <span class="text-xl">📊</span>
-              <span class="font-semibold text-blue-700 text-base tracking-wide drop-shadow-sm">Histórico de Rating</span>
-              </div>
+            <div class="bg-white rounded-xl shadow p-4">
+              <h3 class="text-base font-semibold mb-3 flex items-center gap-2 text-gray-700">
+                <span class="text-xl">📊</span>
+                Histórico de Rating
+              </h3>
               <canvas id="graficoRating" height="100"></canvas>
             </div>
-          <div class="bg-white rounded-xl shadow p-3">
-            <h3 class="text-base font-semibold mb-2 flex items-center gap-1">
-              <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 2l2.39 4.84 5.34.78-3.87 3.77.91 5.32L10 13.27l-4.77 2.51.91-5.32-3.87-3.77 5.34-.78L10 2z" />
-              </svg>
-              Ranking
+          <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-base font-semibold mb-3 flex items-center gap-2 text-gray-700">
+              <span class="text-xl">🏆</span>
+              Ranking Geral
             </h3>
             <ul class="space-y-1">
               <!-- Jogadores acima da posição do usuário -->
               <?php foreach ($ranking_superior as $rank): ?>
-                <li class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-sm border-l-8 border-yellow-500 bg-yellow-200">
-                  <span class="text-lg font-bold text-yellow-700"><?= $p_sup ?>º</span>
-                  <span class="flex-1 font-semibold text-yellow-900">
-                    <?= $rank['nome'] ?>
+                <li class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-md border-l-4 border-yellow-500 bg-white hover:bg-yellow-50 transition-colors">
+                  <span class="text-lg font-bold text-yellow-600 w-8 text-center"><?= $p_sup ?>º</span>
+                  <span class="flex-1 font-semibold text-gray-800">
+                    <?= htmlspecialchars($rank['nome']) ?>
                     <?php if (!empty($rank['apelido'])): ?>
-                      <div class="text-xs text-yellow-800 mt-0.5"><?= htmlspecialchars($rank['apelido']) ?></div>
+                      <span class="text-xs text-gray-500 ml-1">(<?= htmlspecialchars($rank['apelido']) ?>)</span>
                     <?php endif; ?>
                   </span>
-                  <span class="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded">⭐ <?= $rank['rating'] ?></span>
+                  <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full">⭐ <?= htmlspecialchars($rank['rating']) ?></span>
                 </li>
                 <?php $p_sup = $p_sup + 1; endforeach; ?>
 
               <!-- Usuário em destaque -->
-              <li class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-sm border-l-8 border-blue-700 bg-blue-200">
-                <span class="text-lg font-bold text-blue-800"><?= $usuario[0]['posicao'] ?>º</span>
-                <span class="flex-1 font-bold text-blue-900">
-                  <?= $usuario[0]['nome'] ?> <span class="ml-2 bg-blue-400 text-blue-900 px-2 py-0.5 rounded-full text-xs font-bold">VOCÊ</span>
+              <li class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-lg border-l-4 border-blue-600 bg-blue-50 relative">
+                <span class="text-lg font-bold text-blue-700 w-8 text-center"><?= $usuario[0]['posicao'] ?>º</span>
+                <span class="flex-1 font-bold text-blue-800">
+                  <?= htmlspecialchars($usuario[0]['nome']) ?>
+                  <span class="ml-1 text-blue-600 text-xs font-bold">(VOCÊ)</span>
                   <?php if (!empty($usuario[0]['apelido'])): ?>
-                    <div class="text-xs text-blue-800 mt-0.5"><?= htmlspecialchars($usuario[0]['apelido']) ?></div>
+                    <span class="text-xs text-blue-500 ml-1">(<?= htmlspecialchars($usuario[0]['apelido']) ?>)</span>
                   <?php endif; ?>
                 </span>
-                <span class="bg-blue-400 text-blue-900 text-xs font-bold px-2 py-1 rounded">⭐ <?= $usuario[0]['rating'] ?></span>
+                <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full">⭐ <?= htmlspecialchars($usuario[0]['rating']) ?></span>
               </li>
 
               <!-- Jogadores abaixo da posição do usuário -->
               <?php foreach ($ranking_inferior as $rank): ?>
-                <li class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-sm border-l-8 border-gray-500 bg-gray-200">
-                  <span class="text-lg font-bold text-gray-700"><?= $p_inf ?>º</span>
-                  <span class="flex-1 font-semibold text-gray-900">
-                    <?= $rank['nome'] ?>
+                <li class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-md border-l-4 border-gray-400 bg-white hover:bg-gray-50 transition-colors">
+                  <span class="text-lg font-bold text-gray-600 w-8 text-center"><?= $p_inf ?>º</span>
+                  <span class="flex-1 font-semibold text-gray-800">
+                    <?= htmlspecialchars($rank['nome']) ?>
                     <?php if (!empty($rank['apelido'])): ?>
-                      <div class="text-xs text-gray-700 mt-0.5"><?= htmlspecialchars($rank['apelido']) ?></div>
+                      <span class="text-xs text-gray-500 ml-1">(<?= htmlspecialchars($rank['apelido']) ?>)</span>
                     <?php endif; ?>
                   </span>
-                  <span class="bg-gray-400 text-gray-900 text-xs font-bold px-2 py-1 rounded">⭐ <?= $rank['rating'] ?></span>
+                  <span class="bg-gray-100 text-gray-700 text-xs font-bold px-2 py-1 rounded-full">⭐ <?= htmlspecialchars($rank['rating']) ?></span>
                 </li>
                 <?php $p_inf = $p_inf + 1; endforeach; ?>
             </ul>
-            <div class="mt-2 text-center">
-              <a href="ranking-geral.php" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold px-2 py-1 rounded-full shadow transition-colors text-xs">
+            <div class="mt-4 text-center">
+                <a href="ranking-geral.php" class="inline-block bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold px-3 py-1.5 rounded-full shadow-sm transition-colors text-xs">
                 Ver ranking completo &rarr;
               </a>
             </div>
           </div>
         </div>
 
-        
-        <?php if (empty($parceiro_vitoria)) { ?>
+        <?php
+        // Preparar dados para o Quadro de Honra, com fallback para estado vazio
+        if (empty($parceiro_vitoria)) {
+            $pato_nome = 'Ainda nenhum';
+            $pato_partidas = 0;
+            $pato_vitorias = 0;
 
-<!-- Quadro de Honra (ou nem tanto) - Versão Futurista -->
-          <div class="bg-[#0f172a] rounded-2xl border border-blue-600 p-4 shadow-lg mb-6">
-            <h3 class="text-lg font-black mb-4 text-blue-300 tracking-wide flex items-center gap-2 uppercase">
-              🏅 Quadro de Honra
-              <span class="text-xs font-medium lowercase">(ou nem tanto) | Você ainda não tem nenhuma partida para exibir.</span>
+            $carrasco_nome = 'Ninguém te para';
+            $carrasco_partidas = 0;
+            $carrasco_derrotas = 0;
+
+            $dupla_forte_nome = 'Jogue mais';
+            $dupla_forte_partidas = 0;
+            $dupla_forte_vitorias = 0;
+
+            $azarado_nome = 'Sempre na sorte';
+            $azarado_partidas = 0;
+            $azarado_derrotas = 0;
+        } else {
+            // Meu Pato (mais vitórias contra)
+            $pato_nome = !empty($adversario_vitoria[0]) ? $adversario_vitoria[0]['adversario_nome'] : 'Ainda nenhum';
+            $pato_partidas = !empty($adversario_vitoria[0]) ? $adversario_vitoria[0]['partidas'] : 0;
+            $pato_vitorias = !empty($adversario_vitoria[0]) ? $adversario_vitoria[0]['vitorias'] : 0;
+
+            // Meu Carrasco (mais derrotas para)
+            $carrasco_nome = !empty($adversario_derrota[0]) ? $adversario_derrota[0]['adversario_nome'] : 'Ninguém te para';
+            $carrasco_partidas = !empty($adversario_derrota[0]) ? $adversario_derrota[0]['partidas'] : 0;
+            $carrasco_derrotas = !empty($adversario_derrota[0]) ? $adversario_derrota[0]['derrotas'] : 0;
+
+            // Dupla Forte (mais vitórias com)
+            $dupla_forte_nome = !empty($parceiro_vitoria[0]) ? $parceiro_vitoria[0]['parceiro_nome'] : 'Jogue mais';
+            $dupla_forte_partidas = !empty($parceiro_vitoria[0]) ? $parceiro_vitoria[0]['partidas'] : 0;
+            $dupla_forte_vitorias = !empty($parceiro_vitoria[0]) ? $parceiro_vitoria[0]['vitorias'] : 0;
+
+            // Só Atrapalha (mais derrotas com)
+            $azarado_nome = !empty($parceiro_derrota[0]) ? $parceiro_derrota[0]['parceiro_nome'] : 'Sempre na sorte';
+            $azarado_partidas = !empty($parceiro_derrota[0]) ? $parceiro_derrota[0]['partidas'] : 0;
+            $azarado_derrotas = !empty($parceiro_derrota[0]) ? $parceiro_derrota[0]['derrotas'] : 0;
+        }
+        ?>
+
+        <!-- Quadro de Honra Redesenhado -->
+        <div class="bg-white rounded-xl shadow p-4 mb-6">
+            <h3 class="text-base font-semibold mb-3 flex items-center gap-2 text-gray-700">
+                <span class="text-xl">🏅</span>
+                Quadro de Honra <span class="text-gray-400 font-normal">(ou nem tanto)</span>
             </h3>
-            <div class="grid grid-cols-2 gap-2">
-              <!-- Meu Pato -->
-              <div class="bg-yellow-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
-                <div class="text-2xl font-bold absolute top-1 right-2">🦆</div>
-                <div class="text-xs font-bold mb-1">MEU PATO</div>
-                <div class="text-xs">🟡 Vitórias contra:</div>
-                <div class="text-sm font-semibold truncate">???</div>
-                <div class="text-xs mt-1">🔁 <b>???</b> · ✅ <b>??? Vitórias</b></div>
-              </div>
-              <!-- Meu Carrasco -->
-              <div class="bg-red-500 text-white rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
-                <div class="text-2xl font-bold absolute top-1 right-2">💀</div>
-                <div class="text-xs font-bold mb-1">MEU CARRASCO</div>
-                <div class="text-xs">🔴 Derrotas para:</div>
-                <div class="text-sm font-semibold truncate">???</div>
-                <div class="text-xs mt-1">🔁 <b>???</b> · ❌ <b>??? Derrotas</b></div>
-              </div>
-              <!-- Dupla Forte -->
-              <div class="bg-lime-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
-                <div class="text-2xl font-bold absolute top-1 right-2">🤝</div>
-                <div class="text-xs font-bold mb-1">DUPLA FORTE</div>
-                <div class="text-xs">🟢 Com:</div>
-                <div class="text-sm font-semibold truncate">???</div>
-                <div class="text-xs mt-1">🤝 <b>???</b> · ✅ <b>??? Vitórias</b></div>
-              </div>
-              <!-- Só Atrapalha -->
-              <div class="bg-slate-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
-                <div class="text-2xl font-bold absolute top-1 right-2">🐢</div>
-                <div class="text-xs font-bold mb-1">SÓ ATRAPALHA</div>
-                <div class="text-xs">⚫ Com:</div>
-                <div class="text-sm font-semibold truncate">???</div>
-                <div class="text-xs mt-1">🤷 <b>???</b> · ❌ <b>??? Derrotas</b></div>
-              </div>
+            <div class="grid grid-cols-2 gap-3">
+                <!-- Dupla Forte -->
+                <div class="bg-green-50 rounded-lg p-3 border-l-4 border-green-500 shadow-sm">
+                    <div class="flex items-center justify-between mb-1">
+                        <h4 class="font-bold text-xs text-green-800 uppercase tracking-wider">Dupla Forte</h4>
+                        <span class="text-2xl">🤝</span>
+                    </div>
+                    <p class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($dupla_forte_nome) ?>">
+                        <?= htmlspecialchars($dupla_forte_nome) ?>
+                    </p>
+                    <div class="text-xs text-gray-600 mt-1">
+                        <span class="font-semibold"><?= htmlspecialchars($dupla_forte_vitorias) ?> vitórias</span> em <?= htmlspecialchars($dupla_forte_partidas) ?> jogos
+                    </div>
+                </div>
+                <!-- Meu Pato -->
+                <div class="bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-500 shadow-sm">
+                    <div class="flex items-center justify-between mb-1">
+                        <h4 class="font-bold text-xs text-yellow-800 uppercase tracking-wider">Meu Pato</h4>
+                        <span class="text-2xl">🦆</span>
+                    </div>
+                    <p class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($pato_nome) ?>">
+                        <?= htmlspecialchars($pato_nome) ?>
+                    </p>
+                    <div class="text-xs text-gray-600 mt-1">
+                        <span class="font-semibold"><?= htmlspecialchars($pato_vitorias) ?> vitórias</span> em <?= htmlspecialchars($pato_partidas) ?> jogos
+                    </div>
+                </div>
+                <!-- Meu Carrasco -->
+                <div class="bg-red-50 rounded-lg p-3 border-l-4 border-red-500 shadow-sm">
+                    <div class="flex items-center justify-between mb-1">
+                        <h4 class="font-bold text-xs text-red-800 uppercase tracking-wider">Meu Carrasco</h4>
+                        <span class="text-2xl">💀</span>
+                    </div>
+                    <p class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($carrasco_nome) ?>">
+                        <?= htmlspecialchars($carrasco_nome) ?>
+                    </p>
+                    <div class="text-xs text-gray-600 mt-1">
+                        <span class="font-semibold"><?= htmlspecialchars($carrasco_derrotas) ?> derrotas</span> em <?= htmlspecialchars($carrasco_partidas) ?> jogos
+                    </div>
+                </div>
+                <!-- Só Atrapalha -->
+                <div class="bg-gray-100 rounded-lg p-3 border-l-4 border-gray-400 shadow-sm">
+                    <div class="flex items-center justify-between mb-1">
+                        <h4 class="font-bold text-xs text-gray-600 uppercase tracking-wider">Só Atrapalha</h4>
+                        <span class="text-2xl">🐢</span>
+                    </div>
+                    <p class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($azarado_nome) ?>">
+                        <?= htmlspecialchars($azarado_nome) ?>
+                    </p>
+                    <div class="text-xs text-gray-600 mt-1">
+                        <span class="font-semibold"><?= htmlspecialchars($azarado_derrotas) ?> derrotas</span> em <?= htmlspecialchars($azarado_partidas) ?> jogos
+                    </div>
+                </div>
             </div>
             <div class="mt-4 text-center">
-              <a href="#" class="inline-block bg-blue-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-full shadow text-xs uppercase transition">
-                Ver conquistas &rarr;
-              </a>
+                <a href="#" class="inline-block bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold px-3 py-1.5 rounded-full shadow-sm transition-colors text-xs">
+                    Ver todas as conquistas &rarr;
+                </a>
             </div>
-          </div>
-
-        <?php } else { ?>
-
-          <!-- Quadro de Honra (ou nem tanto) - Versão Futurista -->
-          <div class="bg-[#0f172a] rounded-2xl border border-blue-600 p-4 shadow-lg mb-6">
-            <h3 class="text-lg font-black mb-4 text-blue-300 tracking-wide flex items-center gap-2 uppercase">
-              🏅 Quadro de Honra
-              <span class="text-xs font-medium lowercase">(ou nem tanto)</span>
-            </h3>
-            <div class="grid grid-cols-2 gap-2">
-              <!-- Meu Pato -->
-              <div class="bg-yellow-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
-                <div class="text-2xl font-bold absolute top-1 right-2">🦆</div>
-                <div class="text-xs font-bold mb-1">MEU PATO</div>
-                <div class="text-xs">🟡 Vitórias contra:</div>
-                <div class="text-sm font-semibold truncate"><?= $adversario_vitoria[0]['adversario_nome'] ?></div>
-                <div class="text-xs mt-1">🔁 <b><?= $adversario_vitoria[0]['partidas'] ?></b> · ✅ <b><?= $adversario_vitoria[0]['vitorias'] ?> Vitórias</b></div>
-              </div>
-              <!-- Meu Carrasco -->
-              <div class="bg-red-500 text-white rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
-                <div class="text-2xl font-bold absolute top-1 right-2">💀</div>
-                <div class="text-xs font-bold mb-1">MEU CARRASCO</div>
-                <div class="text-xs">🔴 Derrotas para:</div>
-                <div class="text-sm font-semibold truncate"><?= $adversario_derrota[0]['adversario_nome'] ?></div>
-                <div class="text-xs mt-1">🔁 <b><?= $adversario_derrota[0]['partidas'] ?></b> · ❌ <b><?= $adversario_derrota[0]['derrotas'] ?> Derrotas</b></div>
-              </div>
-              <!-- Dupla Forte -->
-              <div class="bg-lime-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
-                <div class="text-2xl font-bold absolute top-1 right-2">🤝</div>
-                <div class="text-xs font-bold mb-1">DUPLA FORTE</div>
-                <div class="text-xs">🟢 Venceu com:</div>
-                <div class="text-sm font-semibold truncate"><?= $parceiro_vitoria[0]['parceiro_nome'] ?></div>
-                <div class="text-xs mt-1">🤝 <b><?= $parceiro_vitoria[0]['partidas'] ?></b> · ✅ <b><?= $parceiro_vitoria[0]['vitorias'] ?> Vitórias</b></div>
-              </div>
-              <!-- Só Atrapalha -->
-              <div class="bg-slate-300 text-gray-900 rounded-xl p-2 shadow flex flex-col items-start relative min-h-[90px]">
-                <div class="text-2xl font-bold absolute top-1 right-2">🐢</div>
-                <div class="text-xs font-bold mb-1">SÓ ATRAPALHA</div>
-                <div class="text-xs">⚫ Perdeu com:</div>
-                <div class="text-sm font-semibold truncate"><?= $parceiro_derrota[0]['parceiro_nome'] ?></div>
-                <div class="text-xs mt-1">🤷 <b><?= $parceiro_derrota[0]['partidas'] ?></b> · ❌ <b><?= $parceiro_derrota[0]['derrotas'] ?> Derrotas</b></div>
-              </div>
-            </div>
-            <div class="mt-4 text-center">
-              <a href="#" class="inline-block bg-blue-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-full shadow text-xs uppercase transition">
-                Ver conquistas &rarr;
-              </a>
-            </div>
-          </div>
-
-        <?php } ?>
+        </div>
         <br><br>
       </section>
     </main>
@@ -295,15 +364,15 @@ foreach ($hist_rating as $registro) {
   <!-- Botões fixos no rodapé, compactos e responsivos para mobile -->
   <div class="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 flex gap-2 sm:gap-4 px-2">
     <!-- Botão Arenas -->
-    <button id="btnArenass" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-2 rounded-full shadow flex items-center gap-1 text-sm sm:text-base transition-all">
+    <button id="btnArenas" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-2 rounded-full shadow-lg flex items-center gap-1 text-sm sm:text-base transition-all transform hover:scale-105">
       🏟️ <span>Arenas</span>
     </button>
     <!-- Botão Torneios -->
-    <button id="btnTorneios" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-full shadow flex items-center gap-1 text-sm sm:text-base transition-all">
+    <button id="btnTorneios" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-full shadow-lg flex items-center gap-1 text-sm sm:text-base transition-all transform hover:scale-105">
       🏆 <span>Torneios</span>
     </button>
     <!-- Botão Inscrições -->
-    <button id="btnInscricoes" class="bg-green-700 hover:bg-green-800 text-white font-bold px-3 py-2 rounded-full shadow flex items-center gap-1 text-sm sm:text-base transition-all">
+    <button id="btnInscricoes" class="bg-green-700 hover:bg-green-800 text-white font-bold px-3 py-2 rounded-full shadow-lg flex items-center gap-1 text-sm sm:text-base transition-all transform hover:scale-105">
       📝 <span>Inscrições</span>
     </button>
   </div>
@@ -351,111 +420,123 @@ foreach ($hist_rating as $registro) {
   <script>
     const labels = <?= json_encode($labels) ?>;
     const dados = <?= json_encode($dados) ?>;
+    const diffs = <?= json_encode($diffs) ?>;
 
-    // Função para mostrar apenas o primeiro, meio e último label e rating
-    function customXTicks(value, index, ticks) {
-      if (index === 0) return labels[0];
-      if (index === Math.floor((labels.length - 1) / 2)) return labels[Math.floor((labels.length - 1) / 2)];
-      if (index === labels.length - 1) return labels[labels.length - 1];
-      return '';
-    }
+    if (dados.length > 1) {
+      const maxRating = Math.max(...dados);
+      const minRating = Math.min(...dados);
+      const maxIndex = dados.indexOf(maxRating);
+      const minIndex = dados.indexOf(minRating);
 
-    // Função para mostrar apenas o primeiro, meio e último valor no gráfico
-    function customPointLabels(context) {
-      const idx = context.dataIndex;
-      if (idx === 0 || idx === Math.floor((dados.length - 1) / 2) || idx === dados.length - 1) {
-        return dados[idx];
-      }
-      return '';
-    }
+      const ctx = document.getElementById('graficoRating').getContext('2d');
 
-    const ctx = document.getElementById('graficoRating').getContext('2d');
-    const graficoRating = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Rating',
-          data: dados,
-          borderColor: 'rgba(59,130,246,1)',
-          backgroundColor: 'rgba(59,130,246,0.08)',
-          tension: 0.5,
-          fill: true,
-          pointRadius: 0,
-          pointHoverRadius: 0,
-          borderWidth: 3,
-          pointBackgroundColor: 'rgba(59,130,246,1)',
-          pointBorderColor: '#fff',
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
+      // Criando o gradiente para o fundo
+      const gradient = ctx.createLinearGradient(0, 0, 0, 120);
+      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+      gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+      const graficoRating = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Rating',
+            data: dados,
+            borderColor: 'rgba(59,130,246,1)',
+            backgroundColor: gradient,
+            tension: 0.4,
+            fill: true,
+            borderWidth: 2.5,
+            pointRadius: function(context) {
+              const idx = context.dataIndex;
+              return idx === 0 || idx === dados.length - 1 || idx === minIndex || idx === maxIndex ? 4 : 0;
+            },
+            pointHoverRadius: 6,
+            pointBackgroundColor: 'rgba(59,130,246,1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(59,130,246,1)',
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            datalabels: {
+              display: function(context) {
+                const idx = context.dataIndex;
+                return idx === 0 || idx === dados.length - 1 || idx === minIndex || idx === maxIndex;
+              },
+              formatter: (value) => value,
+              align: 'top',
+              offset: 8,
+              color: '#374151',
+              font: {
+                weight: 'bold',
+                size: 11
+              }
+            },
+            tooltip: {
+              enabled: true,
+              backgroundColor: '#1f2937',
+              titleColor: '#f9fafb',
+              bodyColor: '#f9fafb',
+              borderColor: '#374151',
+              borderWidth: 1,
+              padding: 10,
+              displayColors: false,
+              callbacks: {
+                title: (tooltipItems) => 'Data: ' + tooltipItems[0].label,
+                label: function(context) {
+                  const rating = context.parsed.y;
+                  const diff = diffs[context.dataIndex];
+                  let diffText = '';
+                  if (diff > 0) {
+                    diffText = ` (📈 +${diff})`;
+                  } else if (diff < 0) {
+                    diffText = ` (📉 ${diff})`;
+                  }
+                  return 'Rating: ' + rating + diffText;
+                }
+              }
+            }
           },
-          datalabels: {
-            display: false
-          },
-          tooltip: {
-            enabled: true,
-            callbacks: {
-              // Mostra a pontuação ao passar o mouse
-              label: function(context) {
-                return 'Rating: ' + context.parsed.y;
+          scales: {
+            x: {
+              ticks: {
+                color: '#64748b',
+                font: { size: 11, weight: 'bold' },
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 5 // Limita o número de labels para não poluir
+              },
+              grid: { display: false }
+            },
+            y: {
+              beginAtZero: false,
+              ticks: {
+                color: '#64748b',
+                font: { size: 11 },
+                padding: 8,
+              },
+              grid: {
+                color: 'rgba(100,116,139,0.1)',
+                drawBorder: false,
               }
             }
           }
-        },
-        scales: {
-          x: {
-            ticks: {
-              color: '#64748b',
-              font: {
-                size: 12,
-                weight: 'bold'
-              },
-              callback: customXTicks,
-              maxRotation: 0,
-              minRotation: 0,
-              autoSkip: false,
-            },
-            grid: {
-              color: 'rgba(100,116,139,0.07)',
-              drawBorder: false,
-            }
-          },
-          y: {
-            beginAtZero: false,
-            ticks: {
-              color: '#64748b',
-              font: {
-                size: 12
-              },
-              padding: 6,
-            },
-            grid: {
-              color: 'rgba(100,116,139,0.07)',
-              drawBorder: false,
-            }
-          }
-        },
-        onClick: (e, elements) => {
-          if (elements.length > 0) {
-            const idx = elements[0].index;
-            const label = labels[idx];
-            const valor = dados[idx];
-            alert('Data: ' + label + '\nRating: ' + valor);
-          }
         }
-      }
-    });
+      });
+    }
   </script>
   <style>
     #graficoRating {
-      max-height: 150px;
-      min-height: 80px;
+      max-height: 180px;
+      min-height: 120px;
     }
   </style>
 
