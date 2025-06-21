@@ -23,73 +23,102 @@ $partidas = Partida::partidas_pendente_jogador($jogador);
 
             <div class="space-y-4">
 
-                <!-- Partida 1 -->
-                <?php foreach ($partidas as $p): ?>
-                    <?php
-                    $time_a = [$p['jogador1_id'], $p['jogador2_id']];
-                    $time_b = [$p['jogador3_id'], $p['jogador4_id']];
-                    $time_usuario = in_array($jogador, $time_a) ? 'A' : 'B';
-                    $vencedor = $p['vencedor'];
-                    $venceu = ($time_usuario == $vencedor);
-                    $classe_resultado = $venceu ? 'green' : 'red';
-                    $classe_resultado_adv = !$venceu ? 'green' : 'red';
-                    $data = date('d M Y', strtotime($p['data']));
-                    $cor_resultado = $venceu ? '#DFF2BF' : '#FFBABA';
-                    ?>
-                    <div class="relative bg-white rounded-xl shadow p-3 border border-gray-100 flex flex-col items-center" style="background-color:<?= $cor_resultado ?>;">
-                        <!-- Tarja de Resultado Centralizada -->
-                        <div class="absolute left-1/2 -top-3 -translate-x-1/2 px-4 py-1 rounded-full bg-<?= $classe_resultado ?>-600 text-white text-xs font-bold shadow z-10 border-2 border-white flex items-center gap-1">
-                            <?= $venceu ? 'Vitória' : 'Derrota' ?>
-                        </div>
-                        <!-- Times e Placar -->
-                        <div class="flex items-center gap-4 w-full justify-center mt-4">
-                            <!-- Time A -->
-                            <div class="flex flex-col items-end flex-1">
-                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej1'] ?></span>
-                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej2'] ?></span>
-                            </div>
-                            <span class="text-base font-bold text-<?= ($time_usuario == 'A' ? $classe_resultado : $classe_resultado_adv) ?>-700 bg-<?= ($time_usuario == 'A' ? $classe_resultado : $classe_resultado_adv) ?>-100 rounded px-2 py-1 shadow"><?= $p['placar_a'] ?></span>
-                            <!-- VS Circle -->
-                            <span class="mx-2 flex items-center justify-center rounded-full bg-gray-200 text-gray-700 font-bold text-sm w-8 h-8 shadow-inner border border-gray-300">
-                                VS
-                            </span>
-                            <span class="text-base font-bold text-<?= ($time_usuario == 'B' ? $classe_resultado : $classe_resultado_adv) ?>-700 bg-<?= ($time_usuario == 'B' ? $classe_resultado : $classe_resultado_adv) ?>-100 rounded px-2 py-1 shadow"><?= $p['placar_b'] ?></span>
-                            <!-- Time B -->
-                            <div class="flex flex-col items-start flex-1">
-                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej3'] ?></span>
-                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej4'] ?></span>
-                            </div>
-                        </div>
-                        <!-- Data e ID Centralizados e Discretos -->
-                        <div class="mt-2 text-xs text-gray-400 text-center w-full">
-                            <span><?= $data ?></span>
-                            <span class="mx-1">•</span>
-                            <span class="font-semibold text-gray-500">#<?= $p['id'] ?></span>
-                        </div>
-                        <!-- Botão VALIDAR -->
-                        <form method="GET" action="v2.php" class="mt-3 w-full flex justify-center">
-                            <input type="hidden" name="p" value="<?= $p['token_validacao'] ?>">
-                            <input type="hidden" name="j" value="<?= $jogador ?>">
-                            <button type="submit" 
-                                class="bg-white text-black font-bold py-1.5 px-6 rounded-full shadow transition-colors text-sm border-2 border-green-400 animate-neon-green"
-                                style="border-color: #39FF14;">
-                                VALIDAR
-                            </button>
-                        </form>
+                <?php if (empty($partidas)): ?>
+                    <div class="text-center bg-white rounded-xl shadow p-8 mt-6">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                        </svg>
+                        <h3 class="text-xl font-semibold text-gray-700 mt-4">Nenhuma partida pendente</h3>
+                        <p class="text-gray-500 mt-2">Você não tem partidas aguardando validação no momento. Que tal registrar uma nova?</p>
+                        <a href="nova-partida.php" class="mt-6 inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-full transition-transform transform hover:scale-105">
+                            Registrar Nova Partida
+                        </a>
                     </div>
-                    <!-- Neon Green Animation (less intense) -->
-                    <style>
-                    @keyframes neonGreenBlink {
-                        0%, 100% { box-shadow: 0 0 2px #39FF14, 0 0 4px #39FF14; border-color: #39FF14; }
-                        50% { box-shadow: 0 0 4px #39FF14, 0 0 8px #39FF14; border-color: #39FF14; }
-                    }
-                    .animate-neon-green {
-                        animation: neonGreenBlink 1s infinite alternate;
-                        border-color: #39FF14 !important;
-                        box-shadow: 0 0 2px #39FF14, 0 0 4px #39FF14;
-                    }
-                    </style>
-                <?php endforeach; ?>
+                <?php else: ?>
+                    <?php foreach ($partidas as $p): ?>
+                        <?php
+                        $time_a_ids = [$p['jogador1_id'], $p['jogador2_id']];
+                        $time_b_ids = [$p['jogador3_id'], $p['jogador4_id']];
+
+                        $is_user_in_team_a = in_array($jogador, $time_a_ids);
+                        $is_user_in_team_b = in_array($jogador, $time_b_ids);
+
+                        // Determine which team the current user is on
+                        $user_team = null;
+                        if ($is_user_in_team_a) {
+                            $user_team = 'A';
+                        } elseif ($is_user_in_team_b) {
+                            $user_team = 'B';
+                        }
+
+                        $venceu = ($user_team == $p['vencedor']);
+
+                        $card_border_class = $venceu ? 'border-green-500' : 'border-red-500';
+                        $tag_bg_class = $venceu ? 'bg-green-600' : 'bg-red-600';
+                        $tag_text = $venceu ? 'Vitória' : 'Derrota';
+                        $tag_icon = $venceu ? '✅' : '❌';
+
+                        $placar_time_a_class = $p['vencedor'] == 'A' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100';
+                        $placar_time_b_class = $p['vencedor'] == 'B' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100';
+
+                        $data_formatada = date('d M Y', strtotime($p['data']));
+                        ?>
+                        <div class="relative bg-white rounded-xl shadow p-4 border-l-8 <?= htmlspecialchars($card_border_class) ?> flex flex-col items-center transition hover:shadow-md">
+                            <!-- Tarja de Resultado -->
+                            <div class="absolute left-1/2 -top-3 -translate-x-1/2 px-3 py-1 rounded-full <?= htmlspecialchars($tag_bg_class) ?> text-white text-xs font-bold shadow z-10 border-2 border-white flex items-center gap-1">
+                                <?= htmlspecialchars($tag_icon) ?> <?= htmlspecialchars($tag_text) ?>
+                            </div>
+
+                            <!-- Times e Placar -->
+                            <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 w-full mt-4">
+                                <!-- Time A -->
+                                <div class="flex flex-col items-end text-right space-y-1">
+                                    <div class="flex items-center gap-1">
+                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej1']) ?></span>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej2']) ?></span>
+                                    </div>
+                                </div>
+
+                                <!-- Placar -->
+                                <div class="flex items-center gap-2 text-center">
+                                    <span class="text-xl font-bold rounded-md px-2 py-1 shadow-inner w-10 text-center <?= htmlspecialchars($placar_time_a_class) ?>"><?= htmlspecialchars($p['placar_a']) ?></span>
+                                    <span class="text-gray-400 font-bold text-xs">VS</span>
+                                    <span class="text-xl font-bold rounded-md px-2 py-1 shadow-inner w-10 text-center <?= htmlspecialchars($placar_time_b_class) ?>"><?= htmlspecialchars($p['placar_b']) ?></span>
+                                </div>
+
+                                <!-- Time B -->
+                                <div class="flex flex-col items-start text-left space-y-1">
+                                    <div class="flex items-center gap-1">
+                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej3']) ?></span>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej4']) ?></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Data e ID -->
+                            <div class="flex items-center justify-between w-full mt-4 pt-3 border-t border-gray-200/80">
+                                <div class="text-xs text-gray-500 flex items-center gap-1">
+                                    <span><?= htmlspecialchars($data_formatada) ?></span>
+                                    <span class="mx-0.5">•</span>
+                                    <span class="font-semibold">#<?= htmlspecialchars($p['id']) ?></span>
+                                </div>
+                                <!-- Botão VALIDAR -->
+                                <form method="GET" action="v2.php">
+                                    <input type="hidden" name="p" value="<?= htmlspecialchars($p['token_validacao']) ?>">
+                                    <input type="hidden" name="j" value="<?= htmlspecialchars($jogador) ?>">
+                                    <button type="submit"
+                                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1.5 px-4 rounded-full shadow-md transition-colors text-xs uppercase tracking-wide">
+                                        Validar Partida
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                <?php endforeach; ?> 
+                <?php endif; ?>
                 <br><br>
 
             </div>
@@ -99,5 +128,4 @@ $partidas = Partida::partidas_pendente_jogador($jogador);
         DUPLA - Deu Game? Dá Ranking!
     </footer>
 </body>
-
 </html>
