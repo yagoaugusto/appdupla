@@ -29,7 +29,7 @@ $partidas = Partida::partidas_jogador($jogador);
                 $color_class = $diff_val >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
                 $icon = $diff_val >= 0 ? '▲' : '▼';
                 $sign = $diff_val > 0 ? '+' : '';
-                return "<span class='ml-1 text-xs {$color_class} rounded px-1.5 py-0.5 font-mono'>{$icon} {$sign}{$diff_val}</span>";
+                return "<span class='text-xs {$color_class} rounded px-1.5 py-0.5 font-mono'>{$icon} {$sign}{$diff_val}</span>";
             }
             ?>
 
@@ -80,20 +80,20 @@ $partidas = Partida::partidas_jogador($jogador);
                                 <!-- Time A -->
                                 <div class="flex flex-col items-end text-right space-y-2">
                                     <!-- Jogador 1 -->
-                                    <div class="flex items-center justify-end gap-1">
+                                    <div>
                                         <div class="truncate">
                                             <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej1']) ?></span>
                                             <?php if (!empty($p['sobrenomej1'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej1']) ?></span><?php endif; ?>
                                         </div>
-                                        <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h1']) : '' ?>
+                                        <div class="mt-1"><?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h1']) : '' ?></div>
                                     </div>
                                     <!-- Jogador 2 -->
-                                    <div class="flex items-center justify-end gap-1">
+                                    <div>
                                         <div class="truncate">
                                             <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej2']) ?></span>
                                             <?php if (!empty($p['sobrenomej2'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej2']) ?></span><?php endif; ?>
                                         </div>
-                                        <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h2']) : '' ?>
+                                        <div class="mt-1"><?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h2']) : '' ?></div>
                                     </div>
                                 </div>
                                 
@@ -107,20 +107,20 @@ $partidas = Partida::partidas_jogador($jogador);
                                 <!-- Time B -->
                                 <div class="flex flex-col items-start text-left space-y-2">
                                     <!-- Jogador 3 -->
-                                    <div class="flex items-center justify-start gap-1">
-                                        <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h3']) : '' ?>
+                                    <div>
                                         <div class="truncate">
                                             <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej3']) ?></span>
                                             <?php if (!empty($p['sobrenomej3'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej3']) ?></span><?php endif; ?>
                                         </div>
+                                        <div class="mt-1"><?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h3']) : '' ?></div>
                                     </div>
                                     <!-- Jogador 4 -->
-                                    <div class="flex items-center justify-start gap-1">
-                                        <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h4']) : '' ?>
+                                    <div>
                                         <div class="truncate">
                                             <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej4']) ?></span>
                                             <?php if (!empty($p['sobrenomej4'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej4']) ?></span><?php endif; ?>
                                         </div>
+                                        <div class="mt-1"><?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h4']) : '' ?></div>
                                     </div>
                                 </div>
                             </div>
