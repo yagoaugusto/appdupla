@@ -21,105 +21,111 @@ $partidas = Partida::partidas_jogador($jogador);
                 Histórico de Partidas
             </h1>
 
-            <div class="space-y-4">
+            <?php
+            // Função auxiliar para renderizar o badge de variação de rating
+            function render_diff_badge($diff) {
+                if ($diff === null) return '';
+                $diff_val = round($diff, 1);
+                $color_class = $diff_val >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                $icon = $diff_val >= 0 ? '▲' : '▼';
+                $sign = $diff_val > 0 ? '+' : '';
+                return "<span class='ml-1 text-xs {$color_class} rounded px-1.5 py-0.5 font-mono'>{$icon} {$sign}{$diff_val}</span>";
+            }
+            ?>
 
-                <!-- Partida 1 -->
-                <?php foreach ($partidas as $p): ?>
-                    <?php
-                    $time_a = [$p['jogador1_id'], $p['jogador2_id']];
-                    $time_b = [$p['jogador3_id'], $p['jogador4_id']];
-                    $time_usuario = in_array($jogador, $time_a) ? 'A' : 'B';
-                    $vencedor = $p['vencedor'];
-                    $venceu = ($time_usuario == $vencedor);
-                    $classe_resultado = $venceu ? 'green' : 'red';
-                    $classe_resultado_adv = !$venceu ? 'green' : 'red';
-                    $data = date('d M Y', strtotime($p['data']));
-                    $cor_resultado = $venceu ? '#DFF2BF' : '#FFBABA';
-                    $status = $p['status'];
-                    ?>
-                    <div class="relative bg-white rounded-xl shadow p-3 border border-gray-100 flex flex-col items-center" style="background-color:<?= $cor_resultado ?>;">
-                        <!-- Tarja de Resultado Centralizada -->
-                        <div class="absolute left-1/2 -top-3 -translate-x-1/2 px-4 py-1 rounded-full bg-<?= $classe_resultado ?>-600 text-white text-xs font-bold shadow z-10 border-2 border-white flex items-center gap-1">
-                            <?= $venceu ? 'Vitória' : 'Derrota' ?>
-                        </div>
-                        <!-- Link do cartão -->
-                        <a href="pos-partida.php?j=<?= urlencode($jogador) ?>&p=<?= urlencode($p['token_validacao']) ?>" class="absolute inset-0 z-10" title="Ver detalhes da partida" style="border-radius: 0.75rem;"></a>
-                        <!-- Times e Placar -->
-                        <div class="flex items-center gap-4 w-full justify-center mt-4 relative z-20">
-                            <!-- Time A -->
-                            <div class="flex flex-col items-end flex-1">
-                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej1'] ?></span>
-                                <span class="text-xs text-gray-800 -mt-1 mb-0"><?= $p['sobrenomej1'] ?? '' ?></span>
-                                <?php if ($p['status'] === 'validada'): ?>
-                                    <div class="flex gap-1 mt-0.5">
-                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h1'],1) ?></span>
-                                    </div>
-                                <?php endif; ?>
-                                <span class="font-semibold text-gray-800 truncate mt-2"><?= $p['nomej2'] ?></span>
-                                <span class="text-xs text-gray-800 -mt-1 mb-0"><?= $p['sobrenomej2'] ?? '' ?></span>
-                                <?php if ($p['status'] === 'validada'): ?>
-                                    <div class="flex gap-1 mt-0.5">
-                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h2'],1) ?></span>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                            <span class="text-base font-bold text-<?= ($time_usuario == 'A' ? $classe_resultado : $classe_resultado_adv) ?>-700 bg-<?= ($time_usuario == 'A' ? $classe_resultado : $classe_resultado_adv) ?>-100 rounded px-2 py-1 shadow"><?= $p['placar_a'] ?></span>
-                            <!-- VS Circle -->
-                            <span class="mx-2 flex items-center justify-center rounded-full bg-gray-200 text-gray-700 font-bold text-sm w-8 h-8 shadow-inner border border-gray-300">
-                                VS
-                            </span>
-                            <span class="text-base font-bold text-<?= ($time_usuario == 'B' ? $classe_resultado : $classe_resultado_adv) ?>-700 bg-<?= ($time_usuario == 'B' ? $classe_resultado : $classe_resultado_adv) ?>-100 rounded px-2 py-1 shadow"><?= $p['placar_b'] ?></span>
-                            <!-- Time B -->
-                            <div class="flex flex-col items-start flex-1">
-                                <span class="font-semibold text-gray-800 truncate"><?= $p['nomej3'] ?></span>
-                                <span class="text-xs text-gray-800 -mt-1 mb-0"><?= $p['sobrenomej3'] ?? '' ?></span>
-                                <?php if ($p['status'] === 'validada'): ?>
-                                    <div class="flex gap-1 mt-0.5">
-                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h3'],1) ?></span>
-                                    </div>
-                                <?php endif; ?>
-                                <span class="font-semibold text-gray-800 truncate mt-2"><?= $p['nomej4'] ?></span>
-                                <span class="text-xs text-gray-800 -mt-1 mb-0"><?= $p['sobrenomej4'] ?? '' ?></span>
-                                <?php if ($p['status'] === 'validada'): ?>
-                                    <div class="flex gap-1 mt-0.5">
-                                        <span class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"><?= round($p['diff_h4'],1) ?></span>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-
-                        <!-- Rodapé do cartão: Status -->
+            <?php if (empty($partidas)): ?>
+                <div class="text-center bg-white rounded-xl shadow p-8 mt-6">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                    </svg>
+                    <h3 class="text-xl font-semibold text-gray-700 mt-4">Nenhuma partida encontrada</h3>
+                    <p class="text-gray-500 mt-2">Parece que você ainda não registrou nenhuma partida. Que tal começar agora?</p>
+                    <a href="nova-partida.php" class="mt-6 inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-full transition-transform transform hover:scale-105">
+                        Registrar Nova Partida
+                    </a>
+                </div>
+            <?php else: ?>
+                <div class="space-y-4">
+                    <?php foreach ($partidas as $p): ?>
                         <?php
-                        $status = $p['status'];
-                        if ($status === 'pendente') {
+                        // --- Lógica para determinar o estado e estilo do card ---
+                        $time_a = [$p['jogador1_id'], $p['jogador2_id']];
+                        $time_usuario = in_array($jogador, $time_a) ? 'A' : 'B';
+                        $venceu = ($p['vencedor'] == $time_usuario);
+                        $data = date('d M Y', strtotime($p['data']));
+
+                        // --- Variáveis de Estilo ---
+                        $card_border_class = $venceu ? 'border-green-500' : 'border-red-500';
+                        $tag_bg_class = $venceu ? 'bg-green-600' : 'bg-red-600';
+                        $tag_text = $venceu ? 'Vitória' : 'Derrota';
+
+                        if ($p['status'] === 'pendente') {
                             $status_label = '⏳ Pendente';
-                            $status_color = 'yellow';
+                            $status_classes = 'bg-yellow-100 text-yellow-800 border-yellow-200';
                         } else {
                             $status_label = '✅ Finalizada';
-                            $status_color = 'blue';
+                            $status_classes = 'bg-blue-100 text-blue-800 border-blue-200';
                         }
                         ?>
-                        <div class="flex items-center justify-between w-full mt-4 pt-2 border-t border-gray-200 gap-2">
-                            <!-- Data e ID à esquerda -->
-                            <div class="mt-2 text-xs text-gray-400 text-left flex items-center gap-2">
-                                <span><?= $data ?></span>
-                                <?php if (!empty($p['data'])): ?>
-                                    <span class="mx-1">•</span>
-                                    <span class="text-gray-400"><?= date('H:i', strtotime($p['data'])) ?></span>
-                                <?php endif; ?>
-                                <span class="mx-1">•</span>
-                                <span class="font-semibold text-gray-500">#<?= $p['id'] ?></span>
+                        <div class="relative bg-white rounded-xl shadow p-4 border-l-4 <?= htmlspecialchars($card_border_class) ?> flex flex-col items-center transition hover:shadow-md">
+                            <!-- Tarja de Resultado -->
+                            <div class="absolute -top-3 left-4 px-3 py-1 rounded-full <?= htmlspecialchars($tag_bg_class) ?> text-white text-xs font-bold shadow z-10 border-2 border-white flex items-center gap-1">
+                                <?= htmlspecialchars($tag_text) ?>
                             </div>
-                            <!-- Status à direita -->
-                            <span class="flex items-center gap-1 bg-<?= $status_color ?>-100 text-<?= $status_color ?>-700 text-xs font-semibold rounded-full px-3 py-1 border border-<?= $status_color ?>-200 shadow mt-2">
-                                <?= $status_label ?>
-                            </span>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-                <br><br>
+                            <!-- Link do cartão -->
+                            <a href="pos-partida.php?j=<?= urlencode($jogador) ?>&p=<?= urlencode($p['token_validacao']) ?>" class="absolute inset-0 z-10" title="Ver detalhes da partida" style="border-radius: 0.75rem;"></a>
+                            
+                            <!-- Times e Placar -->
+                            <div class="flex items-center gap-4 w-full justify-center mt-4 relative z-20">
+                                <!-- Time A -->
+                                <div class="flex flex-col items-end flex-1 space-y-2">
+                                    <div class="text-right">
+                                        <span class="font-semibold text-gray-800 truncate"><?= htmlspecialchars($p['nomej1'] . ' ' . ($p['sobrenomej1'] ?? '')) ?></span><br>
+                                        <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h1']) : '' ?>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="font-semibold text-gray-800 truncate"><?= htmlspecialchars($p['nomej2'] . ' ' . ($p['sobrenomej2'] ?? '')) ?></span><br>
+                                        <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h2']) : '' ?>
+                                    </div>
+                                </div>
+                                
+                                <span class="text-2xl font-bold text-gray-700 bg-gray-100 rounded-lg px-3 py-1 shadow-inner"><?= htmlspecialchars($p['placar_a']) ?></span>
+                                <span class="mx-1 text-gray-400 font-bold text-sm">VS</span>
+                                <span class="text-2xl font-bold text-gray-700 bg-gray-100 rounded-lg px-3 py-1 shadow-inner"><?= htmlspecialchars($p['placar_b']) ?></span>
+                                
+                                <!-- Time B -->
+                                <div class="flex flex-col items-start flex-1 space-y-2">
+                                    <div class="text-left">
+                                        <span class="font-semibold text-gray-800 truncate"><?= htmlspecialchars($p['nomej3'] . ' ' . ($p['sobrenomej3'] ?? '')) ?></span><br>
+                                        <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h3']) : '' ?>
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-semibold text-gray-800 truncate"><?= htmlspecialchars($p['nomej4'] . ' ' . ($p['sobrenomej4'] ?? '')) ?></span><br>
+                                        <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h4']) : '' ?>
+                                    </div>
+                                </div>
+                            </div>
 
-            </div>
+                            <!-- Rodapé do cartão: Status e Data -->
+                            <div class="flex items-center justify-between w-full mt-4 pt-3 border-t border-gray-200/80 gap-2">
+                                <div class="text-xs text-gray-500 flex items-center gap-2">
+                                    <span><?= htmlspecialchars($data) ?></span>
+                                    <?php if (!empty($p['data'])): ?>
+                                        <span class="mx-1">•</span>
+                                        <span><?= date('H:i', strtotime($p['data'])) ?></span>
+                                    <?php endif; ?>
+                                    <span class="mx-1">•</span>
+                                    <span class="font-semibold">#<?= htmlspecialchars($p['id']) ?></span>
+                                </div>
+                                <span class="flex items-center gap-1 text-xs font-semibold rounded-full px-3 py-1 border shadow-sm <?= htmlspecialchars($status_classes) ?>">
+                                    <?= htmlspecialchars($status_label) ?>
+                                </span>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                    <br><br>
+                </div>
+            <?php endif; ?>
         </main>
     </div>
     <footer class="w-full bg-white border-t border-gray-200 py-4 text-center fixed bottom-0 left-0 z-50">
