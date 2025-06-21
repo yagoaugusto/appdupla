@@ -215,7 +215,6 @@ if ($variacao_valor > 0) {
                 <span class="text-lg font-bold text-blue-700 w-8 text-center"><?= $usuario[0]['posicao'] ?>º</span>
                 <span class="flex-1 font-bold text-blue-800">
                   <?= htmlspecialchars($usuario[0]['nome']) ?>
-                  <span class="ml-1 text-blue-600 text-xs font-bold">(VOCÊ)</span>
                   <?php if (!empty($usuario[0]['apelido'])): ?>
                     <span class="text-xs text-blue-500 ml-1">(<?= htmlspecialchars($usuario[0]['apelido']) ?>)</span>
                   <?php endif; ?>
@@ -361,32 +360,26 @@ if ($variacao_valor > 0) {
         DUPLA - Deu Game? Dá Ranking!
     </footer>
 
-  <!-- Botões fixos no rodapé, compactos e responsivos para mobile -->
-  <div class="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 flex gap-2 sm:gap-4 px-2">
-    <!-- Botão Arenas -->
-    <button id="btnArenas" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-2 rounded-full shadow-lg flex items-center gap-1 text-sm sm:text-base transition-all transform hover:scale-105">
-      🏟️ <span>Arenas</span>
-    </button>
-    <!-- Botão Torneios -->
-    <button id="btnTorneios" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-full shadow-lg flex items-center gap-1 text-sm sm:text-base transition-all transform hover:scale-105">
-      🏆 <span>Torneios</span>
-    </button>
-    <!-- Botão Inscrições -->
-    <button id="btnInscricoes" class="bg-green-700 hover:bg-green-800 text-white font-bold px-3 py-2 rounded-full shadow-lg flex items-center gap-1 text-sm sm:text-base transition-all transform hover:scale-105">
-      📝 <span>Inscrições</span>
-    </button>
+  <!-- Barra de navegação inferior flutuante -->
+  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+      <div class="flex items-center gap-2 bg-white/80 backdrop-blur-md border border-gray-200/80 rounded-full shadow-xl px-3 py-2">
+          <!-- Botão Arenas -->
+          <button id="btnArenas" class="flex flex-col items-center justify-center text-gray-700 hover:text-blue-600 transition-colors w-20 h-14 rounded-full hover:bg-blue-50">
+              <span class="text-2xl">🏟️</span>
+              <span class="text-xs font-semibold">Arenas</span>
+          </button>
+          <!-- Botão Torneios -->
+          <button id="btnTorneios" class="flex flex-col items-center justify-center text-gray-700 hover:text-purple-600 transition-colors w-20 h-14 rounded-full hover:bg-purple-50">
+              <span class="text-2xl">🏆</span>
+              <span class="text-xs font-semibold">Torneios</span>
+          </button>
+          <!-- Botão Inscrições -->
+          <button id="btnInscricoes" class="flex flex-col items-center justify-center text-gray-700 hover:text-green-600 transition-colors w-20 h-14 rounded-full hover:bg-green-50">
+              <span class="text-2xl">📝</span>
+              <span class="text-xs font-semibold">Inscrições</span>
+          </button>
+      </div>
   </div>
-  <style>
-    @media (max-width: 400px) {
-      .fixed.bottom-3 > * {
-        font-size: 13px;
-        padding-left: 0.6rem;
-        padding-right: 0.6rem;
-        padding-top: 0.4rem;
-        padding-bottom: 0.4rem;
-      }
-    }
-  </style>
 
 <!-- Modal de Arenas -->
 <div id="modalArenas" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">

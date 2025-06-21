@@ -58,10 +58,8 @@ if ($usuario == $info_p[0]['jogador1_id'] || $usuario == $info_p[0]['jogador2_id
 
 if ($info_p[0]['vencedor'] == $time_usuario) {
   $resultado = 'win'; // ou 'lose'
-  $share_text = "Acabei de vencer uma partida no DUPLA! Confira o placar e suba no ranking também! 🎾🏆";
 } else {
   $resultado = 'lose'; // ou 'lose'
-  $share_text = "Joguei uma partida disputada no DUPLA! Confira o resultado e vamos para a próxima! 🎾💪";
 }
 
 ?>
@@ -445,10 +443,6 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
               <?php endif; ?>
             </p>
           </div>
-          <button id="shareButton" class="w-full max-w-xs inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all duration-200 text-base">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 100-2.186m0 2.186c-.18.324-.283.696-.283 1.093s.103.77.283 1.093m-9.566-7.5a2.25 2.25 0 100-2.186m0 2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093z" /></svg>
-            Compartilhar Resultado
-          </button>
           <a href="hist-partidas.php"
             class="w-full max-w-xs inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all duration-200 text-base">
             Minhas Partidas
@@ -460,30 +454,7 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
       </section>
     </main>
   </div>
-
-  <script>
-    const shareButton = document.getElementById('shareButton');
-    if (shareButton) {
-      // Esconde o botão se a Web Share API não for suportada pelo navegador.
-      if (!navigator.share) {
-        shareButton.style.display = 'none';
-      }
-
-      shareButton.addEventListener('click', async () => {
-        const shareData = {
-          title: 'Resultado da Partida - DUPLA',
-          text: <?= json_encode($share_text) ?>,
-          url: window.location.href
-        };
-        try {
-          await navigator.share(shareData);
-        } catch (err) {
-          // O erro 'AbortError' acontece se o usuário fechar a janela de compartilhamento, não precisa ser tratado.
-          if (err.name !== 'AbortError') console.error('Erro ao compartilhar:', err);
-        }
-      });
-    }
-  </script>
+  <?php require_once '_footer.php'; ?>
 </body>
 
 </html>
