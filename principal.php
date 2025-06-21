@@ -292,10 +292,32 @@ foreach ($hist_rating as $registro) {
         DUPLA - Deu Game? Dá Ranking!
     </footer>
 
-  <!-- Botão fixo no rodapé -->
-<button id="btnArenas" class="fixed bottom-4 left-4 z-50 bg-blue-700 hover:bg-blue-800 text-white font-bold px-6 py-3 rounded-full shadow-xl flex items-center gap-2 text-base transition-all">
-  🏟️ Arenas
-</button>
+  <!-- Botões fixos no rodapé, compactos e responsivos para mobile -->
+  <div class="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 flex gap-2 sm:gap-4 px-2">
+    <!-- Botão Arenas -->
+    <button id="btnArenass" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-2 rounded-full shadow flex items-center gap-1 text-sm sm:text-base transition-all">
+      🏟️ <span>Arenas</span>
+    </button>
+    <!-- Botão Torneios -->
+    <button id="btnTorneios" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-full shadow flex items-center gap-1 text-sm sm:text-base transition-all">
+      🏆 <span>Torneios</span>
+    </button>
+    <!-- Botão Inscrições -->
+    <button id="btnInscricoes" class="bg-green-700 hover:bg-green-800 text-white font-bold px-3 py-2 rounded-full shadow flex items-center gap-1 text-sm sm:text-base transition-all">
+      📝 <span>Inscrições</span>
+    </button>
+  </div>
+  <style>
+    @media (max-width: 400px) {
+      .fixed.bottom-3 > * {
+        font-size: 13px;
+        padding-left: 0.6rem;
+        padding-right: 0.6rem;
+        padding-top: 0.4rem;
+        padding-bottom: 0.4rem;
+      }
+    }
+  </style>
 
 <!-- Modal de Arenas -->
 <div id="modalArenas" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
