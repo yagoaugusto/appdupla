@@ -78,33 +78,49 @@ $partidas = Partida::partidas_jogador($jogador);
                             <!-- Times e Placar -->
                             <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 w-full mt-4 relative z-20">
                                 <!-- Time A -->
-                                <div class="flex flex-col items-end text-right space-y-1">
-                                    <div>
-                                        <span class="font-semibold text-sm text-gray-800 truncate block"><?= htmlspecialchars($p['nomej1'] . ' ' . ($p['sobrenomej1'] ?? '')) ?></span>
+                                <div class="flex flex-col items-end text-right space-y-2">
+                                    <!-- Jogador 1 -->
+                                    <div class="flex items-center justify-end gap-1">
+                                        <div class="truncate">
+                                            <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej1']) ?></span>
+                                            <?php if (!empty($p['sobrenomej1'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej1']) ?></span><?php endif; ?>
+                                        </div>
                                         <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h1']) : '' ?>
                                     </div>
-                                    <div>
-                                        <span class="font-semibold text-sm text-gray-800 truncate block"><?= htmlspecialchars($p['nomej2'] . ' ' . ($p['sobrenomej2'] ?? '')) ?></span>
+                                    <!-- Jogador 2 -->
+                                    <div class="flex items-center justify-end gap-1">
+                                        <div class="truncate">
+                                            <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej2']) ?></span>
+                                            <?php if (!empty($p['sobrenomej2'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej2']) ?></span><?php endif; ?>
+                                        </div>
                                         <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h2']) : '' ?>
                                     </div>
                                 </div>
                                 
                                 <!-- Placar -->
                                 <div class="flex items-center gap-2 text-center">
-                                    <span class="text-xl font-bold text-gray-700 bg-gray-100 rounded-md px-2 py-1 shadow-inner"><?= htmlspecialchars($p['placar_a']) ?></span>
+                                    <span class="text-xl font-bold text-gray-700 bg-gray-100 rounded-md px-2 py-1 shadow-inner w-10 text-center"><?= htmlspecialchars($p['placar_a']) ?></span>
                                     <span class="text-gray-400 font-bold text-xs">VS</span>
-                                    <span class="text-xl font-bold text-gray-700 bg-gray-100 rounded-md px-2 py-1 shadow-inner"><?= htmlspecialchars($p['placar_b']) ?></span>
+                                    <span class="text-xl font-bold text-gray-700 bg-gray-100 rounded-md px-2 py-1 shadow-inner w-10 text-center"><?= htmlspecialchars($p['placar_b']) ?></span>
                                 </div>
                                 
                                 <!-- Time B -->
-                                <div class="flex flex-col items-start text-left space-y-1">
-                                    <div>
-                                        <span class="font-semibold text-sm text-gray-800 truncate block"><?= htmlspecialchars($p['nomej3'] . ' ' . ($p['sobrenomej3'] ?? '')) ?></span>
+                                <div class="flex flex-col items-start text-left space-y-2">
+                                    <!-- Jogador 3 -->
+                                    <div class="flex items-center justify-start gap-1">
                                         <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h3']) : '' ?>
+                                        <div class="truncate">
+                                            <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej3']) ?></span>
+                                            <?php if (!empty($p['sobrenomej3'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej3']) ?></span><?php endif; ?>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="font-semibold text-sm text-gray-800 truncate block"><?= htmlspecialchars($p['nomej4'] . ' ' . ($p['sobrenomej4'] ?? '')) ?></span>
+                                    <!-- Jogador 4 -->
+                                    <div class="flex items-center justify-start gap-1">
                                         <?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h4']) : '' ?>
+                                        <div class="truncate">
+                                            <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej4']) ?></span>
+                                            <?php if (!empty($p['sobrenomej4'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej4']) ?></span><?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
