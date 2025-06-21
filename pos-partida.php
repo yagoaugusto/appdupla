@@ -58,8 +58,10 @@ if ($usuario == $info_p[0]['jogador1_id'] || $usuario == $info_p[0]['jogador2_id
 
 if ($info_p[0]['vencedor'] == $time_usuario) {
   $resultado = 'win'; // ou 'lose'
+  $share_text = "Acabei de vencer uma partida no DUPLA! Confira o placar e suba no ranking também! 🎾🏆";
 } else {
   $resultado = 'lose'; // ou 'lose'
+  $share_text = "Joguei uma partida disputada no DUPLA! Confira o resultado e vamos para a próxima! 🎾💪";
 }
 
 ?>
@@ -69,13 +71,6 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
   <?php require_once '_nav_superior.php'; ?>
 
   <div class="flex pt-16">
-
-    <?php
-    if (isset($_SESSION['DuplaUserId'])) {
-      require_once '_nav_lateral.php';
-    } else {
-    }
-    ?>
     <?php require_once '_nav_lateral.php'; ?>
 
     <main class="flex-1 flex flex-col min-h-screen p-6">
@@ -219,14 +214,15 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
           <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 opacity-30 blur-xl"></div>
 
           <!-- Título -->
-          <div class="relative z-10 flex flex-col items-center mb-4">
-            <h2 class="text-lg sm:text-xl font-extrabold text-blue-900 tracking-tight text-center drop-shadow-sm">
-              Resultado da Partida
-            </h2>
-            <div class="w-12 h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full mt-2"></div>
+          <div class="relative z-10 flex flex-col items-center mb-6">
+              <h2 class="text-base font-semibold mb-3 flex items-center gap-2 text-gray-700">
+                  <span class="text-xl">📊</span>
+                  Resultado da Partida
+              </h2>
           </div>
 
-          <?php
+          <?php 
+          // --- Lógica para determinar os times e placares ---
           // CASO O TIME DO USUARIO SEJA O VENCEDOR
           if ($resultado == 'win') {
             // SE O USUARIO GANHOU E É O TIME A
@@ -388,7 +384,6 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
           </div>
         </div>
 
-        <!-- Status de validação -->
         <div class="mb-6">
           <h3 class="font-semibold mb-4 text-gray-900 text-lg flex items-center gap-2 justify-center bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 rounded-lg py-2 px-3 shadow border-b-2 border-blue-400 tracking-wide">
             <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-500/90 text-white shadow mr-1">
@@ -450,6 +445,10 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
               <?php endif; ?>
             </p>
           </div>
+          <button id="shareButton" class="w-full max-w-xs inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all duration-200 text-base">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 100-2.186m0 2.186c-.18.324-.283.696-.283 1.093s.103.77.283 1.093m-9.566-7.5a2.25 2.25 0 100-2.186m0 2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093z" /></svg>
+            Compartilhar Resultado
+          </button>
           <a href="hist-partidas.php"
             class="w-full max-w-xs inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all duration-200 text-base">
             Minhas Partidas
@@ -461,6 +460,30 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
       </section>
     </main>
   </div>
+
+  <script>
+    const shareButton = document.getElementById('shareButton');
+    if (shareButton) {
+      // Esconde o botão se a Web Share API não for suportada pelo navegador.
+      if (!navigator.share) {
+        shareButton.style.display = 'none';
+      }
+
+      shareButton.addEventListener('click', async () => {
+        const shareData = {
+          title: 'Resultado da Partida - DUPLA',
+          text: <?= json_encode($share_text) ?>,
+          url: window.location.href
+        };
+        try {
+          await navigator.share(shareData);
+        } catch (err) {
+          // O erro 'AbortError' acontece se o usuário fechar a janela de compartilhamento, não precisa ser tratado.
+          if (err.name !== 'AbortError') console.error('Erro ao compartilhar:', err);
+        }
+      });
+    }
+  </script>
 </body>
 
 </html>
