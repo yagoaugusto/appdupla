@@ -33,27 +33,31 @@ try {
     $rating = round($stats_basicos[0]['rating']);
     $rd = round($stats_basicos[0]['rd']);
     $vol = $stats_basicos[0]['vol'];
+    $sexo = $stats_basicos[0]['sexo'] ?? 'Desconhecido';
+    $posicao = $stats_basicos[0]['posicao'] ?? 'Desconhecida';
     $partidas_jogadas = $stats_partidas[0]['total_partidas'] ?? 0;
     $partidas_vencidas = $stats_partidas[0]['vitorias'] ?? 0;
     $partidas_perdidas = $partidas_jogadas - $partidas_vencidas;
 
     // 2. Monta o prompt para a IA
     $prompt = "Analise os seguintes dados de um jogador amador de Beach Tennis:
-- Rating (Pontuação de Habilidade): {$rating}
-- RD (Desvio de Rating - Incerteza da pontuação): {$rd}
-- Volatilidade (σ - Consistência do jogador): {$vol}
-- Total de Partidas Jogadas: {$partidas_jogadas}
-- Total de Vitórias: {$partidas_vencidas}
-- Total de Derrotas: {$partidas_perdidas}
+    - Rating (Pontuação de Habilidade): {$rating}
+    - RD (Desvio de Rating - Incerteza da pontuação): {$rd}
+    - Volatilidade (σ - Consistência do jogador): {$vol}
+    - Total de Partidas Jogadas: {$partidas_jogadas}
+    - Total de Vitórias: {$partidas_vencidas}
+    - Total de Derrotas: {$partidas_perdidas}
+    - Classificação no Ranking: {$posicao}
+    - Sexo: {$sexo}
 
 Sua resposta DEVE ser em formato HTML, usando tags <h3>, <p>, <ul> e <li>.
 Não use as tags <html>, <head> ou <body> e não coloque a resposta dentro de um bloco de código markdown (```html).
 A resposta deve ter EXATAMENTE as seguintes 3 seções:
 
-<h3>📊 Análise Técnica dos Parâmetros</h3>
+<h3>📊 Análise Técnica</h3>
 <p>Uma análise técnica, mas de fácil entendimento, sobre cada um dos parâmetros (Rating, RD e Volatilidade). Explique o que cada número significa para o nível de jogo atual do atleta.</p>
 
-<h3>🚀 Resumo Divertido do seu Desempenho</h3>
+<h3>🚀 Resumo Desempenho</h3>
 <p>Um parágrafo curto, divertido e motivacional que resume o perfil do jogador. Use analogias e um tom bem humorado, como se estivesse conversando com um amigo na praia.</p>
 
 <h3>🔥 Dicas para Evoluir</h3>
