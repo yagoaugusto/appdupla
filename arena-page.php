@@ -193,6 +193,7 @@ require_once '#_global.php';
 
             </section>
         </main>
+        <br> <br> <br>
     </div>
 
     <footer class="w-full bg-white border-t border-gray-200 py-4 text-center fixed bottom-0 left-0 z-50">
