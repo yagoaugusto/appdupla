@@ -42,6 +42,7 @@ require_once '#_global.php';
 
     // Busca o ranking da arena (por simplicidade, usando o rating geral por enquanto)
     $ranking = Arena::getRankingByArenaId($arena_id);
+    $recent_matches = Arena::getRecentMatchesByArenaId($arena_id);
 
     // Lida com mensagens de sucesso de redirecionamento (ex: após criar a arena)
     $success_message = '';
@@ -184,6 +185,53 @@ require_once '#_global.php';
                                             <?php endif; ?>
                                         </div>
                                         <span class="<?= $rating_classes ?>">⭐ <?= htmlspecialchars($jogador_rank['rating']) ?></span>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </div>
+                </details>
+
+                <!-- Seção de Atividade Recente -->
+                <details class="collapse collapse-arrow bg-white rounded-2xl shadow-xl border border-gray-200 mb-6">
+                    <summary class="collapse-title text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        Atividade Recente
+                    </summary>
+                    <div class="collapse-content">
+                        <?php if (empty($recent_matches)): ?>
+                            <p class="text-gray-600 italic text-center py-4">Nenhuma partida recente entre os membros da arena foi encontrada.</p>
+                        <?php else: ?>
+                            <ul class="space-y-3">
+                                <?php foreach ($recent_matches as $match): ?>
+                                    <?php
+                                        $placar_a_class = $match['vencedor'] == 'A' ? 'font-extrabold text-green-600' : 'font-bold text-gray-500';
+                                        $placar_b_class = $match['vencedor'] == 'B' ? 'font-extrabold text-green-600' : 'font-bold text-gray-500';
+                                    ?>
+                                    <li class="bg-gray-50 p-3 rounded-lg border border-gray-200 shadow-sm">
+                                        <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                                            <!-- Time A -->
+                                            <div class="text-right space-y-1">
+                                                <div class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($match['nomej1']) ?>"><?= htmlspecialchars($match['nomej1']) ?></div>
+                                                <div class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($match['nomej2']) ?>"><?= htmlspecialchars($match['nomej2']) ?></div>
+                                            </div>
+                                            
+                                            <!-- Placar -->
+                                            <div class="flex items-center gap-2 text-center">
+                                                <span class="text-2xl <?= $placar_a_class ?>"><?= htmlspecialchars($match['placar_a']) ?></span>
+                                                <span class="text-gray-400 font-bold text-sm">vs</span>
+                                                <span class="text-2xl <?= $placar_b_class ?>"><?= htmlspecialchars($match['placar_b']) ?></span>
+                                            </div>
+                                            
+                                            <!-- Time B -->
+                                            <div class="text-left space-y-1">
+                                                <div class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($match['nomej3']) ?>"><?= htmlspecialchars($match['nomej3']) ?></div>
+                                                <div class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($match['nomej4']) ?>"><?= htmlspecialchars($match['nomej4']) ?></div>
+                                            </div>
+                                        </div>
+                                        <div class="text-center text-xs text-gray-400 mt-2 pt-2 border-t border-gray-200">
+                                            <?= date('d/m/Y', strtotime($match['data'])) ?>
+                                        </div>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>

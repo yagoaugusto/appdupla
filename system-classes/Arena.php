@@ -294,4 +294,47 @@ class Arena
             throw $e;
         }
     }
+
+    /**
+     * Busca as partidas recentes validadas onde todos os 4 jogadores são membros da arena.
+     *
+     * @param int $arena_id O ID da arena.
+     * @param int $limit O número de partidas a serem retornadas.
+     * @return array Retorna uma lista de partidas recentes.
+     */
+    public static function getRecentMatchesByArenaId($arena_id, $limit = 10)
+    {
+        $conn = Conexao::pegarConexao();
+        $stmt = $conn->prepare("
+            SELECT
+                p.id, p.data, p.placar_a, p.placar_b, p.vencedor,
+                j1.nome as nomej1, j2.nome as nomej2,
+                j3.nome as nomej3, j4.nome as nomej4
+            FROM
+                partidas p
+            JOIN
+                arena_membros am1 ON p.jogador1_id = am1.usuario_id AND am1.arena_id = :arena_id AND am1.situacao IN ('membro', 'fundador')
+            JOIN
+                arena_membros am2 ON p.jogador2_id = am2.usuario_id AND am2.arena_id = :arena_id AND am2.situacao IN ('membro', 'fundador')
+            JOIN
+                arena_membros am3 ON p.jogador3_id = am3.usuario_id AND am3.arena_id = :arena_id AND am3.situacao IN ('membro', 'fundador')
+            JOIN
+                arena_membros am4 ON p.jogador4_id = am4.usuario_id AND am4.arena_id = :arena_id AND am4.situacao IN ('membro', 'fundador')
+            JOIN
+                usuario j1 ON p.jogador1_id = j1.id
+            JOIN
+                usuario j2 ON p.jogador2_id = j2.id
+            JOIN
+                usuario j3 ON p.jogador3_id = j3.id
+            JOIN
+                usuario j4 ON p.jogador4_id = j4.id
+            WHERE p.status = 'validada'
+            ORDER BY p.data DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':arena_id', $arena_id, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
