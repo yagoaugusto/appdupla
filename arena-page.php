@@ -278,6 +278,16 @@ require_once '#_global.php';
                     Salvar Alterações
                 </button>
             </form>
+
+            <hr class="my-4 w-full border-t border-gray-300">
+
+            <div class="w-full">
+                <h4 class="text-md font-bold text-red-600 mb-2 text-center">Zona de Perigo</h4>
+                <p class="text-xs text-gray-600 mb-3 text-center">A exclusão da arena é uma ação permanente e não pode ser desfeita.</p>
+                <button id="btnExcluirArena" data-arena-id="<?= htmlspecialchars($arena['id']) ?>" class="w-full btn btn-outline btn-error">
+                    Excluir Arena Permanentemente
+                </button>
+            </div>
         </div>
     </div>
 
@@ -367,6 +377,41 @@ require_once '#_global.php';
                         }
                     }, 500);
                 });
+
+                // --- LÓGICA PARA EXCLUIR ARENA ---
+                const btnExcluirArena = document.getElementById('btnExcluirArena');
+                if (btnExcluirArena) {
+                    btnExcluirArena.addEventListener('click', async () => {
+                        const arenaIdParaExcluir = btnExcluirArena.dataset.arenaId;
+
+                        // Dupla confirmação para segurança máxima
+                        if (!confirm('Tem certeza que deseja excluir esta arena? Esta ação é IRREVERSÍVEL.')) {
+                            return;
+                        }
+                        if (!confirm('CONFIRMAÇÃO FINAL: Excluir a arena removerá TODOS os membros e dados associados. Continuar?')) {
+                            return;
+                        }
+
+                        try {
+                            const response = await fetch('controller-arena/excluir-arena.php', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                body: new URLSearchParams({ arena_id: arenaIdParaExcluir })
+                            });
+                            const data = await response.json();
+
+                            if (data.success) {
+                                alert(data.message);
+                                window.location.href = 'arenas.php'; // Redireciona para a lista de arenas
+                            } else {
+                                alert('Erro: ' + data.message);
+                            }
+                        } catch (error) {
+                            console.error('Erro ao excluir arena:', error);
+                            alert('Ocorreu um erro de comunicação ao tentar excluir a arena.');
+                        }
+                    });
+                }
             <?php endif; ?>
 
             // --- LÓGICA GERAL PARA AÇÕES DE MEMBROS ---

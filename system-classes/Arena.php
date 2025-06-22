@@ -263,4 +263,35 @@ class Arena
         $stmt->execute([$user_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Exclui uma arena e todos os seus membros.
+     * Esta operação é irreversível e utiliza uma transação para garantir a integridade dos dados.
+     *
+     * @param int $arena_id O ID da arena a ser excluída.
+     * @return bool Retorna true em caso de sucesso.
+     * @throws PDOException Se ocorrer um erro durante a transação.
+     */
+    public static function excluirArena($arena_id)
+    {
+        $conn = Conexao::pegarConexao();
+        
+        try {
+            $conn->beginTransaction();
+
+            // 1. Remover todos os registros de membros associados à arena.
+            $stmt_membros = $conn->prepare("DELETE FROM arena_membros WHERE arena_id = ?");
+            $stmt_membros->execute([$arena_id]);
+
+            // 2. Remover a arena da tabela principal.
+            $stmt_arena = $conn->prepare("DELETE FROM arenas WHERE id = ?");
+            $stmt_arena->execute([$arena_id]);
+
+            return $conn->commit();
+        } catch (PDOException $e) {
+            $conn->rollBack();
+            // Re-lança a exceção para que o chamador possa lidar com ela (e registrar o erro).
+            throw $e;
+        }
+    }
 }
