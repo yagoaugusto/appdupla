@@ -1,4 +1,10 @@
-<?php require_once '#_global.php'; ?>
+<?php 
+require_once '#_global.php'; 
+// Headers para previnir o cache, especialmente em navegadores como o Safari
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <?php require_once '_head.php';
@@ -364,7 +370,7 @@ if ($variacao_valor > 0) {
   <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
       <div class="flex items-center gap-2 bg-white/80 backdrop-blur-md border border-gray-200/80 rounded-full shadow-xl px-3 py-2">
           <!-- Botão Arenas -->
-          <button disabled id="btnArenas" class="flex flex-col items-center justify-center text-gray-700 hover:text-blue-600 transition-colors w-16 h-14 rounded-full hover:bg-blue-50">
+          <button id="btnArenas" class="flex flex-col items-center justify-center text-gray-700 hover:text-blue-600 transition-colors w-16 h-14 rounded-full hover:bg-blue-50">
               <span class="text-2xl">🏟️</span>
               <span class="text-xs font-semibold">Arenas</span>
           </button>
@@ -392,7 +398,7 @@ if ($variacao_valor > 0) {
     <button id="fecharModalArenas" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
     <div class="text-2xl mb-2">🏟️ <span class="font-extrabold text-blue-700">Arenas</span></div>
     <a href="criar-arena.php" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Criar Arena</a>
-    <a href="arenas.php" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Consultar Arenas</a>
+    <a href="arenas.php" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Visitar Arenas</a>
   </div>
 </div>
 
@@ -447,7 +453,7 @@ if ($variacao_valor > 0) {
             gptContent.appendChild(gptLoading);
 
             try {
-                const response = await fetch('controller-ia/analise-jogador.php');
+                const response = await fetch(`controller-ia/analise-jogador.php?v=${new Date().getTime()}`);
                 const data = await response.json();
 
                 gptLoading.style.display = 'none'; // Esconde o loading

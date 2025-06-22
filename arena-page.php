@@ -88,18 +88,31 @@ require_once '#_global.php';
 
 
                 <!-- Cabeçalho da Arena -->
-                <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 text-center border border-blue-200">
-                    <div class="text-6xl mb-4"><?= htmlspecialchars($arena['bandeira']) ?></div>
-                    <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-pink-500 to-red-600 mb-2 drop-shadow-lg">
-                        <?= htmlspecialchars($arena['titulo']) ?>
-                    </h1>
-                    <p class="text-sm sm:text-base text-gray-600 font-medium italic">"<?= htmlspecialchars($arena['lema']) ?>"</p>
-                    <div class="mt-4 text-xs font-semibold text-gray-500">
-                        Visibilidade: <span class="capitalize <?= $arena['privacidade'] === 'privada' ? 'text-red-500' : 'text-green-500' ?>"><?= htmlspecialchars($arena['privacidade']) ?></span>
-                        <span class="mx-1">•</span>
-                        Fundador: <span class="text-blue-600"><?= htmlspecialchars($arena['fundador_nome']) ?></span>
+                <div class="bg-white rounded-2xl shadow-xl p-4 mb-6 flex flex-col sm:flex-row items-center gap-4 border border-blue-200">
+                    <div class="text-5xl flex-shrink-0"><?= htmlspecialchars($arena['bandeira']) ?></div>
+                    <div class="flex-1 text-center sm:text-left">
+                        <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-pink-500 to-red-600 drop-shadow-lg">
+                            <?= htmlspecialchars($arena['titulo']) ?>
+                        </h1>
+                        <p class="text-sm text-gray-600 font-medium italic">"<?= htmlspecialchars($arena['lema']) ?>"</p>
+                        <div class="mt-2 text-xs font-semibold text-gray-500">
+                            Visibilidade: <span class="capitalize <?= $arena['privacidade'] === 'privada' ? 'text-red-500' : 'text-green-500' ?>"><?= htmlspecialchars($arena['privacidade']) ?></span>
+                            <span class="mx-1">•</span>
+                            Fundador: <span class="text-blue-600"><?= htmlspecialchars($arena['fundador_nome']) ?></span>
+                        </div>
                     </div>
+                    <!-- Botão de Solicitar Entrada para Arenas Públicas -->
+                    <?php if (!$is_member && $arena['privacidade'] === 'publica'): ?>
+                        <div class="flex-shrink-0 mt-4 sm:mt-0">
+                            <button class="btn btn-sm btn-outline btn-primary font-bold" data-action="request_join" data-usuario-id="<?= $_SESSION['DuplaUserId'] ?>" data-arena-id="<?= $arena_id ?>">
+                                Solicitar Entrada
+                            </button>
+                        </div>
+                    <?php endif; ?>
                 </div>
+
+
+
 
                 <!-- Seção de Membros -->
                 <details class="collapse collapse-arrow bg-white rounded-2xl shadow-xl border border-gray-200 mb-6">
@@ -118,10 +131,12 @@ require_once '#_global.php';
                                     <li class="member-item flex items-center justify-between bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100">
                                         <div class="flex items-center gap-3">
                                             <span class="text-xl"><?= $membro['situacao'] === 'fundador' ? '👑' : '👤' ?></span>
-                                            <span class="font-semibold text-gray-700"><?= htmlspecialchars($membro['nome']) ?></span>
-                                            <?php if (!empty($membro['apelido'])): ?>
-                                                <span class="text-sm text-gray-500">(<?= htmlspecialchars($membro['apelido']) ?>)</span>
-                                            <?php endif; ?>
+                                            <div>
+                                                <span class="font-semibold text-gray-700 block"><?= htmlspecialchars($membro['nome']) ?></span>
+                                                <?php if (!empty($membro['apelido'])): ?>
+                                                    <span class="text-xs text-gray-500 block -mt-1">(<?= htmlspecialchars($membro['apelido']) ?>)</span>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <span class="text-xs font-medium text-gray-500 capitalize"><?= htmlspecialchars($membro['situacao']) ?></span>
@@ -162,12 +177,12 @@ require_once '#_global.php';
                                 ?>
                                     <li class="<?= $li_classes ?>">
                                         <span class="<?= $pos_classes ?>"><?= $pos++ ?>º</span>
-                                        <span class="<?= $nome_classes ?>">
-                                            <?= htmlspecialchars($jogador_rank['nome']) ?>
+                                        <div class="<?= $nome_classes ?>">
+                                            <span class="block"><?= htmlspecialchars($jogador_rank['nome']) ?></span>
                                             <?php if (!empty($jogador_rank['apelido'])): ?>
-                                                <span class="text-xs text-gray-500 ml-1">(<?= htmlspecialchars($jogador_rank['apelido']) ?>)</span>
+                                                <span class="text-xs text-gray-500 block -mt-1">(<?= htmlspecialchars($jogador_rank['apelido']) ?>)</span>
                                             <?php endif; ?>
-                                        </span>
+                                        </div>
                                         <span class="<?= $rating_classes ?>">⭐ <?= htmlspecialchars($jogador_rank['rating']) ?></span>
                                     </li>
                                 <?php endforeach; ?>
@@ -358,13 +373,12 @@ require_once '#_global.php';
             const currentUserId = '<?= $_SESSION['DuplaUserId'] ?>';
 
             document.addEventListener('click', async (e) => {
-                const target = e.target;
-                if (!target.dataset.action) return;
+                const target = e.target.closest('button[data-action]');
+                if (!target) return;
 
                 const action = target.dataset.action;
                 const usuarioId = target.dataset.usuarioId;
                 const arenaId = target.dataset.arenaId;
-                const listItem = target.closest('.member-item');
 
                 if (action === 'remove' || action === 'reject') {
                     const confirmationMessage = action === 'remove' ? 'Tem certeza que deseja remover este membro?' : 'Tem certeza que deseja rejeitar?';
@@ -388,10 +402,12 @@ require_once '#_global.php';
 
                     if (data.success) {
                         alert(data.message);
+                        // Se o usuário atual saiu da arena, redireciona para a lista de arenas.
                         if (action === 'remove' && usuarioId === currentUserId) {
                             window.location.href = 'arenas.php';
-                        } else if (listItem) {
-                            listItem.remove();
+                        } else {
+                            // Para todas as outras ações bem-sucedidas, recarrega a página para refletir as mudanças.
+                            window.location.reload();
                         }
                     } else {
                         alert('Erro: ' + data.message);

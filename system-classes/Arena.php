@@ -196,4 +196,71 @@ class Arena
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Busca todas as arenas públicas com estatísticas de membros e rating.
+     *
+     * @return array Retorna uma lista de arenas públicas.
+     */
+    public static function getArenas()
+    {
+        $conn = Conexao::pegarConexao();
+        $stmt = $conn->prepare("
+            SELECT 
+                a.*, 
+                COUNT(am.usuario_id) as member_count, 
+                AVG(u.rating) as avg_rating
+            FROM arenas a
+            LEFT JOIN arena_membros am ON a.id = am.arena_id AND am.situacao IN ('membro', 'fundador')
+            LEFT JOIN usuario u ON am.usuario_id = u.id
+            GROUP BY a.id
+            ORDER BY member_count DESC, a.titulo ASC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Busca as arenas das quais um usuário é membro ('membro' ou 'fundador').
+     *
+     * @param int $user_id O ID do usuário.
+     * @return array Retorna uma lista de arenas do usuário.
+     */
+    public static function getUserArenas($user_id)
+    {
+        $conn = Conexao::pegarConexao();
+        $stmt = $conn->prepare("
+            SELECT 
+                a.*,
+                (SELECT COUNT(*) FROM arena_membros WHERE arena_id = a.id AND situacao IN ('membro', 'fundador')) as member_count,
+                (SELECT AVG(u.rating) FROM arena_membros am JOIN usuario u ON am.usuario_id = u.id WHERE am.arena_id = a.id AND am.situacao IN ('membro', 'fundador')) as avg_rating
+            FROM arenas a
+            JOIN arena_membros am_user ON a.id = am_user.arena_id
+            WHERE am_user.usuario_id = ? AND am_user.situacao IN ('membro', 'fundador')
+            GROUP BY a.id
+            ORDER BY a.titulo ASC
+        ");
+        $stmt->execute([$user_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Busca as arenas onde um usuário tem um convite ou solicitação pendente.
+     *
+     * @param int $user_id O ID do usuário.
+     * @return array Retorna uma lista de arenas pendentes.
+     */
+    public static function getUserPendingArenas($user_id)
+    {
+        $conn = Conexao::pegarConexao();
+        $stmt = $conn->prepare("
+            SELECT a.*, am.situacao
+            FROM arenas a
+            JOIN arena_membros am ON a.id = am.arena_id
+            WHERE am.usuario_id = ? AND am.situacao IN ('convidado', 'solicitado')
+            ORDER BY am.situacao DESC, a.titulo ASC
+        ");
+        $stmt->execute([$user_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
