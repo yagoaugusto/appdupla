@@ -96,7 +96,7 @@ $gainer_chart_colors = [];
 
 foreach ($top_gainers as $gainer) {
     // Para o gráfico, usamos apenas o apelido ou nome para não poluir o eixo X
-    $chart_name = !empty($gainer['nome']) ? $gainer['nome'] : explode(' ', $gainer['nome'])[0];
+    $chart_name = !empty($gainer['nome']) ? $gainer['nome'].' '.$gainer['sobrenome'] : explode(' ', $gainer['nome'])[0];
     if (strlen($chart_name) > 10) {
         $chart_name = substr($chart_name, 0, 10) . '...';
     }
@@ -115,7 +115,7 @@ $loser_chart_colors = [];
 
 foreach ($top_losers as $loser) {
     // Para o gráfico, usamos apenas o apelido ou nome para não poluir o eixo X
-    $chart_name = !empty($loser['nome']) ? $loser['nome'] : explode(' ', $loser['nome'])[0];
+    $chart_name = !empty($loser['nome']) ? $loser['nome'].' '.$loser['sobrenome'] : explode(' ', $loser['nome'])[0];
     if (strlen($chart_name) > 10) {
         $chart_name = substr($chart_name, 0, 10) . '...';
     }
