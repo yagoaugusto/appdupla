@@ -42,6 +42,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
+        // 1.5. Validação do valor a pagar
+        if (!is_numeric($valor_a_pagar) || (float)$valor_a_pagar <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Erro: Valor do pagamento inválido. O valor deve ser maior que zero.']);
+            exit;
+        }
+
+        // Validação e preparação dos dados do pagador para garantir que o Mercado Pago os aceite
+        $payer_name = $usuario_pagador['nome'] ?? '';
+        $payer_surname = $usuario_pagador['sobrenome'] ?? '';
+        $payer_email = $usuario_pagador['email'] ?? "yagoacp@gmail.com"; // Fallback para email de teste
+        $payer_phone_raw = $usuario_pagador['telefone'] ?? '';
+        $payer_cpf = preg_replace('/\D/', '', $usuario_pagador['cpf'] ?? ''); // Remove caracteres não numéricos
+        
+        // Garante que nome e sobrenome não sejam vazios, mesmo que com fallbacks genéricos para teste
+        if (empty($payer_name)) $payer_name = 'Nome'; // Fallback para nome
+        if (empty($payer_surname)) $payer_surname = 'Sobrenome'; // Fallback para sobrenome
+
+        // Valida e-mail
+        if (!filter_var($payer_email, FILTER_VALIDATE_EMAIL)) {
+            $payer_email = "yagoacp@gmail.com"; // Garante que o email seja válido, mesmo que seja um fallback
+        }
+
+        // Valida CPF
+        if (empty($payer_cpf) || strlen($payer_cpf) !== 11) { // CPF deve ter 11 dígitos
+            echo json_encode(['success' => false, 'message' => 'Erro: CPF do pagador inválido ou não encontrado.']);
+            exit;
+        }
+
+        // Processamento do telefone para garantir formato MP
+        // A função anônima foi movida para fora do array 'phone' para melhor legibilidade e reutilização
+        $phone_data = (function($telefone_raw) {
+            $clean_phone = preg_replace('/\D/', '', $telefone_raw); // Remove todos os caracteres não numéricos
+
+            $area_code = '';
+            $number = '';
+
+            // Tenta extrair DDD e número de forma mais robusta
+            // Prioriza o formato brasileiro com DDI 55, senão assume DDD+Número
+            if (strlen($clean_phone) >= 10) { // Mínimo para DDD + número (ex: 1198765432)
+                if (substr($clean_phone, 0, 2) === '55' && strlen($clean_phone) >= 12) { // Se tiver DDI do Brasil (compatível com PHP < 8.0)
+                    $area_code = substr($clean_phone, 2, 2); // Extrai DDD (ex: 11 de 5511...)
+                    $number = substr($clean_phone, 4); // Extrai número (ex: 987654321 de 5511987654321)
+                } else { // Assume que é apenas DDD + número (10 ou 11 dígitos)
+                    $area_code = substr($clean_phone, 0, 2);
+                    $number = substr($clean_phone, 2);
+                }
+            }
+            // Fallback para garantir que os campos não fiquem vazios, embora o ideal seja um número válido
+            return ["area_code" => $area_code ?: "00", "number" => $number ?: "000000000"];
+        })($payer_phone_raw);
+
         // 3. Criar a preferência de pagamento no Mercado Pago
         $mp_url = "https://api.mercadopago.com/checkout/preferences";
         $mp_headers = [
@@ -58,42 +109,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     "currency_id" => "BRL"
                 ]
             ],
-            "payer" => [
-                "name" => $usuario_pagador['nome'],
-                "surname" => $usuario_pagador['sobrenome'],
-                "email" => $usuario_pagador['email'] ?? "yagoacp@gmail.com", // Use um email real se disponível
-                "phone" => (function($telefone_raw) {
-                    $clean_phone = preg_replace('/\D/', '', $telefone_raw); // Remove todos os caracteres não numéricos
-
-                    $area_code = '';
-                    $number = '';
-
-                    // Tenta extrair DDD e número de forma mais robusta
-                    // Prioriza o formato brasileiro com DDI 55, senão assume DDD+Número
-                    if (strlen($clean_phone) >= 10) { // Mínimo para DDD + número (ex: 1198765432)
-                        if (substr($clean_phone, 0, 2) === '55' && strlen($clean_phone) >= 12) { // Se tiver DDI do Brasil (compatível com PHP < 8.0)
-                            $area_code = substr($clean_phone, 2, 2); // Extrai DDD (ex: 11 de 5511...)
-                            $number = substr($clean_phone, 4); // Extrai número (ex: 987654321 de 5511987654321)
-                        } else { // Assume que é apenas DDD + número
-                            $area_code = substr($clean_phone, 0, 2); // Extrai DDD
-                            $number = substr($clean_phone, 2); // Extrai número
-                        }
-                    }
-                    // Fallback para garantir que os campos não fiquem vazios, embora o ideal seja um número válido
-                    return ["area_code" => $area_code ?: "00", "number" => $number ?: "000000000"];
-                })($usuario_pagador['telefone']),
+            "payer" => [ // Usar as variáveis preparadas e validadas
+                "name" => $payer_name,
+                "surname" => $payer_surname,
+                "email" => $payer_email,
+                "phone" => $phone_data, // Dados de telefone já processados
+                "identification" => [
+                    "type" => "CPF",
+                    "number" => $payer_cpf // CPF já validado
+                ],
                 "country_id" => "BR" // Explicitamente define o país do pagador como Brasil
             ],
             // A 'notification_url' (webhook) precisa ser uma URL pública para que o Mercado Pago possa acessá-la.
             // Em um ambiente de desenvolvimento local (localhost), esta URL não é acessível externamente.
             // Comentar esta linha para testes locais permite a criação da preferência de pagamento.
             // Para testar webhooks localmente, use uma ferramenta como o ngrok e descomente esta linha.
-            // "notification_url" => MP_NOTIFICATION_URL,
+            "notification_url" => MP_NOTIFICATION_URL,
             "external_reference" => $inscricao_id . "-" . $usuario_id, // Referência para identificar o pagamento no seu sistema
             "back_urls" => [
-                "success" => "http://localhost/APP%20DUPLA/torneio-inscrito.php?inscricao_id=" . $inscricao_id . "&payment_status=success",
-                "pending" => "http://localhost/APP%20DUPLA/torneio-inscrito.php?inscricao_id=" . $inscricao_id . "&payment_status=pending",
-                "failure" => "http://localhost/APP%20DUPLA/torneio-inscrito.php?inscricao_id=" . $inscricao_id . "&payment_status=failure"
+                "success" => APP_BASE_URL . "/notificacao_inscricao.php?inscricao_id=" . $inscricao_id . "&payment_status=success",
+                "pending" => APP_BASE_URL . "/notificacao_inscricao.php?inscricao_id=" . $inscricao_id . "&payment_status=pending",
+                "failure" => APP_BASE_URL . "/notificacao_inscricao.php?inscricao_id=" . $inscricao_id . "&payment_status=failure"
             ],
             "auto_return" => "approved",
             "payment_methods" => [

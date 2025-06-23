@@ -213,16 +213,6 @@ require_once '#_global.php';
                     }
                 });
             });
-
-            // Opcional: Exibir mensagens de retorno do Mercado Pago (via back_urls)
-            const urlParams = new URLSearchParams(window.location.search);
-            const paymentStatus = urlParams.get('payment_status');
-            if (paymentStatus) {
-                if (paymentStatus === 'success') { alert('Pagamento aprovado! Aguarde a confirmação em seu histórico.'); }
-                else if (paymentStatus === 'pending') { alert('Pagamento pendente. Verifique as instruções no Mercado Pago.'); }
-                else if (paymentStatus === 'failure') { alert('Pagamento falhou. Tente novamente ou escolha outro método.'); }
-                window.history.replaceState({}, document.title, window.location.pathname + window.location.hash); // Limpa os parâmetros da URL
-            }
         });
     </script>
 </body>

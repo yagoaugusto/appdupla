@@ -814,8 +814,8 @@ WHERE u.id ={$id}";
     public static function getUsuarioInfoById($usuario_id)
     {
         try {
-            $conn = Conexao::pegarConexao(); // Certifique-se de que a coluna 'email' e 'telefone' existem na sua tabela 'usuario'
-            $stmt = $conn->prepare("SELECT id, nome, sobrenome, apelido, sexo, rating, email, telefone FROM usuario WHERE id = ?");
+            $conn = Conexao::pegarConexao(); // Certifique-se de que as colunas 'email', 'telefone' e 'cpf' existem na sua tabela 'usuario'
+            $stmt = $conn->prepare("SELECT id, nome, sobrenome, apelido, sexo, rating, email, telefone, cpf FROM usuario WHERE id = ?");
             $stmt->execute([$usuario_id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
