@@ -3,41 +3,84 @@
 class Usuario
 {
 
-  public function cadastrar_usuario($nome, $telefone, $senha, $cidade, $empunhadura, $cpf, $sobrenome, $apelido, $sexo)
-  {
-    $query =
-      "INSERT INTO usuario(nome,sobrenome,apelido,sexo,telefone,senha,cidade,empunhadura,cpf) 
+    /**
+     * Atualiza as informações de um usuário no banco de dados.
+     *
+     * @param int $usuario_id O ID do usuário a ser atualizado.
+     * @param array $dados Um array associativo com os campos a serem atualizados (ex: ['nome' => 'Novo Nome']).
+     * @return bool True se a atualização foi bem-sucedida (pelo menos uma linha afetada), false caso contrário.
+     */
+    public static function updateUsuarioInfo($usuario_id, $dados)
+    {
+        // Lista de campos permitidos para atualização para evitar injeção de colunas
+        // 'apelido' foi removido pois não é editável pelo usuário.
+        $allowed_fields = ['nome', 'sobrenome', 'email', 'telefone', 'cpf', 'cidade', 'empunhadura'];
+        
+        $set_parts = [];
+        $params = [];
+
+        foreach ($dados as $key => $value) {
+            if (in_array($key, $allowed_fields)) {
+                $set_parts[] = "`$key` = ?";
+                $params[] = $value;
+            }
+        }
+
+        if (empty($set_parts)) {
+            return false; // Nenhum campo válido para atualizar
+        }
+
+        $params[] = $usuario_id; // Adiciona o ID do usuário ao final para o WHERE
+
+        $sql = "UPDATE usuario SET " . implode(', ', $set_parts) . " WHERE id = ?";
+
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->rowCount() > 0; // Retorna true se alguma linha foi afetada
+        } catch (PDOException $e) {
+            // Loga o erro para depuração, especialmente útil para erros de chave única (ex: e-mail duplicado)
+            error_log("Erro ao atualizar informações do usuário (ID: $usuario_id): " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function cadastrar_usuario($nome, $telefone, $senha, $cidade, $empunhadura, $cpf, $sobrenome, $apelido, $sexo)
+    {
+        $query =
+            "INSERT INTO usuario(nome,sobrenome,apelido,sexo,telefone,senha,cidade,empunhadura,cpf) 
       values ('{$nome}','{$sobrenome}','{$apelido}','{$sexo}','{$telefone}','{$senha}',
       '{$cidade}','{$empunhadura}','{$cpf}')";
-    $conexao = Conexao::pegarConexao();
-    $stmt = $conexao->prepare($query);
-    $stmt->execute();
-  }
+        $conexao = Conexao::pegarConexao();
+        $stmt = $conexao->prepare($query);
+        $stmt->execute();
+    }
 
-  public static function listar_usuarios_busca($nome)
-  {
-    $query =
-      "SELECT * from usuario where nome like '%{$nome}%' or sobrenome like '%{$nome}%' order by nome";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+    public static function listar_usuarios_busca($nome)
+    {
+        $query =
+            "SELECT * from usuario where nome like '%{$nome}%' or sobrenome like '%{$nome}%' order by nome";
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
-  public static function listar_usuarios()
-  {
-    $query =
-      "SELECT * from usuario order by nome";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+    public static function listar_usuarios()
+    {
+        $query =
+            "SELECT * from usuario order by nome";
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
-  public static function partidas_usuario($id)
-  {
-    $query =
-      "SELECT
+    public static function partidas_usuario($id)
+    {
+        $query =
+            "SELECT
   COUNT(*) AS total_partidas,
   SUM(
     (vencedor = 'A' AND (jogador1_id ={$id} OR jogador2_id ={$id})) OR
@@ -51,49 +94,49 @@ FROM partidas
 WHERE 
   jogador1_id ={$id} OR jogador2_id ={$id}
   OR jogador3_id ={$id} OR jogador4_id ={$id}";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
 
-  public static function listar_usuarios_por_rating()
-  {
-    $query =
-      "SELECT * from usuario order by rating desc";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+    public static function listar_usuarios_por_rating()
+    {
+        $query =
+            "SELECT * from usuario order by rating desc";
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
-  public static function ranking_superior_tela_principal($id, $qtd)
-  {
-    $query =
-      "SELECT id,apelido,nome,rating FROM usuario WHERE 
+    public static function ranking_superior_tela_principal($id, $qtd)
+    {
+        $query =
+            "SELECT id,apelido,nome,rating FROM usuario WHERE 
     rating>(SELECT rating FROM usuario WHERE id={$id}) ORDER BY rating ASC LIMIT {$qtd}";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
-  public static function ranking_inferior_tela_principal($id, $qtd)
-  {
-    $query =
-      "SELECT id,apelido,nome,rating FROM usuario WHERE 
+    public static function ranking_inferior_tela_principal($id, $qtd)
+    {
+        $query =
+            "SELECT id,apelido,nome,rating FROM usuario WHERE 
     rating<=(SELECT rating FROM usuario WHERE id={$id}) and usuario.id <> {$id} ORDER BY rating DESC LIMIT {$qtd}";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
-  public static function posicao_usuario($id)
-  {
-    $query =
-      "WITH rankeados AS (
+    public static function posicao_usuario($id)
+    {
+        $query =
+            "WITH rankeados AS (
   SELECT id, nome, rating, apelido, rd, vol, sexo,
          RANK() OVER (ORDER BY rating DESC) AS posicao
   FROM usuario
@@ -116,16 +159,16 @@ total AS (
   END AS percentual_abaixo
 FROM rankeados r, total t
 WHERE r.id = {$id}";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
-  public static function quadro_honra_parceiro_vitoria($id)
-  {
-    $query =
-      "SELECT 
+    public static function quadro_honra_parceiro_vitoria($id)
+    {
+        $query =
+            "SELECT 
     u.nome AS parceiro_nome,
     u.apelido,
     parceiros.parceiro_id,
@@ -157,18 +200,18 @@ FROM (
 JOIN usuario u ON u.id = parceiros.parceiro_id
 GROUP BY parceiros.parceiro_id, u.nome
 ORDER BY vitorias DESC";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
 
 
-  public static function quadro_honra_parceiro_derrota($id)
-  {
-    $query =
-      "SELECT 
+    public static function quadro_honra_parceiro_derrota($id)
+    {
+        $query =
+            "SELECT 
     u.nome AS parceiro_nome,
     u.apelido,
     parceiros.parceiro_id,
@@ -200,16 +243,16 @@ FROM (
 JOIN usuario u ON u.id = parceiros.parceiro_id
 GROUP BY parceiros.parceiro_id, u.nome
 ORDER BY derrotas DESC";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
-  public static function quadro_honra_adversario_vitoria($id)
-  {
-    $query =
-      "SELECT 
+    public static function quadro_honra_adversario_vitoria($id)
+    {
+        $query =
+            "SELECT 
     u.nome AS adversario_nome,
     u.apelido,
     adversarios.adversario_id,
@@ -256,17 +299,17 @@ FROM (
 JOIN usuario u ON u.id = adversarios.adversario_id
 GROUP BY adversarios.adversario_id, u.nome
 ORDER BY vitorias DESC";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
 
-  public static function quadro_honra_adversario_derrota($id)
-  {
-    $query =
-      "SELECT 
+    public static function quadro_honra_adversario_derrota($id)
+    {
+        $query =
+            "SELECT 
     u.nome AS adversario_nome,
     u.apelido,
     adversarios.adversario_id,
@@ -313,26 +356,26 @@ FROM (
 JOIN usuario u ON u.id = adversarios.adversario_id
 GROUP BY adversarios.adversario_id, u.nome
 ORDER BY derrotas DESC";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
-  public static function historico_rating($id)
-  {
-    $query =
-      "SELECT * from historico_rating where jogador_id={$id} order by id desc limit 25";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+    public static function historico_rating($id)
+    {
+        $query =
+            "SELECT * from historico_rating where jogador_id={$id} order by id desc limit 25";
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
-  public static function variacao_rating($id, $dias)
-  {
-    $query =
-      "SELECT 
+    public static function variacao_rating($id, $dias)
+    {
+        $query =
+            "SELECT 
   u.id,u.nome,
   hr_inicial.rating_novo AS rating_10_dias_atras,
   hr_final.rating_novo AS rating_atual,
@@ -354,41 +397,41 @@ LEFT JOIN (
   LIMIT 1
 ) AS hr_final ON u.id ={$id}
 WHERE u.id ={$id}";
-    $conexao = Conexao::pegarConexao();
-    $resultado = $conexao->query($query);
-    $lista = $resultado->fetchAll();
-    return $lista;
-  }
+        $conexao = Conexao::pegarConexao();
+        $resultado = $conexao->query($query);
+        $lista = $resultado->fetchAll();
+        return $lista;
+    }
 
-  /**
-   * Busca uma análise de IA em cache para um usuário.
-   * A análise é considerada válida se foi criada no mesmo dia.
-   *
-   * @param int $usuario_id O ID do usuário.
-   * @return string|false Retorna a análise em cache se for válida, ou false.
-   */
-  public static function getAnaliseCache($usuario_id)
-  {
-      $conn = Conexao::pegarConexao();
-      $stmt = $conn->prepare("SELECT analise_html FROM ia_analise_cache WHERE usuario_id = ? AND DATE(data_cache) = CURDATE()");
-      $stmt->execute([$usuario_id]);
-      $result = $stmt->fetch(PDO::FETCH_ASSOC);
-      return $result ? $result['analise_html'] : false;
-  }
+    /**
+     * Busca uma análise de IA em cache para um usuário.
+     * A análise é considerada válida se foi criada no mesmo dia.
+     *
+     * @param int $usuario_id O ID do usuário.
+     * @return string|false Retorna a análise em cache se for válida, ou false.
+     */
+    public static function getAnaliseCache($usuario_id)
+    {
+        $conn = Conexao::pegarConexao();
+        $stmt = $conn->prepare("SELECT analise_html FROM ia_analise_cache WHERE usuario_id = ? AND DATE(data_cache) = CURDATE()");
+        $stmt->execute([$usuario_id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['analise_html'] : false;
+    }
 
-  /**
-   * Salva ou atualiza a análise de IA de um usuário no cache.
-   *
-   * @param int $usuario_id O ID do usuário.
-   * @param string $analise_html O conteúdo HTML da análise.
-   * @return bool Retorna true em caso de sucesso.
-   */
-  public static function setAnaliseCache($usuario_id, $analise_html)
-  {
-      $conn = Conexao::pegarConexao();
-      $stmt = $conn->prepare("INSERT INTO ia_analise_cache (usuario_id, analise_html) VALUES (?, ?) ON DUPLICATE KEY UPDATE analise_html = VALUES(analise_html), data_cache = NOW()");
-      return $stmt->execute([$usuario_id, $analise_html]);
-  }
+    /**
+     * Salva ou atualiza a análise de IA de um usuário no cache.
+     *
+     * @param int $usuario_id O ID do usuário.
+     * @param string $analise_html O conteúdo HTML da análise.
+     * @return bool Retorna true em caso de sucesso.
+     */
+    public static function setAnaliseCache($usuario_id, $analise_html)
+    {
+        $conn = Conexao::pegarConexao();
+        $stmt = $conn->prepare("INSERT INTO ia_analise_cache (usuario_id, analise_html) VALUES (?, ?) ON DUPLICATE KEY UPDATE analise_html = VALUES(analise_html), data_cache = NOW()");
+        return $stmt->execute([$usuario_id, $analise_html]);
+    }
 
 
 
@@ -644,7 +687,6 @@ WHERE u.id ={$id}";
             $stmt->bindValue(':limit_val', $limit, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Erro ao buscar maiores ganhadores de rating: " . $e->getMessage());
             return [];
@@ -799,7 +841,6 @@ WHERE u.id ={$id}";
             $stmt->bindValue(':limit_val', $limit, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Erro ao buscar maiores perdedores de rating: " . $e->getMessage());
             return [];
@@ -815,7 +856,7 @@ WHERE u.id ={$id}";
     {
         try {
             $conn = Conexao::pegarConexao(); // Certifique-se de que as colunas 'email', 'telefone' e 'cpf' existem na sua tabela 'usuario'
-            $stmt = $conn->prepare("SELECT id, nome, sobrenome, apelido, sexo, rating, email, telefone, cpf FROM usuario WHERE id = ?");
+            $stmt = $conn->prepare("SELECT id, nome, sobrenome, apelido, sexo, rating, email, telefone, cpf, cidade FROM usuario WHERE id = ?");
             $stmt->execute([$usuario_id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -823,5 +864,4 @@ WHERE u.id ={$id}";
             return false;
         }
     }
-    
 }
