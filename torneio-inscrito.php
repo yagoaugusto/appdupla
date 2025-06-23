@@ -175,6 +175,56 @@ require_once '#_global.php';
         DUPLA - Deu Game? Dá Ranking!
     </footer>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Função para lidar com o clique nos botões de pagamento
+            $('.btn-success, .btn-info').on('click', function() {
+                const inscricaoId = $(this).data('inscricao-id');
+                const usuarioId = $(this).data('usuario-id');
+                const metodo = $(this).data('metodo');
+                const btn = $(this);
+
+                // Desabilita o botão e mostra um feedback
+                btn.prop('disabled', true).text('Processando...');
+
+                $.ajax({
+                    url: 'controller-pagamento/criar-pagamento.php',
+                    method: 'POST',
+                    data: {
+                        inscricao_id: inscricaoId,
+                        usuario_id: usuarioId,
+                        metodo_pagamento: metodo
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Redireciona o usuário para a URL de checkout do Mercado Pago
+                            window.location.href = response.checkout_url;
+                        } else {
+                            alert('Erro ao iniciar pagamento: ' + response.message);
+                            btn.prop('disabled', false).text(metodo === 'pix' ? 'Pagar com Pix' : 'Pagar com Cartão');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Erro na requisição AJAX:', status, error, xhr.responseText);
+                        alert('Erro de comunicação com o servidor. Tente novamente.');
+                        btn.prop('disabled', false).text(metodo === 'pix' ? 'Pagar com Pix' : 'Pagar com Cartão');
+                    }
+                });
+            });
+
+            // Opcional: Exibir mensagens de retorno do Mercado Pago (via back_urls)
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentStatus = urlParams.get('payment_status');
+            if (paymentStatus) {
+                if (paymentStatus === 'success') { alert('Pagamento aprovado! Aguarde a confirmação em seu histórico.'); }
+                else if (paymentStatus === 'pending') { alert('Pagamento pendente. Verifique as instruções no Mercado Pago.'); }
+                else if (paymentStatus === 'failure') { alert('Pagamento falhou. Tente novamente ou escolha outro método.'); }
+                window.history.replaceState({}, document.title, window.location.pathname + window.location.hash); // Limpa os parâmetros da URL
+            }
+        });
+    </script>
 </body>
 
 </html>
