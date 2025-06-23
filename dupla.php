@@ -142,7 +142,7 @@ $top_losers = Usuario::getTopLosingStreaks(5);
                                 <!-- Percentil -->
                                 <div>
                                     <h3 class="font-semibold text-gray-700 mb-1">Seu Posicionamento</h3>
-                                    <p class="text-md font-semibold text-gray-700 mb-2">Você está no top <span class="text-blue-600"><?= round(100 - ($usuario[0]['percentual_abaixo'] ?? 0)) ?>%</span> da comunidade!</p>
+                                    <p class="text-md font-semibold text-gray-700 mb-2">Você está no top <span class="text-blue-600"><?= round(100 - ($usuario[0]['percentual_abaixo'] ?? 0),2) ?>%</span> da comunidade!</p>
                                     <progress class="progress progress-primary w-full" value="<?= round(($usuario[0]['percentual_abaixo'] ?? 0)) ?>" max="100"></progress>
                                 </div>
                                 <!-- Gráfico de Evolução -->
