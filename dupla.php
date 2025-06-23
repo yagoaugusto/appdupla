@@ -96,7 +96,7 @@ $gainer_chart_colors = [];
 
 foreach ($top_gainers as $gainer) {
     // Para o gráfico, usamos apenas o apelido ou nome para não poluir o eixo X
-    $chart_name = !empty($gainer['apelido']) ? $gainer['apelido'] : explode(' ', $gainer['nome'])[0];
+    $chart_name = !empty($gainer['nome']) ? $gainer['nome'] : explode(' ', $gainer['nome'])[0];
     if (strlen($chart_name) > 10) {
         $chart_name = substr($chart_name, 0, 10) . '...';
     }
@@ -104,6 +104,26 @@ foreach ($top_gainers as $gainer) {
     $gainer_chart_data[] = $gainer['rating_gain'];
     $gainer_chart_colors[] = $gainer['rating_gain'] > 0 ? 'rgba(34, 197, 94, 0.8)' : 'rgba(107, 114, 128, 0.7)'; // Tailwind green-500, gray-500
 }
+
+
+// --- LÓGICA PARA RATING GAIN CHART ---
+$top_losers = Usuario::getTopRatinglosers(7, 5); // Top 5 ganhadores nos últimos 7 dias
+
+$loser_chart_labels = [];
+$loser_chart_data = [];
+$loser_chart_colors = [];
+
+foreach ($top_losers as $loser) {
+    // Para o gráfico, usamos apenas o apelido ou nome para não poluir o eixo X
+    $chart_name = !empty($loser['nome']) ? $loser['nome'] : explode(' ', $loser['nome'])[0];
+    if (strlen($chart_name) > 10) {
+        $chart_name = substr($chart_name, 0, 10) . '...';
+    }
+    $loser_chart_labels[] = $chart_name;
+    $loser_chart_data[] = $loser['rating_gain'];
+    $loser_chart_colors[] = $loser['rating_gain'] > 0 ? 'rgb(220, 87, 87)' : 'rgba(218, 89, 89, 0.7)'; // Tailwind green-500, gray-500
+}
+
 
 // --- LÓGICA PARA MAIORES STREAKS ---
 $top_streaks = Usuario::getTopWinningStreaks(5);
@@ -142,8 +162,14 @@ $top_losers = Usuario::getTopLosingStreaks(5);
                                 <!-- Percentil -->
                                 <div>
                                     <h3 class="font-semibold text-gray-700 mb-1">Seu Posicionamento</h3>
-                                    <p class="text-md font-semibold text-gray-700 mb-2">Você está no top <span class="text-blue-600"><?= round(100 - ($usuario[0]['percentual_abaixo'] ?? 0),2) ?>%</span> da comunidade!</p>
-                                    <progress class="progress progress-primary w-full" value="<?= round(($usuario[0]['percentual_abaixo'] ?? 0)) ?>" max="100"></progress>
+                                    <?php if (($usuario[0]['percentual_abaixo'] ?? 0) >= 100): ?>
+                                        <p class="text-md font-semibold text-amber-600 mb-2">Parabéns! Você é o líder do ranking! 👑</p>
+                                        <progress class="progress progress-warning w-full" value="100" max="100"></progress>
+                                        <p class="text-xs text-gray-500 mt-1">Continue jogando para defender sua posição!</p>
+                                    <?php else: ?>
+                                        <p class="text-md font-semibold text-gray-700 mb-2">Você está no top <span class="text-blue-600"><?= round(100 - ($usuario[0]['percentual_abaixo'] ?? 0), 1) ?>%</span> da comunidade!</p>
+                                        <progress class="progress progress-primary w-full" value="<?= round(($usuario[0]['percentual_abaixo'] ?? 0)) ?>" max="100"></progress>
+                                    <?php endif; ?>
                                 </div>
                                 <!-- Gráfico de Evolução -->
                                 <div>
@@ -176,6 +202,14 @@ $top_losers = Usuario::getTopLosingStreaks(5);
                                     <div class="h-64 relative">
                                         <?php if (!empty($gainer_chart_data)): ?><canvas id="ratingGainChart"></canvas>
                                         <?php else: ?><p class="text-center text-gray-500 italic pt-10">Sem dados de ganho de rating.</p><?php endif; ?>
+                                    </div>
+                                </div>
+                                <!-- Rating Losers -->
+                                <div>
+                                    <h3 class="font-semibold text-gray-700 mb-1">Quem Mais Caiu (7 dias)</h3>
+                                    <div class="h-64 relative">
+                                        <?php if (!empty($loser_chart_data)): ?><canvas id="ratingLoserChart"></canvas>
+                                        <?php else: ?><p class="text-center text-gray-500 italic pt-10">Sem dados de perda de rating.</p><?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -316,6 +350,7 @@ $top_losers = Usuario::getTopLosingStreaks(5);
                     scales: { y: { beginAtZero: false, title: { display: true, text: 'Rating', font: {size: 10} } }, x: { title: { display: false } } }
                 }
             });
+
             <?php if (!empty($gainer_chart_data)): ?>
             const gainCtx = document.getElementById('ratingGainChart').getContext('2d');
             new Chart(gainCtx, {
@@ -346,6 +381,42 @@ $top_losers = Usuario::getTopLosingStreaks(5);
                         }
                     },
                     scales: { y: { beginAtZero: true, title: { display: true, text: 'Ganho de Rating', font: {size: 10} } }, x: { ticks: { font: {size: 10} } } }
+                }
+            });
+            <?php endif; ?>
+
+
+
+            <?php if (!empty($loser_chart_data)): ?>
+            const loserCtx = document.getElementById('ratingLoserChart').getContext('2d');
+            new Chart(loserCtx, {
+                type: 'bar',
+                data: {
+                    labels: <?= json_encode($loser_chart_labels) ?>,
+                    datasets: [{
+                        label: 'Perda de Rating',
+                        data: <?= json_encode($loser_chart_data) ?>,
+                        backgroundColor: <?= json_encode($loser_chart_colors) ?>,
+                        borderColor: 'rgb(217, 66, 66)',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        hoverBackgroundColor: 'rgb(219, 85, 85)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Perda: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Perda de Rating', font: {size: 10} } }, x: { ticks: { font: {size: 10} } } }
                 }
             });
             <?php endif; ?>

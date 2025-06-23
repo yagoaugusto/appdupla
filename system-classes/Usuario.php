@@ -111,7 +111,7 @@ total AS (
     r.posicao,
     t.total,
   CASE
-    WHEN t.total <= 1 THEN 1 -- Se houver 1 ou 0 usuários, o percentual abaixo é 0.
+    WHEN t.total <= 1 THEN 0.00 -- Se houver 1 ou 0 usuários, o percentual abaixo é 0.
     ELSE ROUND(100.0 * (t.total - r.posicao) / (t.total - 1), 2)
   END AS percentual_abaixo
 FROM rankeados r, total t
@@ -750,4 +750,60 @@ WHERE u.id ={$id}";
             return [];
         }
     }
+
+    /**
+     * Busca os usuários com a maior perda de rating em um período.
+     * Considera o rating atual e o rating mais recente antes do início do período.
+     * Se o usuário não tinha rating antes do período, considera o rating inicial como 1500 (ou o primeiro registro).
+     *
+     * @param int $days O número de dias para considerar a perda (ex: 7 para os últimos 7 dias).
+     * @param int $limit O número de usuários a serem retornados (ex: top 5).
+     * @return array Retorna um array de arrays associativos com os dados dos usuários e sua perda de rating.
+     */
+    public static function getTopRatingLosers($days = 7, $limit = 5)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+
+            $stmt = $conn->prepare("
+                SELECT
+                    u.id,
+                    u.nome,
+                    u.sobrenome,
+                    u.apelido,
+                    u.rating AS current_rating,
+                    (u.rating - COALESCE(
+                        (SELECT hr_start.rating_novo
+                         FROM historico_rating hr_start
+                         WHERE hr_start.jogador_id = u.id
+                           AND hr_start.data < CURDATE() - INTERVAL :days_ago_start DAY
+                         ORDER BY hr_start.data DESC
+                         LIMIT 1),
+                        (SELECT hr_first.rating_novo
+                         FROM historico_rating hr_first
+                         WHERE hr_first.jogador_id = u.id
+                         ORDER BY hr_first.data ASC
+                         LIMIT 1),
+                        1500 -- Default starting rating if no history found
+                    )) AS rating_gain -- This will be negative for losers
+                FROM
+                    usuario u
+                WHERE
+                    u.rating IS NOT NULL
+                ORDER BY
+                    rating_gain ASC -- Order by ASC to get the biggest negative gains (losses)
+                LIMIT :limit_val
+            ");
+
+            $stmt->bindValue(':days_ago_start', $days, PDO::PARAM_INT);
+            $stmt->bindValue(':limit_val', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar maiores perdedores de rating: " . $e->getMessage());
+            return [];
+        }
+    }
+    
 }
