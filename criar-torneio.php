@@ -55,8 +55,8 @@ require_once '_head.php';
                     <div class="form-control w-full">
                         <label class="label" for="arena">
                             <span class="label-text font-semibold">Arena Sede</span>
-                        </label>
-                        <select name="arena" id="arena" class="select select-bordered w-full" required>
+                        </label> 
+                        <select name="arena" id="arena" class="select select-bordered w-full force-white-bg" required>
                             <option value="" disabled selected>Selecione uma de suas arenas</option>
                             <?php if (empty($arenas_fundadas)) : ?>
                                 <option disabled>Você não é fundador de nenhuma arena.</option>
@@ -77,31 +77,31 @@ require_once '_head.php';
                     <div class="form-control w-full">
                         <label class="label" for="titulo">
                             <span class="label-text font-semibold">Título do Torneio</span>
-                        </label>
-                        <input type="text" name="titulo" id="titulo" placeholder="Ex: Torneio de Verão" class="input input-bordered w-full" required>
+                        </label> 
+                        <input type="text" name="titulo" id="titulo" placeholder="Ex: Torneio de Verão" class="input input-bordered w-full force-white-bg" required>
                     </div>
 
                     <!-- Sobre -->
                     <div class="form-control w-full">
                         <label class="label" for="sobre">
                             <span class="label-text font-semibold">Sobre o Torneio</span>
-                        </label>
-                        <textarea name="sobre" id="sobre" rows="3" placeholder="Descreva as regras, categorias, etc." class="textarea textarea-bordered w-full"></textarea>
+                        </label> 
+                        <textarea name="sobre" id="sobre" rows="3" placeholder="Descreva as regras, categorias, etc." class="textarea textarea-bordered w-full force-white-bg"></textarea>
                     </div>
 
                     <!-- Datas -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-control w-full">
                             <label class="label" for="inicio_inscricao"><span class="label-text font-semibold">Início das Inscrições</span></label>
-                            <input type="datetime-local" name="inicio_inscricao" id="inicio_inscricao" class="input input-bordered w-full" required>
+                            <input type="datetime-local" name="inicio_inscricao" id="inicio_inscricao" class="input input-bordered w-full force-white-bg" required>
                         </div>
                         <div class="form-control w-full">
                             <label class="label" for="fim_inscricao"><span class="label-text font-semibold">Fim das Inscrições</span></label>
-                            <input type="datetime-local" name="fim_inscricao" id="fim_inscricao" class="input input-bordered w-full" required>
+                            <input type="datetime-local" name="fim_inscricao" id="fim_inscricao" class="input input-bordered w-full force-white-bg" required>
                         </div>
                         <div class="form-control w-full">
                             <label class="label" for="inicio_torneio"><span class="label-text font-semibold">Início do Torneio</span></label>
-                            <input type="datetime-local" name="inicio_torneio" id="inicio_torneio" class="input input-bordered w-full" required>
+                            <input type="datetime-local" name="inicio_torneio" id="inicio_torneio" class="input input-bordered w-full force-white-bg" required>
                         </div>
                         <div class="form-control w-full">
                             <label class="label" for="fim_torneio"><span class="label-text font-semibold">Fim do Torneio</span></label>
@@ -113,11 +113,11 @@ require_once '_head.php';
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-control w-full">
                             <label class="label" for="valor_primeira_insc"><span class="label-text font-semibold">Valor 1ª Inscrição (R$)</span></label>
-                            <input type="text" name="valor_primeira_insc" id="valor_primeira_insc" class="input input-bordered w-full" value="" placeholder="0,00">
+                            <input type="text" name="valor_primeira_insc" id="valor_primeira_insc" class="input input-bordered w-full force-white-bg" value="" placeholder="0,00">
                         </div>
                         <div class="form-control w-full">
                             <label class="label" for="valor_segunda_insc"><span class="label-text font-semibold">Valor 2ª Inscrição (R$)</span></label>
-                            <input type="text" name="valor_segunda_insc" id="valor_segunda_insc" class="input input-bordered w-full" value="" placeholder="0,00">
+                            <input type="text" name="valor_segunda_insc" id="valor_segunda_insc" class="input input-bordered w-full force-white-bg" value="" placeholder="0,00">
                         </div>
                     </div>
 

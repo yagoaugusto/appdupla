@@ -71,7 +71,7 @@ if ($variacao_valor > 0) {
 }
 ?>
 
-<body class="bg-gray-100 min-h-screen text-gray-800 text-sm sm:text-base">
+<body class="bg-gray-100 min-h-screen text-gray-800 text-sm sm:text-base" style="color-scheme: light;">
 
   <?php require_once '_nav_superior.php'; ?>
 

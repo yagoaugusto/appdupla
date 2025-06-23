@@ -1,5 +1,5 @@
 <?php
-require_once '../#_global.php';
+require_once '#_global.php';
 
 // Log para depuração (remova em produção)
 file_put_contents('webhook_log.txt', date('Y-m-d H:i:s') . " - Recebido: " . file_get_contents('php://input') . "\n", FILE_APPEND);

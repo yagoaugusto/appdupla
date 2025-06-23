@@ -5,7 +5,7 @@ require_once '#_global.php';
 <html lang="pt-br">
 <?php require_once '_head.php'; ?>
 
-<body class="bg-gray-100 min-h-screen text-gray-800">
+<body class="bg-gray-100 min-h-screen text-gray-800" style="color-scheme: light;">
 
     <!-- Navbar superior -->
     <?php require_once '_nav_superior.php'; ?>
@@ -54,52 +54,52 @@ require_once '#_global.php';
                             <!-- Nome -->
                             <div>
                                 <label for="nome" class="label"><span class="label-text">Nome</span></label>
-                                <input type="text" id="nome" name="nome" placeholder="Seu nome" class="input input-bordered w-full" value="<?= htmlspecialchars($usuario['nome'] ?? '') ?>" required />
+                                <input type="text" id="nome" name="nome" placeholder="Seu nome" class="input input-bordered w-full force-white-bg" value="<?= htmlspecialchars($usuario['nome'] ?? '') ?>" required />
                             </div>
                             <!-- Sobrenome -->
                             <div>
                                 <label for="sobrenome" class="label"><span class="label-text">Sobrenome</span></label>
-                                <input type="text" id="sobrenome" name="sobrenome" placeholder="Seu sobrenome" class="input input-bordered w-full" value="<?= htmlspecialchars($usuario['sobrenome'] ?? '') ?>" required />
+                                <input type="text" id="sobrenome" name="sobrenome" placeholder="Seu sobrenome" class="input input-bordered w-full force-white-bg" value="<?= htmlspecialchars($usuario['sobrenome'] ?? '') ?>" required />
                             </div>
                         </div>
 
                         <!-- Apelido -->
                         <div>
                             <label for="apelido" class="label"><span class="label-text">Apelido</span></label>
-                            <input type="text" id="apelido" name="apelido" placeholder="Seu apelido é gerado em eventos" class="input input-bordered w-full bg-gray-200" value="<?= htmlspecialchars($usuario['apelido'] ?? '') ?>" readonly />
+                            <input type="text" id="apelido" name="apelido" placeholder="Seu apelido é gerado em eventos" class="input input-bordered w-full bg-gray-200 force-white-bg" value="<?= htmlspecialchars($usuario['apelido'] ?? '') ?>" readonly />
                             <div class="label"><span class="label-text-alt">Seu apelido é conquistado em eventos e não pode ser editado.</span></div>
                         </div>
 
                         <!-- E-mail -->
                         <div>
                             <label for="email" class="label"><span class="label-text">E-mail</span></label>
-                            <input type="email" id="email" name="email" placeholder="seu@email.com" class="input input-bordered w-full" value="<?= htmlspecialchars($usuario['email'] ?? '') ?>" required />
+                            <input type="email" id="email" name="email" placeholder="seu@email.com" class="input input-bordered w-full force-white-bg" value="<?= htmlspecialchars($usuario['email'] ?? '') ?>" required />
                         </div>
 
                         <!-- Telefone -->
                         <div>
                             <label for="telefone" class="label"><span class="label-text">Telefone (com DDD)</span></label>
-                            <input type="tel" id="telefone" name="telefone" placeholder="(99) 99999-9999" class="input input-bordered w-full" value="<?= htmlspecialchars($telefone_exibicao) ?>" pattern="\(\d{2}\) \d{5}-\d{4}" title="O telefone deve estar no formato (99) 99999-9999." />
+                            <input type="tel" id="telefone" name="telefone" placeholder="(99) 99999-9999" class="input input-bordered w-full force-white-bg" value="<?= htmlspecialchars($telefone_exibicao) ?>" pattern="\(\d{2}\) \d{5}-\d{4}" title="O telefone deve estar no formato (99) 99999-9999." />
                         </div>
                         
                         <!-- CPF -->
                         <div>
                             <label for="cpf" class="label"><span class="label-text">CPF</span></label>
-                            <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" class="input input-bordered w-full" value="<?= htmlspecialchars($usuario['cpf'] ?? '') ?>" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" title="O CPF deve estar no formato 000.000.000-00." />
+                            <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" class="input input-bordered w-full force-white-bg" value="<?= htmlspecialchars($usuario['cpf'] ?? '') ?>" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" title="O CPF deve estar no formato 000.000.000-00." />
                             <div class="label"><span class="label-text-alt">Seu CPF é usado para pagamentos e não é compartilhado.</span></div>
                         </div>
 
                         <!-- Cidade -->
                         <div>
                             <label for="cidade" class="label"><span class="label-text">Cidade</span></label>
-                            <input required list="lista-cidades" id="cidade" name="cidade" placeholder="Digite para buscar sua cidade" class="input input-bordered w-full" value="<?= htmlspecialchars($usuario['cidade'] ?? '') ?>" />
+                            <input required list="lista-cidades" id="cidade" name="cidade" placeholder="Digite para buscar sua cidade" class="input input-bordered w-full force-white-bg" value="<?= htmlspecialchars($usuario['cidade'] ?? '') ?>" />
                             <datalist id="lista-cidades"></datalist>
                         </div>
 
                         <!-- Empunhadura -->
                         <div>
                             <label for="empunhadura" class="label"><span class="label-text">Empunhadura</span></label>
-                            <select id="empunhadura" name="empunhadura" class="select select-bordered w-full">
+                            <select id="empunhadura" name="empunhadura" class="select select-bordered w-full force-white-bg">
                                 <option value="destro" <?= ($usuario['empunhadura'] ?? '') === 'destro' ? 'selected' : '' ?>>Destro</option>
                                 <option value="canhoto" <?= ($usuario['empunhadura'] ?? '') === 'canhoto' ? 'selected' : '' ?>>Canhoto</option>
                             </select>

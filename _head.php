@@ -68,4 +68,12 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       }
     }
   </script>
+  <style>
+    /* Estilo para forçar o fundo branco em inputs, útil contra autofill de navegadores */
+    .force-white-bg {
+        background-color: #fff !important;
+        color: #222 !important;
+        -webkit-text-fill-color: #222 !important;
+    }
+  </style>
 </head>

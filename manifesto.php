@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <?php require_once '_head.php'; ?>
-<body class="bg-white text-gray-800 font-sans leading-relaxed">
+<body class="bg-white text-gray-800 font-sans leading-relaxed" style="color-scheme: light;">
 
   <!-- Navbar superior -->
   <?php require_once '_nav_superior.php'; ?>

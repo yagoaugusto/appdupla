@@ -5,7 +5,7 @@ require_once '#_global.php';
 <html lang="pt-br">
 <?php require_once '_head.php'; ?>
 
-<body class="bg-gray-100 min-h-screen text-gray-800">
+<body class="bg-gray-100 min-h-screen text-gray-800" style="color-scheme: light;">
 
     <!-- Navbar superior -->
     <?php require_once '_nav_superior.php'; ?>

@@ -2,14 +2,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <?php require_once '_head.php'; ?>
-<style>
-    /* Estilo para forçar o fundo branco em inputs, útil contra autofill de navegadores */
-    .force-white-bg {
-        background-color: #fff !important;
-        color: #222 !important;
-        -webkit-text-fill-color: #222 !important;
-    }
-</style>
 <body class="bg-gray-100 min-h-screen text-gray-800">
 
   <!-- Navbar superior -->
