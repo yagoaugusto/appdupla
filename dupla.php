@@ -17,22 +17,12 @@ require_once '_head.php';
 
 // --- LÓGICA DA PÁGINA ---
 $usuario_id = $_SESSION['DuplaUserId'];
-$user_arenas = Arena::getUserArenas($usuario_id);
-
-// Determine the current scope (geral or a specific arena)
-$selected_arena_id = filter_input(INPUT_GET, 'arena_id', FILTER_VALIDATE_INT) ?: null;
-$arena_selecionada_titulo = 'Comunidade Geral';
-if ($selected_arena_id) {
-    $arena_info = Arena::getArenaById($selected_arena_id);
-    $arena_selecionada_titulo = $arena_info ? $arena_info['titulo'] : 'Comunidade Geral';
-}
-
-$usuario = Usuario::posicao_usuario($usuario_id, $selected_arena_id);
+$usuario = Usuario::posicao_usuario($usuario_id);
 $user_rating = $usuario[0]['rating'] ?? 1500;
 
 // --- LÓGICA PARA DUELOS MAIS JOGADOS ---
-$parceiro_frequente = Usuario::getMostFrequentPartner($usuario_id, $selected_arena_id);
-$rival_frequente = Usuario::getMostFrequentRival($usuario_id, $selected_arena_id);
+$parceiro_frequente = Usuario::getMostFrequentPartner($usuario_id);
+$rival_frequente = Usuario::getMostFrequentRival($usuario_id);
 
 $parceiro_vitorias = $parceiro_frequente['vitorias'] ?? 0;
 $parceiro_partidas = $parceiro_frequente['partidas'] ?? 0;
@@ -44,11 +34,11 @@ $rival_percentual = ($rival_partidas > 0) ? round(($rival_vitorias / $rival_part
 
 
 // Busca a distribuição de ratings da comunidade
-$rating_distribution = Usuario::getRatingDistribution(100, $selected_arena_id); // Agrupa em faixas de 100 pontos
+$rating_distribution = Usuario::getRatingDistribution(100); // Agrupa em faixas de 100 pontos
 
 // --- LÓGICA PARA GRÁFICOS DE EVOLUÇÃO ---
 $days_to_show = 10;
-$community_history = Usuario::getCommunityAverageRatingHistory($days_to_show, $selected_arena_id);
+$community_history = Usuario::getCommunityAverageRatingHistory($days_to_show);
 $user_history = Usuario::getUserRatingHistory($usuario_id, $days_to_show);
 
 // Converte os resultados em mapas para fácil acesso por data
@@ -98,7 +88,7 @@ foreach ($rating_distribution as $bin) {
 }
 
 // --- LÓGICA PARA RATING GAIN CHART ---
-$top_gainers = Usuario::getTopRatingGainers(7, 5, $selected_arena_id); // Top 5 ganhadores nos últimos 7 dias
+$top_gainers = Usuario::getTopRatingGainers(7, 5); // Top 5 ganhadores nos últimos 7 dias
 
 $gainer_chart_labels = [];
 $gainer_chart_data = [];
@@ -106,7 +96,7 @@ $gainer_chart_colors = [];
 
 foreach ($top_gainers as $gainer) {
     // Para o gráfico, usamos apenas o apelido ou nome para não poluir o eixo X
-    $chart_name = !empty($gainer['apelido']) ? $gainer['apelido'] : explode(' ', $gainer['nome'])[0];
+    $chart_name = !empty($gainer['nome']) ? $gainer['nome'].' '.$gainer['sobrenome'] : explode(' ', $gainer['nome'])[0];
     if (strlen($chart_name) > 10) {
         $chart_name = substr($chart_name, 0, 10) . '...';
     }
@@ -117,29 +107,29 @@ foreach ($top_gainers as $gainer) {
 
 
 // --- LÓGICA PARA RATING GAIN CHART ---
-$top_losers_rating = Usuario::getTopRatingLosers(7, 5, $selected_arena_id); // Top 5 perdedores nos últimos 7 dias
+$top_losers = Usuario::getTopRatinglosers(7, 5); // Top 5 ganhadores nos últimos 7 dias
 
 $loser_chart_labels = [];
 $loser_chart_data = [];
 $loser_chart_colors = [];
 
-foreach ($top_losers_rating as $loser) {
+foreach ($top_losers as $loser) {
     // Para o gráfico, usamos apenas o apelido ou nome para não poluir o eixo X
-    $chart_name = !empty($loser['apelido']) ? $loser['apelido'] : explode(' ', $loser['nome'])[0];
+    $chart_name = !empty($loser['nome']) ? $loser['nome'].' '.$loser['sobrenome'] : explode(' ', $loser['nome'])[0];
     if (strlen($chart_name) > 10) {
         $chart_name = substr($chart_name, 0, 10) . '...';
     }
     $loser_chart_labels[] = $chart_name;
-    $loser_chart_data[] = abs(round($loser['rating_gain'],1));
-    $loser_chart_colors[] = 'rgba(239, 68, 68, 0.8)'; // Tailwind red-500
+    $loser_chart_data[] = round($loser['rating_gain'],1);
+    $loser_chart_colors[] = $loser['rating_gain'] > 0 ? 'rgb(220, 87, 87)' : 'rgba(218, 89, 89, 0.7)'; // Tailwind green-500, gray-500
 }
 
 
 // --- LÓGICA PARA MAIORES STREAKS ---
-$top_streaks = Usuario::getTopWinningStreaks(5, $selected_arena_id);
+$top_streaks = Usuario::getTopWinningStreaks(5);
 
 // --- LÓGICA PARA MAIORES SEQUÊNCIAS DE DERROTAS ---
-$top_losers = Usuario::getTopLosingStreaks(5, $selected_arena_id);
+$top_losers = Usuario::getTopLosingStreaks(5);
 ?>
 
 <body class="bg-gray-100 min-h-screen text-gray-800">
@@ -156,21 +146,8 @@ $top_losers = Usuario::getTopLosingStreaks(5, $selected_arena_id);
             <div class="max-w-4xl mx-auto w-full">
                 <!-- Cabeçalho -->
                 <div class="text-center mb-6">
-                    <h1 class="text-3xl font-extrabold text-gray-800">Central DUPLA: <span class="text-blue-600"><?= htmlspecialchars($arena_selecionada_titulo) ?></span></h1>
-                    <p class="text-sm text-gray-600">Suas estatísticas e o pulso da comunidade selecionada.</p>
-                </div>
-
-                <!-- Filtro de Arena -->
-                <div class="mb-6 max-w-sm mx-auto">
-                    <label for="arenaFilter" class="block text-sm font-medium text-gray-700 mb-1 text-center">Filtrar Estatísticas por:</label>
-                    <select id="arenaFilter" class="select select-bordered w-full">
-                        <option value="geral" <?= !$selected_arena_id ? 'selected' : '' ?>>Comunidade Geral</option>
-                        <?php foreach ($user_arenas as $arena): ?>
-                            <option value="<?= $arena['id'] ?>" <?= $selected_arena_id == $arena['id'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($arena['titulo']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <h1 class="text-3xl font-extrabold text-gray-800">Central DUPLA</h1>
+                    <p class="text-sm text-gray-600">Suas estatísticas e o pulso da comunidade.</p>
                 </div>
 
                 <!-- Accordion para organizar os blocos -->
@@ -178,7 +155,7 @@ $top_losers = Usuario::getTopLosingStreaks(5, $selected_arena_id);
 
                     <!-- Bloco: Sua Jornada -->
                     <div class="collapse collapse-arrow bg-white rounded-2xl shadow-xl border border-gray-200">
-                        <input type="checkbox" checked="checked" />
+                        <input type="checkbox" checked />
                         <div class="collapse-title text-lg font-bold flex items-center gap-2">⚔️ Sua Jornada</div>
                         <div class="collapse-content bg-gray-50/50">
                             <div class="p-2 space-y-4">
@@ -209,7 +186,7 @@ $top_losers = Usuario::getTopLosingStreaks(5, $selected_arena_id);
 
                     <!-- Bloco: Análise da Comunidade -->
                     <div class="collapse collapse-arrow bg-white rounded-2xl shadow-xl border border-gray-200">
-                        <input type="checkbox" checked="checked" />
+                        <input type="checkbox" />
                         <div class="collapse-title text-lg font-bold flex items-center gap-2">🌡️ Análise da Comunidade</div>
                         <div class="collapse-content bg-gray-50/50">
                             <div class="p-2 space-y-4">
@@ -219,23 +196,20 @@ $top_losers = Usuario::getTopLosingStreaks(5, $selected_arena_id);
                                     <div class="h-64 relative"><canvas id="ratingHistogram"></canvas></div>
                                     <p class="text-xs text-gray-500 text-center mt-1">Sua faixa de rating está destacada em vermelho.</p>
                                 </div>
-                                <!-- Grid for Gainers and Losers -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <!-- Rating Gainers -->
-                                    <div>
-                                        <h3 class="font-semibold text-gray-700 mb-1 text-center">Quem Mais Subiu (7 dias)</h3>
-                                        <div class="h-64 relative">
-                                            <?php if (!empty($gainer_chart_data)): ?><canvas id="ratingGainChart"></canvas>
-                                            <?php else: ?><p class="text-center text-gray-500 italic pt-10">Sem dados de ganho de rating.</p><?php endif; ?>
-                                        </div>
+                                <!-- Rating Gainers -->
+                                <div>
+                                    <h3 class="font-semibold text-gray-700 mb-1">Quem Mais Subiu (7 dias)</h3>
+                                    <div class="h-64 relative">
+                                        <?php if (!empty($gainer_chart_data)): ?><canvas id="ratingGainChart"></canvas>
+                                        <?php else: ?><p class="text-center text-gray-500 italic pt-10">Sem dados de ganho de rating.</p><?php endif; ?>
                                     </div>
-                                    <!-- Rating Losers -->
-                                    <div>
-                                        <h3 class="font-semibold text-gray-700 mb-1 text-center">Quem Mais Caiu (7 dias)</h3>
-                                        <div class="h-64 relative">
-                                            <?php if (!empty($loser_chart_data)): ?><canvas id="ratingLossChart"></canvas>
-                                            <?php else: ?><p class="text-center text-gray-500 italic pt-10">Sem dados de perda de rating.</p><?php endif; ?>
-                                        </div>
+                                </div>
+                                <!-- Rating Losers -->
+                                <div>
+                                    <h3 class="font-semibold text-gray-700 mb-1">Quem Mais Caiu (7 dias)</h3>
+                                    <div class="h-64 relative">
+                                        <?php if (!empty($loser_chart_data)): ?><canvas id="ratingLoserChart"></canvas>
+                                        <?php else: ?><p class="text-center text-gray-500 italic pt-10">Sem dados de perda de rating.</p><?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -244,7 +218,7 @@ $top_losers = Usuario::getTopLosingStreaks(5, $selected_arena_id);
 
                     <!-- Bloco: Leaderboards -->
                     <div class="collapse collapse-arrow bg-white rounded-2xl shadow-xl border border-gray-200">
-                        <input type="checkbox" checked="checked" />
+                        <input type="checkbox" />
                         <div class="collapse-title text-lg font-bold flex items-center gap-2">🔥 Leaderboards</div>
                         <div class="collapse-content bg-gray-50/50">
                             <div class="p-2 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -278,7 +252,7 @@ $top_losers = Usuario::getTopLosingStreaks(5, $selected_arena_id);
 
                     <!-- Bloco: Duelos -->
                     <div class="collapse collapse-arrow bg-white rounded-2xl shadow-xl border border-gray-200">
-                        <input type="checkbox" checked="checked" />
+                        <input type="checkbox" />
                         <div class="collapse-title text-lg font-bold flex items-center gap-2">🤝 Duelos Mais Jogados</div>
                         <div class="collapse-content bg-gray-50/50">
                             <div class="p-2 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -312,17 +286,6 @@ $top_losers = Usuario::getTopLosingStreaks(5, $selected_arena_id);
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.getElementById('arenaFilter').addEventListener('change', function() {
-            const selectedValue = this.value;
-            const baseUrl = 'dupla.php';
-            
-            if (selectedValue === 'geral') {
-                window.location.href = baseUrl;
-            } else {
-                window.location.href = `${baseUrl}?arena_id=${selectedValue}`;
-            }
-        });
-
         document.addEventListener('DOMContentLoaded', function() {
             const ctx = document.getElementById('ratingHistogram').getContext('2d');
 
@@ -425,8 +388,8 @@ $top_losers = Usuario::getTopLosingStreaks(5, $selected_arena_id);
 
 
             <?php if (!empty($loser_chart_data)): ?>
-            const lossCtx = document.getElementById('ratingLossChart').getContext('2d');
-            new Chart(lossCtx, {
+            const loserCtx = document.getElementById('ratingLoserChart').getContext('2d');
+            new Chart(loserCtx, {
                 type: 'bar',
                 data: {
                     labels: <?= json_encode($loser_chart_labels) ?>,
@@ -434,10 +397,10 @@ $top_losers = Usuario::getTopLosingStreaks(5, $selected_arena_id);
                         label: 'Perda de Rating',
                         data: <?= json_encode($loser_chart_data) ?>,
                         backgroundColor: <?= json_encode($loser_chart_colors) ?>,
-                        borderColor: 'rgba(239, 68, 68, 1)', // Vermelho
+                        borderColor: 'rgb(217, 66, 66)',
                         borderWidth: 1,
                         borderRadius: 5,
-                        hoverBackgroundColor: 'rgba(239, 68, 68, 1)'
+                        hoverBackgroundColor: 'rgb(219, 85, 85)'
                     }]
                 },
                 options: {
@@ -448,7 +411,7 @@ $top_losers = Usuario::getTopLosingStreaks(5, $selected_arena_id);
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return 'Perda: -' + context.parsed.y;
+                                    return 'Perda: ' + context.parsed.y;
                                 }
                             }
                         }

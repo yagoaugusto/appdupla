@@ -90,28 +90,36 @@ WHERE
     return $lista;
   }
 
-  public static function posicao_usuario($id, $arena_id = null)
+  public static function posicao_usuario($id)
   {
-      $conn = Conexao::pegarConexao();
-      $params = [':id' => $id];
-      $arena_filter_clause = '';
-
-      if ($arena_id) {
-          $arena_filter_clause = " JOIN arena_membros am ON u.id = am.usuario_id AND am.arena_id = :arena_id AND am.situacao IN ('membro', 'fundador') ";
-          $params[':arena_id'] = $arena_id;
-      }
-
-      $query = "
-          WITH all_users AS ( SELECT u.* FROM usuario u {$arena_filter_clause} ),
-          rankeados AS ( SELECT id, nome, rating, apelido, rd, vol, sexo, RANK() OVER (ORDER BY rating DESC) AS posicao FROM all_users ),
-          total AS ( SELECT COUNT(*) AS total FROM all_users )
-          SELECT r.apelido, r.id, r.nome, r.rating, r.rd, r.vol, r.posicao, t.total,
-              CASE WHEN t.total <= 1 THEN 100.00 ELSE ROUND(100.0 * (t.total - r.posicao) / (t.total - 1), 2) END AS percentual_abaixo
-          FROM rankeados r, total t WHERE r.id = :id";
-      
-      $stmt = $conn->prepare($query);
-      $stmt->execute($params);
-      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $query =
+      "WITH rankeados AS (
+  SELECT id, nome, rating, apelido, rd, vol, sexo,
+         RANK() OVER (ORDER BY rating DESC) AS posicao
+  FROM usuario
+),
+total AS (
+  SELECT COUNT(*) AS total FROM usuario
+)
+  SELECT 
+    r.apelido,
+    r.id,
+    r.nome,
+    r.rating,
+    r.rd,
+    r.vol AS vol,
+    r.posicao,
+    t.total,
+  CASE
+    WHEN t.total <= 1 THEN 0.00 -- Se houver 1 ou 0 usuários, o percentual abaixo é 0.
+    ELSE ROUND(100.0 * (t.total - r.posicao) / (t.total - 1), 2)
+  END AS percentual_abaixo
+FROM rankeados r, total t
+WHERE r.id = {$id}";
+    $conexao = Conexao::pegarConexao();
+    $resultado = $conexao->query($query);
+    $lista = $resultado->fetchAll();
+    return $lista;
   }
 
   public static function quadro_honra_parceiro_vitoria($id)
@@ -389,29 +397,22 @@ WHERE u.id ={$id}";
      * @param int $binSize O tamanho do intervalo para agrupar os ratings (ex: 100).
      * @return array Retorna um array com os intervalos de rating e a contagem de jogadores em cada um.
      */
-    public static function getRatingDistribution($binSize = 100, $arena_id = null)
+    public static function getRatingDistribution($binSize = 100)
     {
         try {
             $conn = Conexao::pegarConexao();
-            $params = [':binSize' => $binSize];
-            $arena_join_clause = '';
-
-            if ($arena_id) {
-                $arena_join_clause = " JOIN arena_membros am ON u.id = am.usuario_id AND am.arena_id = :arena_id AND am.situacao IN ('membro', 'fundador') ";
-                $params[':arena_id'] = $arena_id;
-            }
-
             // A query agrupa os ratings em "bins" (intervalos) e conta quantos jogadores estão em cada um.
-            $query = "SELECT
+            $stmt = $conn->prepare(
+                "SELECT
                     (FLOOR(rating / :binSize)) * :binSize AS rating_floor,
                     COUNT(*) AS player_count
-                FROM usuario u
-                {$arena_join_clause}
-                WHERE u.rating IS NOT NULL
+                FROM usuario
+                WHERE rating IS NOT NULL
                 GROUP BY rating_floor
-                ORDER BY rating_floor ASC";
-            $stmt = $conn->prepare($query);
-            $stmt->execute($params);
+                ORDER BY rating_floor ASC"
+            );
+            $stmt->bindValue(':binSize', $binSize, PDO::PARAM_INT);
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Erro ao buscar distribuição de rating: " . $e->getMessage());
@@ -424,29 +425,22 @@ WHERE u.id ={$id}";
      * @param int $days O número de dias para olhar para trás.
      * @return array Retorna um array com data e rating_medio.
      */
-    public static function getCommunityAverageRatingHistory($days = 10, $arena_id = null)
+    public static function getCommunityAverageRatingHistory($days = 10)
     {
         try {
             $conn = Conexao::pegarConexao();
-            $params = [':days' => $days];
-            $arena_join_clause = '';
-
-            if ($arena_id) {
-                $arena_join_clause = " JOIN arena_membros am ON hr.jogador_id = am.usuario_id AND am.arena_id = :arena_id AND am.situacao IN ('membro', 'fundador') ";
-                $params[':arena_id'] = $arena_id;
-            }
-
             // Esta query calcula a média do rating_novo para cada dia onde houve pelo menos uma partida.
-            $query = "SELECT
-                    DATE(hr.data) AS dia,
-                    AVG(hr.rating_novo) AS rating_medio
-                FROM historico_rating hr
-                {$arena_join_clause}
-                WHERE hr.data >= CURDATE() - INTERVAL :days DAY
+            $stmt = $conn->prepare(
+                "SELECT
+                    DATE(data) AS dia,
+                    AVG(rating_novo) AS rating_medio
+                FROM historico_rating
+                WHERE data >= CURDATE() - INTERVAL :days DAY
                 GROUP BY dia
-                ORDER BY dia ASC";
-            $stmt = $conn->prepare($query);
-            $stmt->execute($params);
+                ORDER BY dia ASC"
+            );
+            $stmt->bindValue(':days', $days, PDO::PARAM_INT);
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Erro ao buscar histórico de rating médio da comunidade: " . $e->getMessage());
@@ -510,24 +504,12 @@ WHERE u.id ={$id}";
      * @param int $id O ID do usuário.
      * @return array|false Retorna os dados do parceiro ou false se não houver.
      */
-    public static function getMostFrequentPartner($id, $arena_id = null)
+    public static function getMostFrequentPartner($id)
     {
         try {
             $conn = Conexao::pegarConexao();
-            $params = [':id' => $id];
-            $arena_join_clause = '';
-
-            if ($arena_id) {
-                $arena_join_clause = "
-                    JOIN arena_membros am1 ON p.jogador1_id = am1.usuario_id AND am1.arena_id = :arena_id AND am1.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am2 ON p.jogador2_id = am2.usuario_id AND am2.arena_id = :arena_id AND am2.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am3 ON p.jogador3_id = am3.usuario_id AND am3.arena_id = :arena_id AND am3.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am4 ON p.jogador4_id = am4.usuario_id AND am4.arena_id = :arena_id AND am4.situacao IN ('membro', 'fundador')
-                ";
-                $params[':arena_id'] = $arena_id;
-            }
-
-            $query = "SELECT 
+            $stmt = $conn->prepare(
+                "SELECT 
                     u.nome AS parceiro_nome,
                     u.apelido,
                     parceiros.parceiro_id,
@@ -549,17 +531,17 @@ WHERE u.id ={$id}";
                             ELSE 'B'
                         END AS meu_time,
                         vencedor
-                    FROM partidas p
-                    {$arena_join_clause}
+                    FROM partidas
                     WHERE :id IN (jogador1_id, jogador2_id, jogador3_id, jogador4_id)
                 ) AS parceiros
                 JOIN usuario u ON u.id = parceiros.parceiro_id
                 WHERE parceiros.parceiro_id IS NOT NULL
                 GROUP BY parceiros.parceiro_id, u.nome, u.apelido
                 ORDER BY partidas DESC
-                LIMIT 1";
-            $stmt = $conn->prepare($query);
-            $stmt->execute($params);
+                LIMIT 1"
+            );
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Erro ao buscar parceiro mais frequente: " . $e->getMessage());
@@ -572,24 +554,12 @@ WHERE u.id ={$id}";
      * @param int $id O ID do usuário.
      * @return array|false Retorna os dados do rival ou false se não houver.
      */
-    public static function getMostFrequentRival($id, $arena_id = null)
+    public static function getMostFrequentRival($id)
     {
         try {
             $conn = Conexao::pegarConexao();
-            $params = [':id' => $id];
-            $arena_join_clause = '';
-
-            if ($arena_id) {
-                $arena_join_clause = "
-                    JOIN arena_membros am1 ON p.jogador1_id = am1.usuario_id AND am1.arena_id = :arena_id AND am1.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am2 ON p.jogador2_id = am2.usuario_id AND am2.arena_id = :arena_id AND am2.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am3 ON p.jogador3_id = am3.usuario_id AND am3.arena_id = :arena_id AND am3.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am4 ON p.jogador4_id = am4.usuario_id AND am4.arena_id = :arena_id AND am4.situacao IN ('membro', 'fundador')
-                ";
-                $params[':arena_id'] = $arena_id;
-            }
-
-            $query = "SELECT 
+            $stmt = $conn->prepare(
+                "SELECT 
                     u.nome AS rival_nome,
                     u.apelido,
                     adversarios.adversario_id,
@@ -603,21 +573,22 @@ WHERE u.id ={$id}";
                         CASE WHEN jogador1_id = :id OR jogador2_id = :id THEN 'A' ELSE 'B' END AS meu_time,
                         vencedor,
                         CASE WHEN jogador1_id = :id OR jogador2_id = :id THEN jogador3_id ELSE jogador1_id END AS adversario_id
-                    FROM partidas p {$arena_join_clause} WHERE :id IN (jogador1_id, jogador2_id, jogador3_id, jogador4_id)
+                    FROM partidas WHERE :id IN (jogador1_id, jogador2_id, jogador3_id, jogador4_id)
                     UNION ALL
                     SELECT 
                         CASE WHEN jogador1_id = :id OR jogador2_id = :id THEN 'A' ELSE 'B' END AS meu_time,
                         vencedor,
                         CASE WHEN jogador1_id = :id OR jogador2_id = :id THEN jogador4_id ELSE jogador2_id END AS adversario_id
-                    FROM partidas p {$arena_join_clause} WHERE :id IN (jogador1_id, jogador2_id, jogador3_id, jogador4_id)
+                    FROM partidas WHERE :id IN (jogador1_id, jogador2_id, jogador3_id, jogador4_id)
                 ) AS adversarios
                 JOIN usuario u ON u.id = adversarios.adversario_id
                 WHERE adversarios.adversario_id IS NOT NULL
                 GROUP BY adversarios.adversario_id, u.nome, u.apelido
                 ORDER BY partidas DESC
-                LIMIT 1";
-            $stmt = $conn->prepare($query);
-            $stmt->execute($params);
+                LIMIT 1"
+            );
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Erro ao buscar rival mais frequente: " . $e->getMessage());
@@ -634,20 +605,13 @@ WHERE u.id ={$id}";
      * @param int $limit O número de usuários a serem retornados (ex: top 5).
      * @return array Retorna um array de arrays associativos com os dados dos usuários e seu ganho de rating.
      */
-    public static function getTopRatingGainers($days = 7, $limit = 5, $arena_id = null)
+    public static function getTopRatingGainers($days = 7, $limit = 5)
     {
         try {
             $conn = Conexao::pegarConexao();
-            $params = [':days_ago_start' => $days, ':limit_val' => $limit];
-            $arena_join_clause = '';
 
-            if ($arena_id) {
-                $arena_join_clause = " JOIN arena_membros am ON u.id = am.usuario_id AND am.arena_id = :arena_id AND am.situacao IN ('membro', 'fundador') ";
-                $params[':arena_id'] = $arena_id;
-            }
-
-
-            $query = "SELECT
+            $stmt = $conn->prepare("
+                SELECT
                     u.id,
                     u.nome,
                     u.sobrenome,
@@ -669,15 +633,16 @@ WHERE u.id ={$id}";
                     )) AS rating_gain
                 FROM
                     usuario u
-                {$arena_join_clause}
                 WHERE
                     u.rating IS NOT NULL
                 ORDER BY
                     rating_gain DESC
                 LIMIT :limit_val
-            ";
-            $stmt = $conn->prepare($query);
-            $stmt->execute($params);
+            ");
+
+            $stmt->bindValue(':days_ago_start', $days, PDO::PARAM_INT);
+            $stmt->bindValue(':limit_val', $limit, PDO::PARAM_INT);
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (PDOException $e) {
@@ -693,35 +658,24 @@ WHERE u.id ={$id}";
      * @param int $limit O número de usuários a serem retornados (ex: top 5).
      * @return array Retorna um array de arrays associativos com os dados dos usuários e sua sequência de vitórias.
      */
-    public static function getTopWinningStreaks($limit = 5, $arena_id = null)
+    public static function getTopWinningStreaks($limit = 5)
     {
         try {
             $conn = Conexao::pegarConexao();
-            $params = [':limit_val' => $limit];
-            $arena_join_clause = '';
-
-            if ($arena_id) {
-                $arena_join_clause = "
-                    JOIN arena_membros am1 ON p.jogador1_id = am1.usuario_id AND am1.arena_id = :arena_id AND am1.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am2 ON p.jogador2_id = am2.usuario_id AND am2.arena_id = :arena_id AND am2.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am3 ON p.jogador3_id = am3.usuario_id AND am3.arena_id = :arena_id AND am3.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am4 ON p.jogador4_id = am4.usuario_id AND am4.arena_id = :arena_id AND am4.situacao IN ('membro', 'fundador')
-                ";
-                $params[':arena_id'] = $arena_id;
-            }
 
             // Esta query usa Common Table Expressions (CTEs) para:
             // 1. `player_matches`: "desempilhar" a tabela de partidas para ter uma linha por jogador por partida.
             // 2. `last_losses`: Encontrar a data da última derrota de cada jogador.
             // 3. `streaks`: Contar o número de vitórias de cada jogador desde sua última derrota.
-            $query = "WITH player_matches AS (
-                    SELECT p.id as partida_id, p.data, p.jogador1_id as jogador_id, CASE WHEN p.vencedor = 'A' THEN 1 ELSE 0 END as is_win FROM partidas p {$arena_join_clause} WHERE p.status = 'validada' AND p.jogador1_id IS NOT NULL
+            $stmt = $conn->prepare("
+                WITH player_matches AS (
+                    SELECT id as partida_id, data, jogador1_id as jogador_id, CASE WHEN vencedor = 'A' THEN 1 ELSE 0 END as is_win FROM partidas WHERE status = 'validada' AND jogador1_id IS NOT NULL
                     UNION ALL
-                    SELECT p.id as partida_id, p.data, p.jogador2_id as jogador_id, CASE WHEN p.vencedor = 'A' THEN 1 ELSE 0 END as is_win FROM partidas p {$arena_join_clause} WHERE p.status = 'validada' AND p.jogador2_id IS NOT NULL
+                    SELECT id as partida_id, data, jogador2_id as jogador_id, CASE WHEN vencedor = 'A' THEN 1 ELSE 0 END as is_win FROM partidas WHERE status = 'validada' AND jogador2_id IS NOT NULL
                     UNION ALL
-                    SELECT p.id as partida_id, p.data, p.jogador3_id as jogador_id, CASE WHEN p.vencedor = 'B' THEN 1 ELSE 0 END as is_win FROM partidas p {$arena_join_clause} WHERE p.status = 'validada' AND p.jogador3_id IS NOT NULL
+                    SELECT id as partida_id, data, jogador3_id as jogador_id, CASE WHEN vencedor = 'B' THEN 1 ELSE 0 END as is_win FROM partidas WHERE status = 'validada' AND jogador3_id IS NOT NULL
                     UNION ALL
-                    SELECT p.id as partida_id, p.data, p.jogador4_id as jogador_id, CASE WHEN p.vencedor = 'B' THEN 1 ELSE 0 END as is_win FROM partidas p {$arena_join_clause} WHERE p.status = 'validada' AND p.jogador4_id IS NOT NULL
+                    SELECT id as partida_id, data, jogador4_id as jogador_id, CASE WHEN vencedor = 'B' THEN 1 ELSE 0 END as is_win FROM partidas WHERE status = 'validada' AND jogador4_id IS NOT NULL
                 ),
                 last_losses AS (
                     SELECT jogador_id, MAX(data) as last_loss_date FROM player_matches WHERE is_win = 0 GROUP BY jogador_id
@@ -735,9 +689,11 @@ WHERE u.id ={$id}";
                 )
                 SELECT u.id, u.nome, u.apelido, s.win_streak
                 FROM streaks s JOIN usuario u ON s.jogador_id = u.id
-                WHERE s.win_streak > 0 ORDER BY s.win_streak DESC, u.rating DESC LIMIT :limit_val";
-            $stmt = $conn->prepare($query);
-            $stmt->execute($params);
+                WHERE s.win_streak > 0 ORDER BY s.win_streak DESC, u.rating DESC LIMIT :limit_val
+            ");
+
+            $stmt->bindValue(':limit_val', $limit, PDO::PARAM_INT);
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Erro ao buscar maiores sequências de vitórias: " . $e->getMessage());
@@ -752,35 +708,24 @@ WHERE u.id ={$id}";
      * @param int $limit O número de usuários a serem retornados (ex: top 5).
      * @return array Retorna um array de arrays associativos com os dados dos usuários e sua sequência de derrotas.
      */
-    public static function getTopLosingStreaks($limit = 5, $arena_id = null)
+    public static function getTopLosingStreaks($limit = 5)
     {
         try {
             $conn = Conexao::pegarConexao();
-            $params = [':limit_val' => $limit];
-            $arena_join_clause = '';
-
-            if ($arena_id) {
-                $arena_join_clause = "
-                    JOIN arena_membros am1 ON p.jogador1_id = am1.usuario_id AND am1.arena_id = :arena_id AND am1.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am2 ON p.jogador2_id = am2.usuario_id AND am2.arena_id = :arena_id AND am2.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am3 ON p.jogador3_id = am3.usuario_id AND am3.arena_id = :arena_id AND am3.situacao IN ('membro', 'fundador')
-                    JOIN arena_membros am4 ON p.jogador4_id = am4.usuario_id AND am4.arena_id = :arena_id AND am4.situacao IN ('membro', 'fundador')
-                ";
-                $params[':arena_id'] = $arena_id;
-            }
 
             // Esta query usa Common Table Expressions (CTEs) para:
             // 1. `player_matches`: "desempilhar" a tabela de partidas para ter uma linha por jogador por partida.
             // 2. `last_wins`: Encontrar a data da última vitória de cada jogador.
             // 3. `streaks`: Contar o número de derrotas de cada jogador desde sua última vitória.
-            $query = "WITH player_matches AS (
-                    SELECT p.id as partida_id, p.data, p.jogador1_id as jogador_id, CASE WHEN p.vencedor = 'A' THEN 1 ELSE 0 END as is_win FROM partidas p {$arena_join_clause} WHERE p.status = 'validada' AND p.jogador1_id IS NOT NULL
+            $stmt = $conn->prepare("
+                WITH player_matches AS (
+                    SELECT id as partida_id, data, jogador1_id as jogador_id, CASE WHEN vencedor = 'A' THEN 1 ELSE 0 END as is_win FROM partidas WHERE status = 'validada' AND jogador1_id IS NOT NULL
                     UNION ALL
-                    SELECT p.id as partida_id, p.data, p.jogador2_id as jogador_id, CASE WHEN p.vencedor = 'A' THEN 1 ELSE 0 END as is_win FROM partidas p {$arena_join_clause} WHERE p.status = 'validada' AND p.jogador2_id IS NOT NULL
+                    SELECT id as partida_id, data, jogador2_id as jogador_id, CASE WHEN vencedor = 'A' THEN 1 ELSE 0 END as is_win FROM partidas WHERE status = 'validada' AND jogador2_id IS NOT NULL
                     UNION ALL
-                    SELECT p.id as partida_id, p.data, p.jogador3_id as jogador_id, CASE WHEN p.vencedor = 'B' THEN 1 ELSE 0 END as is_win FROM partidas p {$arena_join_clause} WHERE p.status = 'validada' AND p.jogador3_id IS NOT NULL
+                    SELECT id as partida_id, data, jogador3_id as jogador_id, CASE WHEN vencedor = 'B' THEN 1 ELSE 0 END as is_win FROM partidas WHERE status = 'validada' AND jogador3_id IS NOT NULL
                     UNION ALL
-                    SELECT p.id as partida_id, p.data, p.jogador4_id as jogador_id, CASE WHEN p.vencedor = 'B' THEN 1 ELSE 0 END as is_win FROM partidas p {$arena_join_clause} WHERE p.status = 'validada' AND p.jogador4_id IS NOT NULL
+                    SELECT id as partida_id, data, jogador4_id as jogador_id, CASE WHEN vencedor = 'B' THEN 1 ELSE 0 END as is_win FROM partidas WHERE status = 'validada' AND jogador4_id IS NOT NULL
                 ),
                 last_wins AS (
                     SELECT jogador_id, MAX(data) as last_win_date FROM player_matches WHERE is_win = 1 GROUP BY jogador_id
@@ -794,9 +739,11 @@ WHERE u.id ={$id}";
                 )
                 SELECT u.id, u.nome, u.apelido, s.loss_streak
                 FROM streaks s JOIN usuario u ON s.jogador_id = u.id
-                WHERE s.loss_streak > 0 ORDER BY s.loss_streak DESC, u.rating ASC LIMIT :limit_val";
-            $stmt = $conn->prepare($query);
-            $stmt->execute($params);
+                WHERE s.loss_streak > 0 ORDER BY s.loss_streak DESC, u.rating ASC LIMIT :limit_val
+            ");
+
+            $stmt->bindValue(':limit_val', $limit, PDO::PARAM_INT);
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Erro ao buscar maiores sequências de derrotas: " . $e->getMessage());
@@ -813,20 +760,13 @@ WHERE u.id ={$id}";
      * @param int $limit O número de usuários a serem retornados (ex: top 5).
      * @return array Retorna um array de arrays associativos com os dados dos usuários e sua perda de rating.
      */
-    public static function getTopRatingLosers($days = 7, $limit = 5, $arena_id = null)
+    public static function getTopRatingLosers($days = 7, $limit = 5)
     {
         try {
             $conn = Conexao::pegarConexao();
-            $params = [':days_ago_start' => $days, ':limit_val' => $limit];
-            $arena_join_clause = '';
 
-            if ($arena_id) {
-                $arena_join_clause = " JOIN arena_membros am ON u.id = am.usuario_id AND am.arena_id = :arena_id AND am.situacao IN ('membro', 'fundador') ";
-                $params[':arena_id'] = $arena_id;
-            }
-
-
-            $query = "SELECT
+            $stmt = $conn->prepare("
+                SELECT
                     u.id,
                     u.nome,
                     u.sobrenome,
@@ -848,15 +788,16 @@ WHERE u.id ={$id}";
                     )) AS rating_gain -- This will be negative for losers
                 FROM
                     usuario u
-                {$arena_join_clause}
                 WHERE
                     u.rating IS NOT NULL
                 ORDER BY
                     rating_gain ASC -- Order by ASC to get the biggest negative gains (losses)
                 LIMIT :limit_val
-            ";
-            $stmt = $conn->prepare($query);
-            $stmt->execute($params);
+            ");
+
+            $stmt->bindValue(':days_ago_start', $days, PDO::PARAM_INT);
+            $stmt->bindValue(':limit_val', $limit, PDO::PARAM_INT);
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (PDOException $e) {
