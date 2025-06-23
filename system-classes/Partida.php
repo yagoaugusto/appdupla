@@ -15,6 +15,10 @@ class Partida
             j2.nome as nomej2,
             j3.nome as nomej3,
             j4.nome as nomej4,
+            j1.apelido as apelidoj1,
+            j2.apelido as apelidoj2,
+            j3.apelido as apelidoj3,
+            j4.apelido as apelidoj4,
             placar_a,
             placar_b,
             vencedor,
@@ -114,7 +118,11 @@ partidas.id,data,token_validacao,placar_a,placar_b,status,vencedor,
                 j1.nome as nomej1,
                 j2.nome as nomej2,
                 j3.nome as nomej3,
-                j4.nome as nomej4
+                j4.nome as nomej4,
+                j1.apelido as apelidoj1,
+                j2.apelido as apelidoj2,
+                j3.apelido as apelidoj3,
+                j4.apelido as apelidoj4
 FROM partidas
                 join usuario j1 on j1.id=jogador1_id 
                 join usuario j2 on j2.id=jogador2_id

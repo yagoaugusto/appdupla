@@ -74,10 +74,14 @@ $partidas = Partida::partidas_pendente_jogador($jogador);
                                 <!-- Time A -->
                                 <div class="flex flex-col items-end text-right space-y-1">
                                     <div class="flex items-center gap-1">
-                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej1']) ?></span>
+                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej1']) ?>
+                                            <?php if(!empty($p['apelidoj1'])): ?><span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($p['apelidoj1']) ?>)</span><?php endif; ?>
+                                        </span>
                                     </div>
                                     <div class="flex items-center gap-1">
-                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej2']) ?></span>
+                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej2']) ?>
+                                            <?php if(!empty($p['apelidoj2'])): ?><span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($p['apelidoj2']) ?>)</span><?php endif; ?>
+                                        </span>
                                     </div>
                                 </div>
 
@@ -91,10 +95,14 @@ $partidas = Partida::partidas_pendente_jogador($jogador);
                                 <!-- Time B -->
                                 <div class="flex flex-col items-start text-left space-y-1">
                                     <div class="flex items-center gap-1">
-                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej3']) ?></span>
+                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej3']) ?>
+                                            <?php if(!empty($p['apelidoj3'])): ?><span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($p['apelidoj3']) ?>)</span><?php endif; ?>
+                                        </span>
                                     </div>
                                     <div class="flex items-center gap-1">
-                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej4']) ?></span>
+                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej4']) ?>
+                                            <?php if(!empty($p['apelidoj4'])): ?><span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($p['apelidoj4']) ?>)</span><?php endif; ?>
+                                        </span>
                                     </div>
                                 </div>
                             </div>

@@ -202,12 +202,12 @@ if ($variacao_valor > 0) {
               <?php foreach ($ranking_superior as $rank): ?>
                 <li class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-md border-l-4 border-yellow-500 bg-white hover:bg-yellow-50 transition-colors">
                   <span class="text-lg font-bold text-yellow-600 w-8 text-center"><?= $p_sup ?>º</span>
-                  <span class="flex-1 font-semibold text-gray-800">
-                    <?= htmlspecialchars($rank['nome']) ?>
+                  <div class="flex-1 font-semibold text-gray-800">
+                    <span class="block"><?= htmlspecialchars($rank['nome']) ?></span>
                     <?php if (!empty($rank['apelido'])): ?>
-                      <span class="text-xs text-gray-500 ml-1">(<?= htmlspecialchars($rank['apelido']) ?>)</span>
+                      <span class="text-xs text-gray-500 font-normal -mt-1 block">(<?= htmlspecialchars($rank['apelido']) ?>)</span>
                     <?php endif; ?>
-                  </span>
+                  </div>
                   <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full">⭐ <?= htmlspecialchars($rank['rating']) ?></span>
                 </li>
                 <?php $p_sup = $p_sup + 1; endforeach; ?>
@@ -215,12 +215,12 @@ if ($variacao_valor > 0) {
               <!-- Usuário em destaque -->
               <li class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-lg border-l-4 border-blue-600 bg-blue-50 relative">
                 <span class="text-lg font-bold text-blue-700 w-8 text-center"><?= $usuario[0]['posicao'] ?>º</span>
-                <span class="flex-1 font-bold text-blue-800">
-                  <?= htmlspecialchars($usuario[0]['nome']) ?>
+                <div class="flex-1 font-bold text-blue-800">
+                  <span class="block"><?= htmlspecialchars($usuario[0]['nome']) ?></span>
                   <?php if (!empty($usuario[0]['apelido'])): ?>
-                    <span class="text-xs text-blue-500 ml-1">(<?= htmlspecialchars($usuario[0]['apelido']) ?>)</span>
+                    <span class="text-xs text-blue-500 font-normal -mt-1 block">(<?= htmlspecialchars($usuario[0]['apelido']) ?>)</span>
                   <?php endif; ?>
-                </span>
+                </div>
                 <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full">⭐ <?= htmlspecialchars($usuario[0]['rating']) ?></span>
               </li>
 
@@ -228,12 +228,12 @@ if ($variacao_valor > 0) {
               <?php foreach ($ranking_inferior as $rank): ?>
                 <li class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-md border-l-4 border-gray-400 bg-white hover:bg-gray-50 transition-colors">
                   <span class="text-lg font-bold text-gray-600 w-8 text-center"><?= $p_inf ?>º</span>
-                  <span class="flex-1 font-semibold text-gray-800">
-                    <?= htmlspecialchars($rank['nome']) ?>
+                  <div class="flex-1 font-semibold text-gray-800">
+                    <span class="block"><?= htmlspecialchars($rank['nome']) ?></span>
                     <?php if (!empty($rank['apelido'])): ?>
-                      <span class="text-xs text-gray-500 ml-1">(<?= htmlspecialchars($rank['apelido']) ?>)</span>
+                      <span class="text-xs text-gray-500 font-normal -mt-1 block">(<?= htmlspecialchars($rank['apelido']) ?>)</span>
                     <?php endif; ?>
-                  </span>
+                  </div>
                   <span class="bg-gray-100 text-gray-700 text-xs font-bold px-2 py-1 rounded-full">⭐ <?= htmlspecialchars($rank['rating']) ?></span>
                 </li>
                 <?php $p_inf = $p_inf + 1; endforeach; ?>
@@ -300,9 +300,12 @@ if ($variacao_valor > 0) {
                         <h4 class="font-bold text-xs text-green-800 uppercase tracking-wider">Dupla Forte</h4>
                         <span class="text-2xl">🤝</span>
                     </div>
-                    <p class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($dupla_forte_nome) ?>">
+                    <div class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($dupla_forte_nome) ?>">
                         <?= htmlspecialchars($dupla_forte_nome) ?>
-                    </p>
+                        <?php if (!empty($parceiro_vitoria[0]['apelido'])): ?>
+                            <span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($parceiro_vitoria[0]['apelido']) ?>)</span>
+                        <?php endif; ?>
+                    </div>
                     <div class="text-xs text-gray-600 mt-1">
                         <span class="font-semibold"><?= htmlspecialchars($dupla_forte_vitorias) ?> vitórias</span> em <?= htmlspecialchars($dupla_forte_partidas) ?> jogos
                     </div>
@@ -313,9 +316,12 @@ if ($variacao_valor > 0) {
                         <h4 class="font-bold text-xs text-yellow-800 uppercase tracking-wider">Meu Pato</h4>
                         <span class="text-2xl">🦆</span>
                     </div>
-                    <p class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($pato_nome) ?>">
+                    <div class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($pato_nome) ?>">
                         <?= htmlspecialchars($pato_nome) ?>
-                    </p>
+                        <?php if (!empty($adversario_vitoria[0]['apelido'])): ?>
+                            <span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($adversario_vitoria[0]['apelido']) ?>)</span>
+                        <?php endif; ?>
+                    </div>
                     <div class="text-xs text-gray-600 mt-1">
                         <span class="font-semibold"><?= htmlspecialchars($pato_vitorias) ?> vitórias</span> em <?= htmlspecialchars($pato_partidas) ?> jogos
                     </div>
@@ -326,9 +332,12 @@ if ($variacao_valor > 0) {
                         <h4 class="font-bold text-xs text-red-800 uppercase tracking-wider">Meu Carrasco</h4>
                         <span class="text-2xl">💀</span>
                     </div>
-                    <p class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($carrasco_nome) ?>">
+                    <div class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($carrasco_nome) ?>">
                         <?= htmlspecialchars($carrasco_nome) ?>
-                    </p>
+                        <?php if (!empty($adversario_derrota[0]['apelido'])): ?>
+                            <span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($adversario_derrota[0]['apelido']) ?>)</span>
+                        <?php endif; ?>
+                    </div>
                     <div class="text-xs text-gray-600 mt-1">
                         <span class="font-semibold"><?= htmlspecialchars($carrasco_derrotas) ?> derrotas</span> em <?= htmlspecialchars($carrasco_partidas) ?> jogos
                     </div>
@@ -339,9 +348,12 @@ if ($variacao_valor > 0) {
                         <h4 class="font-bold text-xs text-gray-600 uppercase tracking-wider">Só Atrapalha</h4>
                         <span class="text-2xl">🐢</span>
                     </div>
-                    <p class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($azarado_nome) ?>">
+                    <div class="text-sm font-semibold text-gray-800 truncate" title="<?= htmlspecialchars($azarado_nome) ?>">
                         <?= htmlspecialchars($azarado_nome) ?>
-                    </p>
+                        <?php if (!empty($parceiro_derrota[0]['apelido'])): ?>
+                            <span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($parceiro_derrota[0]['apelido']) ?>)</span>
+                        <?php endif; ?>
+                    </div>
                     <div class="text-xs text-gray-600 mt-1">
                         <span class="font-semibold"><?= htmlspecialchars($azarado_derrotas) ?> derrotas</span> em <?= htmlspecialchars($azarado_partidas) ?> jogos
                     </div>
@@ -371,7 +383,7 @@ if ($variacao_valor > 0) {
               <span class="text-xs font-semibold">Arenas</span>
           </button>
           <!-- Botão Torneios -->
-          <button disabled id="btnTorneios" class="flex flex-col items-center justify-center text-gray-700 hover:text-purple-600 transition-colors w-16 h-14 rounded-full hover:bg-purple-50">
+          <button id="btnTorneios" class="flex flex-col items-center justify-center text-gray-700 hover:text-purple-600 transition-colors w-16 h-14 rounded-full hover:bg-purple-50">
               <span class="text-2xl">🏆</span>
               <span class="text-xs font-semibold">Torneios</span>
           </button>
@@ -395,6 +407,17 @@ if ($variacao_valor > 0) {
     <div class="text-2xl mb-2">🏟️ <span class="font-extrabold text-blue-700">Arenas</span></div>
     <a href="criar-arena.php" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Criar Arena</a>
     <a href="arenas.php" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Visitar Arenas</a>
+  </div>
+</div>
+
+<!-- Modal de Torneios -->
+<div id="modalTorneios" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-2xl shadow-2xl p-6 w-80 max-w-full flex flex-col items-center gap-4 relative">
+    <button id="fecharModalTorneios" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+    <div class="text-2xl mb-2">🏆 <span class="font-extrabold text-purple-700">Torneios</span></div>
+    <a href="criar-torneio.php" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Criar Torneio</a>
+    <a href="meu-torneio.php" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Meus Torneios</a>
+    <a href="encontrar-torneio.php" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Encontrar Torneios</a>
   </div>
 </div>
 
@@ -432,6 +455,13 @@ if ($variacao_valor > 0) {
     document.getElementById('fecharModalArenas').addEventListener('click', () => closeModal('modalArenas'));
     document.getElementById('modalArenas').addEventListener('click', (e) => {
         if (e.target.id === 'modalArenas') closeModal('modalArenas');
+    });
+
+    // --- LÓGICA PARA MODAL DE TORNEIOS ---
+    document.getElementById('btnTorneios').addEventListener('click', () => openModal('modalTorneios'));
+    document.getElementById('fecharModalTorneios').addEventListener('click', () => closeModal('modalTorneios'));
+    document.getElementById('modalTorneios').addEventListener('click', (e) => {
+        if (e.target.id === 'modalTorneios') closeModal('modalTorneios');
     });
 
     // --- LÓGICA PARA ANÁLISE DE IA ---

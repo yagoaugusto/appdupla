@@ -37,7 +37,7 @@ require_once 'system-classes/Funcoes.php' ?>
                             <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-200 text-blue-700 text-base font-bold shadow">1</span>
                             <div class="flex-1">
                                 <label class="block mb-0.5 text-xs font-medium text-gray-700">Você</label>
-                                <input type="text" id="jogador1" class="input input-bordered w-full bg-gray-100 cursor-not-allowed text-xs force-white-bg" placeholder="Seu nome" autocomplete="off" value="<?= $_SESSION['DuplaUserNome'] ?>" disabled>
+                                <input type="text" id="jogador1" class="input input-bordered w-full bg-gray-100 cursor-not-allowed text-xs force-white-bg" placeholder="Seu nome" autocomplete="off" value="<?= htmlspecialchars($_SESSION['DuplaUserNome']) . (!empty($_SESSION['DuplaUserApelido']) ? ' (' . htmlspecialchars($_SESSION['DuplaUserApelido']) . ')' : '') ?>" disabled>
                                 <input type="hidden" id="jogador1_id" name="jogador1_id" value="<?= $_SESSION['DuplaUserId'] ?>">
                             </div>
                         </div>

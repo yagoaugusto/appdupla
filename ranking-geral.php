@@ -42,12 +42,12 @@ $p_inf = $usuario[0]['posicao'] + 1;
               <?php foreach ($ranking_superior as $rank): ?>
                 <li class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-md border-l-4 border-yellow-500 bg-white hover:bg-yellow-50 transition-colors">
                   <span class="text-lg font-bold text-yellow-600 w-8 text-center"><?= $p_sup ?>º</span>
-                  <span class="flex-1 font-semibold text-gray-800">
-                    <?= $rank['nome'] ?>
+                  <div class="flex-1 font-semibold text-gray-800">
+                    <span class="block"><?= htmlspecialchars($rank['nome']) ?></span>
                     <?php if (!empty($rank['apelido'])): ?>
-                      <span class="text-xs text-gray-500 ml-1">(<?= htmlspecialchars($rank['apelido']) ?>)</span>
+                      <span class="text-xs text-gray-500 font-normal -mt-1 block">(<?= htmlspecialchars($rank['apelido']) ?>)</span>
                     <?php endif; ?>
-                  </span>
+                  </div>
                   <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full">⭐ <?= htmlspecialchars($rank['rating']) ?></span>
                 </li>
               <?php $p_sup = $p_sup + 1;
@@ -56,12 +56,12 @@ $p_inf = $usuario[0]['posicao'] + 1;
               <!-- Usuário em destaque -->
               <li id="usuario-destaque" class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-lg border-l-4 border-blue-600 bg-blue-50 relative">
                 <span class="text-lg font-bold text-blue-700 w-8 text-center"><?= $usuario[0]['posicao'] ?>º</span>
-                <span class="flex-1 font-bold text-blue-800">
-                  <?= htmlspecialchars($usuario[0]['nome']) ?>
+                <div class="flex-1 font-bold text-blue-800">
+                  <span class="block"><?= htmlspecialchars($usuario[0]['nome']) ?></span>
                   <?php if (!empty($usuario[0]['apelido'])): ?>
-                    <span class="text-xs text-blue-500 ml-1">(<?= htmlspecialchars($usuario[0]['apelido']) ?>)</span>
+                    <span class="text-xs text-blue-500 font-normal -mt-1 block">(<?= htmlspecialchars($usuario[0]['apelido']) ?>)</span>
                   <?php endif; ?>
-                </span>
+                </div>
                 <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full">⭐ <?= htmlspecialchars($usuario[0]['rating']) ?></span>
               </li>
 
@@ -69,12 +69,12 @@ $p_inf = $usuario[0]['posicao'] + 1;
               <?php foreach ($ranking_inferior as $rank): ?>
                 <li class="flex items-center gap-3 rounded-lg px-4 py-2 shadow-md border-l-4 border-gray-400 bg-white hover:bg-gray-50 transition-colors">
                   <span class="text-lg font-bold text-gray-600 w-8 text-center"><?= $p_inf ?>º</span>
-                  <span class="flex-1 font-semibold text-gray-800">
-                    <?= $rank['nome'] ?>
+                  <div class="flex-1 font-semibold text-gray-800">
+                    <span class="block"><?= htmlspecialchars($rank['nome']) ?></span>
                     <?php if (!empty($rank['apelido'])): ?>
-                      <span class="text-xs text-gray-500 ml-1">(<?= htmlspecialchars($rank['apelido']) ?>)</span>
+                      <span class="text-xs text-gray-500 font-normal -mt-1 block">(<?= htmlspecialchars($rank['apelido']) ?>)</span>
                     <?php endif; ?>
-                  </span>
+                  </div>
                   <span class="bg-gray-100 text-gray-700 text-xs font-bold px-2 py-1 rounded-full">⭐ <?= htmlspecialchars($rank['rating']) ?></span>
                 </li>
               <?php $p_inf = $p_inf + 1;

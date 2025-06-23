@@ -19,6 +19,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   if ($usuario) {
     $_SESSION['DuplaUserId'] = $usuario['id'];
     $_SESSION['DuplaUserNome'] = $usuario['nome'];
+    $_SESSION['DuplaUserApelido'] = $usuario['apelido'];
     $_SESSION['DuplaUserTelefone'] = $usuario['telefone'];
     $_SESSION['DuplaUserSenha'] = $usuario['senha'];
     $_SESSION['DuplaUserCidade'] = $usuario['cidade'];

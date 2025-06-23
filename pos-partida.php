@@ -18,6 +18,7 @@ $jogadores = [
   [
     'id' => $info_p[0]['jogador1_id'],
     'nome' => $info_p[0]['nomej1'],
+    'apelido' => $info_p[0]['apelidoj1'],
     'time' => 'A',
     'validado' => $info_p[0]['validado_jogador1'],
     'rejeitado' => $info_p[0]['rejeitado_jogador1']
@@ -25,6 +26,7 @@ $jogadores = [
   [
     'id' => $info_p[0]['jogador2_id'],
     'nome' => $info_p[0]['nomej2'],
+    'apelido' => $info_p[0]['apelidoj2'],
     'time' => 'A',
     'validado' => $info_p[0]['validado_jogador2'],
     'rejeitado' => $info_p[0]['rejeitado_jogador2']
@@ -32,6 +34,7 @@ $jogadores = [
   [
     'id' => $info_p[0]['jogador3_id'],
     'nome' => $info_p[0]['nomej3'],
+    'apelido' => $info_p[0]['apelidoj3'],
     'time' => 'B',
     'validado' => $info_p[0]['validado_jogador3'],
     'rejeitado' => $info_p[0]['rejeitado_jogador3']
@@ -39,6 +42,7 @@ $jogadores = [
   [
     'id' => $info_p[0]['jogador4_id'],
     'nome' => $info_p[0]['nomej4'],
+    'apelido' => $info_p[0]['apelidoj4'],
     'time' => 'B',
     'validado' => $info_p[0]['validado_jogador4'],
     'rejeitado' => $info_p[0]['rejeitado_jogador4']
@@ -230,8 +234,12 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
               <div class="relative z-10 bg-gradient-to-r from-green-200 via-green-100 to-white border-l-4 border-green-500 rounded-xl p-3 mb-2 shadow">
                 <div class="flex justify-between items-center">
                   <div>
-                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= $info_p[0]['nomej1'] ?></p>
-                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= $info_p[0]['nomej2'] ?></p>
+                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= htmlspecialchars($info_p[0]['nomej1']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj1'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj1']) ?>)</span><?php endif; ?>
+                    </p>
+                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= htmlspecialchars($info_p[0]['nomej2']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj2'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj2']) ?>)</span><?php endif; ?>
+                    </p>
                   </div>
                   <div class="text-right">
                     <span class="text-3xl font-extrabold text-green-600"><?= $info_p[0]['placar_a'] ?></span>
@@ -245,8 +253,12 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
               <div class="relative z-10 bg-gradient-to-r from-red-100 via-white to-gray-100 border-l-4 border-red-400 rounded-xl p-3 shadow">
                 <div class="flex justify-between items-center">
                   <div>
-                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= $info_p[0]['nomej3'] ?></p>
-                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= $info_p[0]['nomej4'] ?></p>
+                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= htmlspecialchars($info_p[0]['nomej3']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj3'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj3']) ?>)</span><?php endif; ?>
+                    </p>
+                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= htmlspecialchars($info_p[0]['nomej4']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj4'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj4']) ?>)</span><?php endif; ?>
+                    </p>
                   </div>
                   <div class="text-right">
                     <span class="text-3xl font-extrabold text-gray-400"><?= $info_p[0]['placar_b'] ?></span>
@@ -263,8 +275,12 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
               <div class="relative z-10 bg-gradient-to-r from-green-200 via-green-100 to-white border-l-4 border-green-500 rounded-xl p-3 mb-2 shadow">
                 <div class="flex justify-between items-center">
                   <div>
-                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= $info_p[0]['nomej3'] ?></p>
-                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= $info_p[0]['nomej4'] ?></p>
+                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= htmlspecialchars($info_p[0]['nomej3']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj3'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj3']) ?>)</span><?php endif; ?>
+                    </p>
+                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= htmlspecialchars($info_p[0]['nomej4']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj4'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj4']) ?>)</span><?php endif; ?>
+                    </p>
                   </div>
                   <div class="text-right">
                     <span class="text-3xl font-extrabold text-green-600"><?= $info_p[0]['placar_b'] ?></span>
@@ -278,8 +294,12 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
               <div class="relative z-10 bg-gradient-to-r from-red-100 via-white to-gray-100 border-l-4 border-red-400 rounded-xl p-3 shadow">
                 <div class="flex justify-between items-center">
                   <div>
-                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= $info_p[0]['nomej1'] ?></p>
-                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= $info_p[0]['nomej2'] ?></p>
+                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= htmlspecialchars($info_p[0]['nomej1']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj1'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj1']) ?>)</span><?php endif; ?>
+                    </p>
+                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= htmlspecialchars($info_p[0]['nomej2']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj2'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj2']) ?>)</span><?php endif; ?>
+                    </p>
                   </div>
                   <div class="text-right">
                     <span class="text-3xl font-extrabold text-gray-400"><?= $info_p[0]['placar_a'] ?></span>
@@ -302,8 +322,12 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
               <div class="relative z-10 bg-gradient-to-r from-green-200 via-green-100 to-white border-l-4 border-green-500 rounded-xl p-3 mb-2 shadow">
                 <div class="flex justify-between items-center">
                   <div>
-                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= $info_p[0]['nomej3'] ?></p>
-                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= $info_p[0]['nomej4'] ?></p>
+                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= htmlspecialchars($info_p[0]['nomej3']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj3'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj3']) ?>)</span><?php endif; ?>
+                    </p>
+                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= htmlspecialchars($info_p[0]['nomej4']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj4'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj4']) ?>)</span><?php endif; ?>
+                    </p>
                   </div>
                   <div class="text-right">
                     <span class="text-3xl font-extrabold text-green-600"><?= $info_p[0]['placar_b'] ?></span>
@@ -317,8 +341,12 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
               <div class="relative z-10 bg-gradient-to-r from-red-100 via-white to-gray-100 border-l-4 border-red-400 rounded-xl p-3 shadow">
                 <div class="flex justify-between items-center">
                   <div>
-                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= $info_p[0]['nomej1'] ?></p>
-                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= $info_p[0]['nomej2'] ?></p>
+                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= htmlspecialchars($info_p[0]['nomej1']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj1'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj1']) ?>)</span><?php endif; ?>
+                    </p>
+                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= htmlspecialchars($info_p[0]['nomej2']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj2'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj2']) ?>)</span><?php endif; ?>
+                    </p>
                   </div>
                   <div class="text-right">
                     <span class="text-3xl font-extrabold text-gray-400"><?= $info_p[0]['placar_a'] ?></span>
@@ -335,8 +363,12 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
               <div class="relative z-10 bg-gradient-to-r from-green-200 via-green-100 to-white border-l-4 border-green-500 rounded-xl p-3 mb-2 shadow">
                 <div class="flex justify-between items-center">
                   <div>
-                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= $info_p[0]['nomej1'] ?></p>
-                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= $info_p[0]['nomej2'] ?></p>
+                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= htmlspecialchars($info_p[0]['nomej1']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj1'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj1']) ?>)</span><?php endif; ?>
+                    </p>
+                    <p class="text-base font-bold text-green-800 flex items-center gap-1">🏆 <?= htmlspecialchars($info_p[0]['nomej2']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj2'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj2']) ?>)</span><?php endif; ?>
+                    </p>
                   </div>
                   <div class="text-right">
                     <span class="text-3xl font-extrabold text-green-600"><?= $info_p[0]['placar_a'] ?></span>
@@ -350,8 +382,12 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
               <div class="relative z-10 bg-gradient-to-r from-red-100 via-white to-gray-100 border-l-4 border-red-400 rounded-xl p-3 shadow">
                 <div class="flex justify-between items-center">
                   <div>
-                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= $info_p[0]['nomej3'] ?></p>
-                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= $info_p[0]['nomej4'] ?></p>
+                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= htmlspecialchars($info_p[0]['nomej3']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj3'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj3']) ?>)</span><?php endif; ?>
+                    </p>
+                    <p class="text-base font-semibold text-red-800 flex items-center gap-1">😓 <?= htmlspecialchars($info_p[0]['nomej4']) ?>
+                      <?php if(!empty($info_p[0]['apelidoj4'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($info_p[0]['apelidoj4']) ?>)</span><?php endif; ?>
+                    </p>
                   </div>
                   <div class="text-right">
                     <span class="text-3xl font-extrabold text-gray-400"><?= $info_p[0]['placar_b'] ?></span>
@@ -399,7 +435,9 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
                     ✔
                   </span>
                   <div>
-                    <span class="block font-semibold text-green-800 text-sm"><?= htmlspecialchars($jogador['nome']) ?></span>
+                    <span class="block font-semibold text-green-800 text-sm"><?= htmlspecialchars($jogador['nome']) ?>
+                      <?php if(!empty($jogador['apelido'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($jogador['apelido']) ?>)</span><?php endif; ?>
+                    </span>
                     <span class="text-xs text-green-700">Confirmado</span>
                   </div>
                 </div>
@@ -409,7 +447,9 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
                     ✖
                   </span>
                   <div>
-                    <span class="block font-semibold text-red-800 text-sm"><?= htmlspecialchars($jogador['nome']) ?></span>
+                    <span class="block font-semibold text-red-800 text-sm"><?= htmlspecialchars($jogador['nome']) ?>
+                      <?php if(!empty($jogador['apelido'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($jogador['apelido']) ?>)</span><?php endif; ?>
+                    </span>
                     <span class="text-xs text-red-700">Rejeitado</span>
                   </div>
                 </div>
@@ -419,7 +459,9 @@ if ($info_p[0]['vencedor'] == $time_usuario) {
                     ⌛
                   </span>
                   <div>
-                    <span class="block font-semibold text-yellow-800 text-sm"><?= htmlspecialchars($jogador['nome']) ?></span>
+                    <span class="block font-semibold text-yellow-800 text-sm"><?= htmlspecialchars($jogador['nome']) ?>
+                      <?php if(!empty($jogador['apelido'])): ?><span class="text-xs font-normal text-gray-600">(<?= htmlspecialchars($jogador['apelido']) ?>)</span><?php endif; ?>
+                    </span>
                     <span class="text-xs text-yellow-700">Pendente</span>
                   </div>
                 </div>

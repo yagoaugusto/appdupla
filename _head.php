@@ -12,6 +12,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
 	if ($usuario) {
 		$_SESSION['DuplaUserId'] = $usuario['id'];
 		$_SESSION['DuplaUserNome'] = $usuario['nome'];
+		$_SESSION['DuplaUserApelido'] = $usuario['apelido'];
 		$_SESSION['DuplaUserTelefone'] = $usuario['telefone'];
 		$_SESSION['DuplaUserSenha'] = $usuario['senha'];
 		$_SESSION['DuplaUserCidade'] = $usuario['cidade'];
@@ -52,6 +53,19 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   <meta name="twitter:description" content="Valide partidas, suba no ranking e jogue com amigos!">
   <meta name="twitter:image" content="https://beta.appdupla.com/img/og.jpg">
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css" rel="stylesheet" type="text/css" />
+<?php $version = time(); // Use um timestamp para forçar o recarregamento durante o desenvolvimento. Em produção, use uma string de versão fixa. ?>
+  <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css?v=<?php echo $version; ?>" rel="stylesheet" type="text/css" />
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (sidebar && backdrop) {
+        sidebar.classList.toggle('-translate-x-full'); // Toggles sidebar visibility
+        backdrop.classList.toggle('hidden'); // Toggles backdrop visibility
+        document.body.classList.toggle('overflow-hidden'); // Toggles body scroll lock
+      }
+    }
+  </script>
 </head>

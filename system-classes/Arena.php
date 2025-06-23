@@ -244,6 +244,21 @@ class Arena
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+        public static function getUserArenasFundadas($user_id)
+    {
+        $conn = Conexao::pegarConexao();
+        $stmt = $conn->prepare("
+            SELECT 
+                a.*
+            FROM arenas a
+            JOIN arena_membros am_user ON a.id = am_user.arena_id
+            WHERE am_user.usuario_id = ? AND am_user.situacao IN ('fundador')
+            GROUP BY a.id
+            ORDER BY a.titulo ASC
+        ");
+        $stmt->execute([$user_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     /**
      * Busca as arenas onde um usuário tem um convite ou solicitação pendente.
      *
