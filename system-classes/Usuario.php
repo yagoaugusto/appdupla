@@ -110,7 +110,10 @@ total AS (
     r.vol AS vol,
     r.posicao,
     t.total,
-  ROUND({$id}0 * (t.total - r.posicao) / (t.total - 1), 2) AS percentual_abaixo
+  CASE
+    WHEN t.total <= 1 THEN 0.00 -- Se houver 1 ou 0 usuários, o percentual abaixo é 0.
+    ELSE ROUND(100.0 * (t.total - r.posicao) / (t.total - 1), 2)
+  END AS percentual_abaixo
 FROM rankeados r, total t
 WHERE r.id = {$id}";
     $conexao = Conexao::pegarConexao();
