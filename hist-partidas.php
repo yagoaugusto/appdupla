@@ -83,7 +83,7 @@ $partidas = Partida::partidas_jogador($jogador);
                                     <div>
                                         <div class="truncate">
                                             <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej1']) ?></span>
-                                            <?php if (!empty($p['apelidoj1'])): ?><span class="text-xs text-gray-500 block -mt-1">(<?= htmlspecialchars($p['apelidoj1']) ?>)</span><?php endif; ?>
+                                            <?php if (!empty($p['sobrenomej1'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej1']) ?></span><?php endif; ?>
                                         </div>
                                         <div class="mt-1"><?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h1']) : '' ?></div>
                                     </div>
@@ -91,7 +91,7 @@ $partidas = Partida::partidas_jogador($jogador);
                                     <div>
                                         <div class="truncate">
                                             <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej2']) ?></span>
-                                            <?php if (!empty($p['apelidoj2'])): ?><span class="text-xs text-gray-500 block -mt-1">(<?= htmlspecialchars($p['apelidoj2']) ?>)</span><?php endif; ?>
+                                            <?php if (!empty($p['sobrenomej2'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej2']) ?></span><?php endif; ?>
                                         </div>
                                         <div class="mt-1"><?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h2']) : '' ?></div>
                                     </div>
@@ -110,7 +110,7 @@ $partidas = Partida::partidas_jogador($jogador);
                                     <div>
                                         <div class="truncate">
                                             <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej3']) ?></span>
-                                            <?php if (!empty($p['apelidoj3'])): ?><span class="text-xs text-gray-500 block -mt-1">(<?= htmlspecialchars($p['apelidoj3']) ?>)</span><?php endif; ?>
+                                            <?php if (!empty($p['sobrenomej3'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej3']) ?></span><?php endif; ?>
                                         </div>
                                         <div class="mt-1"><?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h3']) : '' ?></div>
                                     </div>
@@ -118,7 +118,7 @@ $partidas = Partida::partidas_jogador($jogador);
                                     <div>
                                         <div class="truncate">
                                             <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej4']) ?></span>
-                                            <?php if (!empty($p['apelidoj4'])): ?><span class="text-xs text-gray-500 block -mt-1">(<?= htmlspecialchars($p['apelidoj4']) ?>)</span><?php endif; ?>
+                                            <?php if (!empty($p['sobrenomej4'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej4']) ?></span><?php endif; ?>
                                         </div>
                                         <div class="mt-1"><?= $p['status'] === 'validada' ? render_diff_badge($p['diff_h4']) : '' ?></div>
                                     </div>
