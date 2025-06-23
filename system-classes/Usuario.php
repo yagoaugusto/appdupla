@@ -805,5 +805,23 @@ WHERE u.id ={$id}";
             return [];
         }
     }
+
+    /**
+     * Busca informações básicas de um usuário pelo ID.
+     * @param int $usuario_id O ID do usuário.
+     * @return array|false Um array associativo com os dados do usuário (id, nome, sobrenome, apelido, sexo, rating) ou false se não encontrado.
+     */
+    public static function getUsuarioInfoById($usuario_id)
+    {
+        try {
+            $conn = Conexao::pegarConexao(); // Certifique-se de que a coluna 'email' e 'telefone' existem na sua tabela 'usuario'
+            $stmt = $conn->prepare("SELECT id, nome, sobrenome, apelido, sexo, rating, email, telefone FROM usuario WHERE id = ?");
+            $stmt->execute([$usuario_id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar informações do usuário por ID: " . $e->getMessage());
+            return false;
+        }
+    }
     
 }

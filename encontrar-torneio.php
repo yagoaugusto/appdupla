@@ -15,8 +15,8 @@ require_once '#_global.php';
         <?php require_once '_nav_lateral.php'; ?>
 
         <!-- Conteúdo principal -->
-        <main class="flex-1 p-4">
-            <section class="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-xl p-6 md:p-8">
+        <main class="flex-1 p-2 sm:p-4">
+            <section class="max-w-6xl mx-auto w-full bg-white rounded-2xl shadow-xl p-6 md:p-8">
                 <div class="flex items-center gap-3 mb-6">
                     <span class="text-3xl">🔍</span>
                     <h1 class="text-2xl font-bold text-gray-800">Encontrar Torneios</h1>
@@ -72,10 +72,8 @@ require_once '#_global.php';
                     ?>
                             <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer card-torneio" data-torneio-id="<?= htmlspecialchars($torneio['id']) ?>">
                                 <div class="card-body p-4">
-                                    <div class="flex justify-between items-start mb-2">
-                                    <h2 class="card-title text-lg mb-1"><?= htmlspecialchars($torneio['titulo']) ?></h2>
-                                        <div class="badge <?= $status['color'] ?> badge-sm text-white"><?= $status['label'] ?></div>
-                                    </div>
+                                    <h2 class="card-title text-lg mb-1 truncate"><?= htmlspecialchars($torneio['titulo']) ?></h2>
+                                    <div class="badge <?= $status['color'] ?> badge-sm text-white mb-2"><?= $status['label'] ?></div>
                                     <p class="text-sm text-gray-600 mb-2">Arena: <span class="font-semibold"><?= htmlspecialchars($torneio['arena_titulo']) ?></span></p>
                                     <div class="text-xs text-gray-500 space-y-1">
                                         <p>Início: <?= date('d/m/Y H:i', strtotime($torneio['inicio_torneio'])) ?></p>
@@ -109,20 +107,25 @@ require_once '#_global.php';
     </footer>
 
     <!-- Modal de Detalhes do Torneio -->
-    <div id="modalTorneioDetalhes" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md flex flex-col gap-4 relative">
-            <button id="fecharModalTorneioDetalhes" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
-            <h2 id="modalTorneioTitulo" class="text-2xl font-bold text-gray-800 mb-2"></h2>
-            <p id="modalTorneioArena" class="text-sm text-gray-500"></p>
-            
-            <div class="space-y-4">
+    <div id="modalTorneioDetalhes" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col relative max-h-[90vh]">
+            <!-- Cabeçalho Fixo -->
+            <div class="p-6 border-b border-gray-200 flex-shrink-0">
+                <button id="fecharModalTorneioDetalhes" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-3xl font-bold">&times;</button>
+                <h2 id="modalTorneioTitulo" class="text-2xl font-bold text-gray-800 pr-8"></h2>
+                <p id="modalTorneioArena" class="text-sm text-gray-500 mt-1"></p>
+                <a id="btnInscreverTorneio" href="#" class="btn btn-primary w-full mt-4">Inscrever-se</a>
+            </div>
+
+            <!-- Conteúdo Rolável -->
+            <div class="p-6 overflow-y-auto space-y-6">
                 <div>
-                    <h3 class="font-bold text-lg mb-1 flex items-center gap-2"><span class="text-xl">ℹ️</span> Sobre o Torneio</h3>
+                    <h3 class="font-bold text-lg mb-2 flex items-center gap-2"><span class="text-xl">ℹ️</span> Sobre o Torneio</h3>
                     <p id="modalTorneioSobre" class="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border"></p>
                 </div>
-                <!-- Nova seção para Cronograma -->
+                <!-- Seção para Cronograma -->
                 <div>
-                    <h3 class="font-bold text-lg mb-1 flex items-center gap-2"><span class="text-xl">🗓️</span> Cronograma</h3>
+                    <h3 class="font-bold text-lg mb-2 flex items-center gap-2"><span class="text-xl">🗓️</span> Cronograma</h3>
                     <div class="space-y-2 text-sm">
                         <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
                             <p class="font-semibold text-blue-800">Início das Inscrições:</p>
@@ -142,9 +145,9 @@ require_once '#_global.php';
                         </div>
                     </div>
                 </div>
-                <!-- Nova seção para Valores de Inscrição -->
+                <!-- Seção para Valores de Inscrição -->
                 <div>
-                    <h3 class="font-bold text-lg mb-1 flex items-center gap-2"><span class="text-xl">💰</span> Valores de Inscrição</h3>
+                    <h3 class="font-bold text-lg mb-2 flex items-center gap-2"><span class="text-xl">💰</span> Valores de Inscrição</h3>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border">
                             <span class="font-semibold text-gray-700">1ª Inscrição:</span>
@@ -157,13 +160,12 @@ require_once '#_global.php';
                     </div>
                 </div>
                 <div>
-                    <h3 class="font-bold text-lg mb-1 flex items-center gap-2"><span class="text-xl">🏷️</span> Categorias</h3>
+                    <h3 class="font-bold text-lg mb-2 flex items-center gap-2"><span class="text-xl">🏷️</span> Categorias</h3>
                     <div id="modalTorneioCategorias" class="space-y-2">
                         <!-- Categorias serão carregadas aqui via JS -->
                     </div>
                 </div>
             </div>
-            <button class="btn btn-primary w-full mt-4">Inscrever-se (em breve)</button>
         </div>
     </div>
 
@@ -180,6 +182,7 @@ require_once '#_global.php';
             const modalInicioTorneio = $('#modalInicioTorneio');
             const modalFimTorneio = $('#modalFimTorneio');
             const modalCategorias = $('#modalTorneioCategorias');
+            const btnInscreverTorneio = $('#btnInscreverTorneio');
 
             $('#listaTorneios').on('click', '.card-torneio', function() {
                 const torneioId = $(this).data('torneio-id');
@@ -193,6 +196,7 @@ require_once '#_global.php';
                 modalFimTorneio.text('');
                 modalSobre.text('Carregando...');
                 modalCategorias.html('<p class="text-gray-500 italic">Carregando categorias...</p>');
+                btnInscreverTorneio.attr('href', '#'); // Reset href
                 modal.removeClass('hidden');
 
                 // Faz a requisição AJAX para buscar os detalhes do torneio
@@ -219,6 +223,9 @@ require_once '#_global.php';
                             // Preenche os novos campos de valor
                             $('#modalValorPrimeiraInsc').text('R$ ' + parseFloat(torneio.valor_primeira_insc).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                             $('#modalValorSegundaInsc').text('R$ ' + parseFloat(torneio.valor_segunda_insc).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+
+                            // Define o link de inscrição
+                            btnInscreverTorneio.attr('href', `inscrever-torneio.php?torneio_id=${torneio.id}`);
                             
                             if (categorias.length > 0) {
                                 let categoriasHtml = '';
@@ -307,10 +314,8 @@ require_once '#_global.php';
                                 torneiosHtml += `
                                     <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer card-torneio" data-torneio-id="${torneio.id}">
                                         <div class="card-body p-4">
-                                            <div class="flex justify-between items-start mb-2">
-                                                <h2 class="card-title text-lg mb-1">${torneio.titulo}</h2>
-                                                <div class="badge ${statusColor} badge-sm text-white">${statusLabel}</div>
-                                            </div>
+                                            <h2 class="card-title text-lg mb-1 truncate">${torneio.titulo}</h2>
+                                            <div class="badge ${statusColor} badge-sm text-white mb-2">${statusLabel}</div>
                                             <p class="text-sm text-gray-600 mb-2">Arena: <span class="font-semibold">${torneio.arena_titulo}</span></p>
                                             <div class="text-xs text-gray-500 space-y-1">
                                                 <p>Início: ${new Date(torneio.inicio_torneio).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>

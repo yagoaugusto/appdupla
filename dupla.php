@@ -146,8 +146,11 @@ $top_losers = Usuario::getTopLosingStreaks(5);
             <div class="max-w-4xl mx-auto w-full">
                 <!-- Cabeçalho -->
                 <div class="text-center mb-6">
-                    <h1 class="text-3xl font-extrabold text-gray-800">Central DUPLA</h1>
-                    <p class="text-sm text-gray-600">Suas estatísticas e o pulso da comunidade.</p>
+                    <div class="flex items-center justify-center mb-2">
+                        <span class="text-4xl">💡</span> <!-- Ícone para insights/análise -->
+                    </div>
+                    <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 drop-shadow-lg">Central DUPLA</h1>
+                    <p class="text-base text-gray-600 mt-2">Suas estatísticas e o pulso da comunidade.</p>
                 </div>
 
                 <!-- Accordion para organizar os blocos -->

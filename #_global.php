@@ -10,7 +10,8 @@ spl_autoload_register('carregarClasse');
 
 function carregarClasse($nomeClasse)
 {
-    if (file_exists('system-classes/' . $nomeClasse . '.php')) {
-        require_once 'system-classes/' .$nomeClasse . '.php';
+    $filePath = 'system-classes/' . $nomeClasse . '.php';
+    if (file_exists($filePath)) {
+        require_once $filePath;
     }
 }

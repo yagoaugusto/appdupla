@@ -43,6 +43,25 @@ class Categoria
     }
 
     /**
+     * Busca uma categoria específica pelo ID.
+     *
+     * @param int $categoria_id O ID da categoria.
+     * @return array|false Um array associativo com os dados da categoria ou false se não encontrada.
+     */
+    public static function getCategoriaById($categoria_id)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("SELECT * FROM torneio_categorias WHERE id = ?");
+            $stmt->execute([$categoria_id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar categoria por ID: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Exclui uma categoria de um torneio.
      *
      * @param int $categoria_id O ID da categoria a ser excluída.
