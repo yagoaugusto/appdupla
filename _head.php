@@ -69,11 +69,23 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     }
   </script>
   <style>
-    /* Estilo para forçar o fundo branco em inputs, útil contra autofill de navegadores */
-    .force-white-bg {
+    /* Estilo para forçar o fundo branco em inputs, útil contra autofill de navegadores que mudam a cor de fundo */
+    input[type="text"],
+    input[type="tel"],
+    input[type="password"],
+    input[type="email"],
+    input[type="datetime-local"],
+    textarea {
         background-color: #fff !important;
-        color: #222 !important;
         -webkit-text-fill-color: #222 !important;
+    }
+    /* Hack para sobrescrever o estilo de autofill do Chrome/Safari */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px white inset !important;
+        -webkit-text-fill-color: #222 !important; /* Garante que o texto também seja visível */
     }
   </style>
 </head>
