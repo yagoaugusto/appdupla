@@ -5,7 +5,7 @@ require_once '#_global.php';
 <html lang="pt-br">
 <?php require_once '_head.php'; ?>
 
-<body class="bg-gray-100 min-h-screen text-gray-800">
+<body class="bg-gray-100 min-h-screen text-gray-800" style="color-scheme: light;">
 
     <!-- Navbar superior -->
     <?php require_once '_nav_superior.php'; ?>
@@ -27,47 +27,68 @@ require_once '#_global.php';
                 exit;
             }
 
-            // Definir conteúdo com base no status do pagamento
-            $icon = '❓';
+            // Definir variáveis com base no status do pagamento
+            $icon_char = '❓';
             $title = 'Status Desconhecido';
             $message = 'Não foi possível determinar o status do seu pagamento. Por favor, verifique os detalhes da sua inscrição.';
-            $card_class = 'bg-gray-50 border-gray-200';
-            $title_class = 'text-gray-800';
+            $card_bg_class = 'bg-white';
+            $card_border_class = 'border-gray-300';
+            $title_text_class = 'text-gray-800';
+            $icon_bg_class = 'bg-gray-200';
+            $icon_text_class = 'text-gray-600';
+            $button_class = 'btn-primary';
+            $button_text = 'Voltar para Minha Inscrição';
 
             switch ($payment_status) {
                 case 'success':
-                    $icon = '🎉';
+                    $icon_char = '🎉';
                     $title = 'Pagamento Aprovado!';
                     $message = 'Seu pagamento foi recebido com sucesso. O status da sua inscrição será atualizado em breve. Você já pode retornar para a página da sua inscrição.';
-                    $card_class = 'bg-green-50 border-green-200';
-                    $title_class = 'text-green-800';
+                    $card_bg_class = 'bg-green-50';
+                    $card_border_class = 'border-green-400';
+                    $title_text_class = 'text-green-800';
+                    $icon_bg_class = 'bg-green-200';
+                    $icon_text_class = 'text-green-700';
+                    $button_class = 'btn-success';
                     break;
                 case 'pending':
-                    $icon = '⏳';
+                    $icon_char = '⏳';
                     $title = 'Pagamento Pendente';
                     $message = 'Seu pagamento está sendo processado. Assim que for aprovado, o status da sua inscrição será atualizado. Você pode acompanhar pelo site do Mercado Pago ou aguardar a confirmação.';
-                    $card_class = 'bg-yellow-50 border-yellow-200';
-                    $title_class = 'text-yellow-800';
+                    $card_bg_class = 'bg-yellow-50';
+                    $card_border_class = 'border-yellow-400';
+                    $title_text_class = 'text-yellow-800';
+                    $icon_bg_class = 'bg-yellow-200';
+                    $icon_text_class = 'text-yellow-700';
+                    $button_class = 'btn-warning';
                     break;
                 case 'failure':
-                    $icon = '❌';
+                    $icon_char = '❌';
                     $title = 'Falha no Pagamento';
                     $message = 'Houve um problema ao processar seu pagamento. Por favor, tente novamente ou utilize outro método de pagamento na página da sua inscrição.';
-                    $card_class = 'bg-red-50 border-red-200';
-                    $title_class = 'text-red-800';
+                    $card_bg_class = 'bg-red-50';
+                    $card_border_class = 'border-red-400';
+                    $title_text_class = 'text-red-800';
+                    $icon_bg_class = 'bg-red-200';
+                    $icon_text_class = 'text-red-700';
+                    $button_class = 'btn-error';
                     break;
             }
             ?>
 
-            <section class="max-w-lg mx-auto w-full bg-white rounded-2xl shadow-xl p-6 md:p-8 <?= htmlspecialchars($card_class) ?> border">
+            <section class="max-w-md mx-auto w-full rounded-2xl shadow-xl p-6 md:p-8 transition-all duration-300
+                <?= htmlspecialchars($card_bg_class) ?> border <?= htmlspecialchars($card_border_class) ?>">
                 <div class="text-center">
-                    <span class="text-6xl"><?= $icon ?></span>
-                    <h1 class="text-3xl font-bold <?= htmlspecialchars($title_class) ?> mt-4 mb-3"><?= htmlspecialchars($title) ?></h1>
-                    <p class="text-lg text-gray-600 mb-8">
+                    <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4
+                        <?= htmlspecialchars($icon_bg_class) ?> <?= htmlspecialchars($icon_text_class) ?> text-4xl font-bold">
+                        <?= $icon_char ?>
+                    </div>
+                    <h1 class="text-3xl font-bold <?= htmlspecialchars($title_text_class) ?> mt-4 mb-3"><?= htmlspecialchars($title) ?></h1>
+                    <p class="text-lg text-gray-700 mb-8">
                         <?= htmlspecialchars($message) ?>
                     </p>
-                    <a href="torneio-inscrito.php?inscricao_id=<?= htmlspecialchars($inscricao_id) ?>" class="btn btn-primary w-full text-lg">
-                        Voltar para Minha Inscrição
+                    <a href="torneio-inscrito.php?inscricao_id=<?= htmlspecialchars($inscricao_id) ?>" class="btn <?= htmlspecialchars($button_class) ?> w-full text-lg">
+                        <?= htmlspecialchars($button_text) ?>
                     </a>
                 </div>
             </section>

@@ -89,7 +89,9 @@ class Torneio
             }
 
             $stmt = $conn->prepare($sql . " ORDER BY t.criado_em DESC LIMIT :limit");
-            foreach ($params as $key => &$val) { $stmt->bindParam($key, $val); }
+            foreach ($params as $key => &$val) {
+                $stmt->bindParam($key, $val);
+            }
             $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -98,4 +100,45 @@ class Torneio
             return [];
         }
     }
+
+    /**
+     * Busca todos os torneios organizados por um fundador específico.
+     *
+     * @param int $responsavel_id O ID do usuário responsável pelo torneio.
+     * @return array Um array de torneios organizados.
+     */
+public static function getTorneiosByFundadorId($responsavel_id, $limit = null)
+{
+    try {
+        $conn = Conexao::pegarConexao();
+        
+        $sql = "
+            SELECT
+                t.*,
+                a.titulo AS arena_titulo,
+                a.bandeira AS arena_bandeira
+            FROM
+                torneios t
+            JOIN
+                arenas a ON t.arena = a.id
+            WHERE
+                t.responsavel_id = ?
+            ORDER BY t.inicio_torneio DESC
+        ";
+
+        // Adiciona LIMIT de forma segura
+        if ($limit !== null) {
+            $limit = (int)$limit; // Cast explícito pra segurança
+            $sql .= " LIMIT $limit";
+        }
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$responsavel_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+    } catch (PDOException $e) {
+        error_log("Erro ao buscar torneios por fundador: " . $e->getMessage());
+        return [];
+    }
+}
 }

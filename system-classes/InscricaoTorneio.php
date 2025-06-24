@@ -137,6 +137,56 @@ class InscricaoTorneio
     }
 
     /**
+     * Busca todos os torneios em que um usuário está inscrito em alguma dupla.
+     * Retorna uma única inscrição (a de menor ID) por torneio para fins de link.
+     *
+     * @param int $usuario_id O ID do usuário.
+     * @return array Um array de torneios com detalhes e uma inscricao_id para link.
+     */
+    public static function getTorneiosInscritosByUserId($usuario_id, $limit = null)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+
+            $sql = "
+            SELECT
+                t.id AS torneio_id,
+                t.titulo,
+                t.inicio_torneio,
+                t.fim_torneio,
+                t.sobre,
+                a.titulo AS arena_titulo,
+                a.bandeira AS arena_bandeira,
+                MIN(ti.id) AS inscricao_id_para_link
+            FROM
+                torneio_inscricoes ti
+            JOIN
+                torneios t ON ti.torneio_id = t.id
+            JOIN
+                arenas a ON t.arena = a.id
+            WHERE
+                ti.jogador1_id = ? OR ti.jogador2_id = ?
+            GROUP BY
+                t.id, t.titulo, t.inicio_torneio, t.fim_torneio, t.sobre, a.titulo, a.bandeira
+            ORDER BY t.inicio_torneio DESC
+        ";
+
+            // Adiciona o LIMIT manualmente de forma segura
+            if ($limit !== null) {
+                $limit = (int)$limit;
+                $sql .= " LIMIT $limit";
+            }
+
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$usuario_id, $usuario_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar torneios inscritos por usuário: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * Cria os registros de pagamento para os jogadores de uma dupla inscrita.
      *
      * @param int $inscricao_id O ID da inscrição recém-criada.
@@ -190,4 +240,3 @@ class InscricaoTorneio
         }
     }
 }
-?>

@@ -1,6 +1,6 @@
 <?php
 // Define as páginas que pertencem a cada menu para mantê-los abertos
-$paginas_torneio = ['criar-torneio.php', 'meu-torneio.php', 'encontrar-torneio.php', 'gerenciar-torneio.php'];
+$paginas_torneio = ['criar-torneio.php', 'meus-torneios.php', 'encontrar-torneio.php', 'gerenciar-torneio.php'];
 $is_pagina_torneio_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_torneio);
 
 $paginas_dupla = ['dupla.php'];
@@ -38,7 +38,7 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
       <div class="collapse-content !p-0"> 
         <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
           <li><a href="criar-torneio.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'criar-torneio.php' ? 'active' : '' ?>">Criar Torneio</a></li>
-          <li><a href="meu-torneio.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'meu-torneio.php' ? 'active' : '' ?>">Meus Torneios</a></li>
+          <li><a href="meus-torneios.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'meus-torneios.php' ? 'active' : '' ?>">Meus Torneios</a></li>
           <li><a href="encontrar-torneio.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'encontrar-torneio.php' ? 'active' : '' ?>">Encontrar Torneios</a></li>
         </ul>
       </div>
