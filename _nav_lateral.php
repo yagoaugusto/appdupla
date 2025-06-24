@@ -3,8 +3,10 @@
 $paginas_torneio = ['criar-torneio.php', 'meus-torneios.php', 'encontrar-torneio.php', 'gerenciar-torneio.php'];
 $is_pagina_torneio_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_torneio);
 
-$paginas_dupla = ['dupla.php'];
-$is_pagina_dupla_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_dupla);
+$paginas_central_dupla = ['dupla.php', 'hist-partidas.php', 'ranking-geral.php']; // Adicionado hist-partidas e ranking-geral
+$is_pagina_central_dupla_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_central_dupla);
+
+
 
 $paginas_arena = ['criar-arena.php', 'arenas.php', 'arena-page.php'];
 $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena);
@@ -12,21 +14,30 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
 <!-- Sidebar Backdrop (for mobile) -->
 <!-- This div will act as an overlay when the sidebar is open on small screens -->
 <div id="sidebar-backdrop" class="fixed inset-0 top-16 bg-black bg-opacity-50 z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
-<!-- The sidebar itself -->
-<aside id="sidebar" class="w-64 bg-white border-r border-gray-200 p-4 fixed top-16 inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50 lg:translate-x-0 lg:fixed lg:top-16">
+<!-- The sidebar itself, with height adjustments for large screens -->
+<aside id="sidebar" class="w-64 bg-white border-r border-gray-200 p-4 fixed top-16 inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50 lg:translate-x-0 lg:fixed lg:top-16 lg:h-screen lg:-mt-16 lg:pt-16">
   <nav class="flex flex-col space-y-0.5">
     <a href="principal.php" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium <?= basename($_SERVER['PHP_SELF']) == 'principal.php' ? 'bg-gray-100' : '' ?>">
       <span class="text-lg">🏠</span>
       <span class="whitespace-nowrap">Início</span>
     </a>
-    <a href="hist-partidas.php" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium <?= basename($_SERVER['PHP_SELF']) == 'hist-partidas.php' ? 'bg-gray-100' : '' ?>">
-      <span class="text-lg">📝</span>
-      <span class="whitespace-nowrap">Partidas</span>
-    </a>
-    <a href="dupla.php" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium <?= $is_pagina_dupla_ativa ? 'bg-gray-100' : '' ?>">
-      <span class="text-lg">🔥</span>
-      <span class="whitespace-nowrap">Central DUPLA</span>
-    </a>
+
+    <!-- Menu Dropdown Central DUPLA -->
+    <div class="collapse collapse-arrow">
+      <input type="checkbox" <?= $is_pagina_central_dupla_ativa ? 'checked' : '' ?> />
+      <div class="collapse-title flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium">
+        <span class="text-lg">🔥</span>
+        <span class="whitespace-nowrap">DUPLA</span>
+      </div>
+      <div class="collapse-content !p-0">
+        <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
+          <li><a href="hist-partidas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'hist-partidas.php' ? 'active' : '' ?>">Partidas</a></li>
+          <li><a href="ranking-geral.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'ranking-geral.php' ? 'active' : '' ?>">Ranking</a></li>
+          <li><a href="dupla.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'dupla.php' ? 'active' : '' ?>">Central DUPLA</a></li>
+          <li><a href="#" class="text-gray-700 px-3 py-1.5">Conquistas</a></li>
+        </ul>
+      </div>
+    </div>
 
     <!-- Menu Dropdown Torneios -->
     <div class="collapse collapse-arrow">
@@ -59,31 +70,23 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
       </div>
     </div>
 
-    <a href="parceiros.php" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium <?= basename($_SERVER['PHP_SELF']) == 'parceiros.php' ? 'bg-gray-100' : '' ?>">
-      <span class="text-lg">🤝</span>
-      <span class="whitespace-nowrap">Parceiros</span>
-    </a>
-    <a href="ranking-geral.php" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium <?= basename($_SERVER['PHP_SELF']) == 'ranking-geral.php' ? 'bg-gray-100' : '' ?>">
-      <span class="text-lg">📊</span>
-      <span class="whitespace-nowrap">Ranking</span>
-    </a>
-    <a href="#" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium">
-      <span class="text-lg">🌟</span>
-      <span class="whitespace-nowrap">Conquistas</span>
-    </a>
-    <hr class="my-2">
-    <a href="comofunciona.php" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium <?= basename($_SERVER['PHP_SELF']) == 'comofunciona.php' ? 'bg-gray-100' : '' ?>">
-      <span class="text-lg">❓</span>
-      <span class="whitespace-nowrap">Como Funciona</span>
-    </a>
-    <a href="perfil.php" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium <?= basename($_SERVER['PHP_SELF']) == 'perfil.php' ? 'bg-gray-100' : '' ?>">
-      <span class="text-lg">👤</span>
-      <span class="whitespace-nowrap">Perfil</span>
-    </a>
-    <a href="system-autenticacao/sair.php" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-red-100 transition text-red-600 text-sm font-semibold">
-      <span class="text-lg">🚪</span>
-      <span class="whitespace-nowrap">Sair</span>
-    </a>
+    <!-- Menu Dropdown Sistema -->
+    <div class="collapse collapse-arrow">
+      <?php $paginas_sistema = ['parceiros.php', 'comofunciona.php', 'perfil.php', 'system-autenticacao/sair.php']; ?>
+      <input type="checkbox" <?= in_array(basename($_SERVER['PHP_SELF']), $paginas_sistema) ? 'checked' : '' ?> />
+      <div class="collapse-title flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium">
+        <span class="text-lg">⚙️</span>
+        <span class="whitespace-nowrap">Sistema</span>
+      </div>
+      <div class="collapse-content !p-0">
+        <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
+          <li><a href="parceiros.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'parceiros.php' ? 'active' : '' ?>">Parceiros</a></li>
+          <li><a href="comofunciona.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'comofunciona.php' ? 'active' : '' ?>">Como Funciona</a></li>
+          <li><a href="perfil.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'perfil.php' ? 'active' : '' ?>">Perfil</a></li>
+          <li><a href="system-autenticacao/sair.php" class="text-red-600 px-3 py-1.5 hover:bg-red-100 transition text-sm font-semibold">Sair</a></li>
+        </ul>
+      </div>
+    </div>
   </nav>
 </aside>
 
