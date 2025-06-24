@@ -101,6 +101,7 @@ class Torneio
         }
     }
 
+
     /**
      * Busca todos os torneios organizados por um fundador específico.
      *
@@ -141,4 +142,5 @@ public static function getTorneiosByFundadorId($responsavel_id, $limit = null)
         return [];
     }
 }
+
 }

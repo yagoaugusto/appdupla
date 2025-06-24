@@ -15,6 +15,7 @@ if (!isset($_SESSION['DuplaUserId'])) {
 }
 $usuario_id = $_SESSION['DuplaUserId'];
 
+
 // 2. Pega o ID do torneio da URL e valida
 $torneio_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$torneio_id) {
@@ -23,6 +24,7 @@ if (!$torneio_id) {
     exit;
 }
 
+
 // 3. Busca os dados do torneio e verifica a propriedade
 $torneio = Torneio::getTorneioById($torneio_id);
 if (!$torneio || $torneio['responsavel_id'] != $usuario_id) {
@@ -30,6 +32,7 @@ if (!$torneio || $torneio['responsavel_id'] != $usuario_id) {
     header("Location: principal.php");
     exit;
 }
+
 
 // Função para formatar datas para campos datetime-local
 function formatarDataParaInput($data)
@@ -41,6 +44,54 @@ function formatarDataParaInput($data)
 function formatarValorParaInput($valor) {
     return number_format($valor, 2, ',', '.');
 }
+
+
+// Function to fetch tournament registrants grouped by category
+function getTorneioInscritosComPagamento($torneio_id) {
+    try {
+        $conn = Conexao::pegarConexao();
+        $sql = "
+            SELECT
+                ti.id AS inscricao_id,
+                ti.titulo_dupla,
+                tc.titulo AS categoria_titulo,
+                tc.genero AS categoria_genero,
+                u1.nome AS j1_nome,
+                u2.nome AS j2_nome,
+                tp.status_pagamento,
+                tp.data_pagamento
+            FROM
+                torneio_inscricoes ti
+            JOIN torneio_categorias tc ON ti.categoria_id = tc.id
+            JOIN usuario u1 ON ti.jogador1_id = u1.id
+            JOIN usuario u2 ON ti.jogador2_id = u2.id
+            LEFT JOIN torneio_pagamentos tp ON ti.id = tp.inscricao_id  -- Join com a tabela de pagamentos
+            WHERE ti.torneio_id = ?
+            ORDER BY tc.titulo ASC, ti.titulo_dupla ASC
+        ";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$torneio_id]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Agrupa as duplas por categoria
+        $grouped_duos = [];
+        foreach ($results as $duo) {
+            $category_key = $duo['categoria_titulo'];
+            if (!isset($grouped_duos[$category_key])) {
+                $grouped_duos[$category_key] = [];
+            }
+            $grouped_duos[$category_key][] = $duo;
+        }
+        return $grouped_duos;
+
+    } catch (PDOException $e) {
+        error_log("Erro ao buscar duplas inscritas com pagamento: " . $e->getMessage());
+        return [];
+    }
+}
+
+$inscritos_com_pagamento = getTorneioInscritosComPagamento($torneio_id);
+
 
 // Busca as categorias do torneio
 $categorias = Categoria::getCategoriesByTorneioId($torneio_id);
@@ -135,8 +186,64 @@ $categorias = Categoria::getCategoriesByTorneioId($torneio_id);
                             <span class="text-xl">👥</span> Gerenciar Inscritos
                         </div>
                         <div class="collapse-content">
-                            <h3 class="font-bold text-lg mb-4">Gerenciar Inscritos</h3>
-                            <p class="text-gray-600">Funcionalidade em desenvolvimento. Em breve você poderá ver e gerenciar os participantes aqui, enviar comunicados e organizar as chaves do torneio.</p>
+                           <div class="space-y-4">
+                                <?php if (empty($inscritos_com_pagamento)): ?>
+                                    <p class="text-gray-600 italic">Nenhuma inscrição encontrada para este torneio.</p>
+                                <?php else: ?>
+                                    <?php foreach ($inscritos_com_pagamento as $categoria => $inscricoes): ?>
+                                        <div class="mb-4">
+                                            <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($categoria) ?></h4>
+                                            <ul class="mt-2 space-y-2">
+                                                <?php foreach ($inscricoes as $inscricao): ?>
+                                                    <li class="bg-gray-50 rounded-md p-3 flex justify-between items-center">
+                                                        <div>
+                                                            <p class="text-sm font-medium text-gray-700">
+                                                                <?= htmlspecialchars($inscricao['titulo_dupla']) ?>
+                                                            </p>
+                                                            <p class="text-xs text-gray-500">
+                                                                <?= htmlspecialchars($inscricao['j1_nome']) ?> & <?= htmlspecialchars($inscricao['j2_nome']) ?>
+                                                            </p>
+                                                        </div>
+                                                        <div class="text-right">
+                                                            <?php
+                                                                $status_class = '';
+                                                                $status_text = '';
+                                                                if ($inscricao['status_pagamento'] == 'pago') {
+                                                                    $status_class = 'text-green-600';
+                                                                    $status_text = 'Pago';
+                                                                } elseif ($inscricao['status_pagamento'] == 'pendente') {
+                                                                    $status_class = 'text-orange-600';
+                                                                    $status_text = 'Pendente';
+                                                                } else {
+                                                                    $status_class = 'text-gray-600';
+                                                                    $status_text = 'Não Aplicável';
+                                                                }
+                                                            ?>
+                                                            <p class="text-sm font-semibold <?= $status_class ?>">
+                                                                <?= $status_text ?>
+                                                            </p>
+                                                            <?php if ($inscricao['data_pagamento']): ?>
+                                                                <p class="text-gray-500 text-xs">
+                                                                    <?= date('d/m/Y', strtotime($inscricao['data_pagamento'])) ?>
+                                                                </p>
+                                                            <?php else: ?>
+                                                                <p class="text-gray-500 text-xs">
+                                                                    Data não disponível
+                                                                </p>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+
+
+
+
+
                         </div>
                     </div>
 
@@ -339,5 +446,6 @@ $categorias = Categoria::getCategoriesByTorneioId($torneio_id);
     </script>
 
 </body>
+
 
 </html>
