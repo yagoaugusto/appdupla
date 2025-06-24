@@ -68,15 +68,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
 
+        // Obtém os valores de inscrição base do torneio
+        $valor_primeira_insc_torneio = $torneio['valor_primeira_insc'];
+        $valor_segunda_insc_torneio = $torneio['valor_segunda_insc'];
+
+        // Determina o valor a ser pago pelo jogador 1
+        $jogador1_ja_inscrito = InscricaoTorneio::hasExistingRegistrationInTorneio($torneio_id, $jogador1_id);
+        $valor_pagamento_jogador1 = $jogador1_ja_inscrito ? $valor_segunda_insc_torneio : $valor_primeira_insc_torneio;
+
+        // Determina o valor a ser pago pelo jogador 2
+        $jogador2_ja_inscrito = InscricaoTorneio::hasExistingRegistrationInTorneio($torneio_id, $jogador2_id);
+        $valor_pagamento_jogador2 = $jogador2_ja_inscrito ? $valor_segunda_insc_torneio : $valor_primeira_insc_torneio;
+
         // Tenta realizar a inscrição
         $inscricao_id = InscricaoTorneio::inscreverDupla($torneio_id, $categoria_id, $titulo_dupla, $jogador1_id, $jogador2_id);
         if ($inscricao_id) {
-            // Se a inscrição da dupla foi bem-sucedida, cria os registros de pagamento
-            // Os valores de inscrição vêm do objeto $torneio
-            $valor_primeira_insc = $torneio['valor_primeira_insc'];
-            $valor_segunda_insc = $torneio['valor_segunda_insc'];
-
-            if (InscricaoTorneio::criarRegistrosPagamento($inscricao_id, $jogador1_id, $jogador2_id, $valor_primeira_insc, $valor_segunda_insc)) {
+            // Cria os registros de pagamento com os valores calculados
+            if (InscricaoTorneio::criarRegistrosPagamento($inscricao_id, $jogador1_id, $jogador2_id, $valor_pagamento_jogador1, $valor_pagamento_jogador2)) {
                 $_SESSION['mensagem'] = ["success", "Inscrição realizada com sucesso! Registros de pagamento criados."];
                 header("Location: ../torneio-inscrito.php?inscricao_id=" . $inscricao_id); // Redireciona para a nova página
                 exit;
@@ -87,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
         } else {
-            $_SESSION['mensagem'] = ["danger", "Falha ao realizar a inscrição. Verifique se a dupla já está inscrita nesta categoria."];
+            $_SESSION['mensagem'] = ["danger", "Falha ao realizar a inscrição. Verifique se você ou seu parceiro já estão inscritos nesta categoria."];
             header("Location: ../inscrever-torneio.php?torneio_id=" . $torneio_id);
             exit;
         }
@@ -102,4 +110,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: ../encontrar-torneio.php");
     exit;
 }
-?>

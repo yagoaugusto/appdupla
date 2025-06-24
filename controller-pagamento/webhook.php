@@ -48,9 +48,18 @@ if ($event['type'] === 'payment') {
         }
 
         // Atualiza o status do pagamento no seu banco de dados
-        InscricaoTorneio::updatePagamentoStatus($inscricao_id, $usuario_id, $new_status);
+        if (InscricaoTorneio::updatePagamentoStatus($inscricao_id, $usuario_id, $new_status)) {
+            file_put_contents('webhook_log.txt', date('Y-m-d H:i:s') . " - Pagamento ID: $payment_id, Status: $status, Nova Status DB: $new_status, Inscricao: $inscricao_id, Usuario: $usuario_id\n", FILE_APPEND);
 
-        file_put_contents('webhook_log.txt', date('Y-m-d H:i:s') . " - Pagamento ID: $payment_id, Status: $status, Nova Status DB: $new_status, Inscricao: $inscricao_id, Usuario: $usuario_id\n", FILE_APPEND);
+            // Se o pagamento foi aprovado, verifica se a inscrição da dupla pode ser confirmada
+            if ($new_status === 'pago') {
+                if (InscricaoTorneio::areAllPaymentsConfirmed($inscricao_id)) {
+                    // Se todos os pagamentos estão confirmados, atualiza o status da inscrição principal
+                    InscricaoTorneio::updateInscricaoStatus($inscricao_id, 'confirmada');
+                    file_put_contents('webhook_log.txt', date('Y-m-d H:i:s') . " - Inscrição ID: $inscricao_id atualizada para 'confirmada'.\n", FILE_APPEND);
+                }
+            }
+        }
     }
 }
 

@@ -17,13 +17,20 @@ class InscricaoTorneio
         try {
             $conn = Conexao::pegarConexao();
 
-            // Verifica se a dupla já está inscrita nesta categoria do torneio
-            // Considera ambas as ordens dos jogadores para evitar duplicidade
-            $stmt_check = $conn->prepare("SELECT id FROM torneio_inscricoes WHERE torneio_id = ? AND categoria_id = ? AND ((jogador1_id = ? AND jogador2_id = ?) OR (jogador1_id = ? AND jogador2_id = ?))");
-            $stmt_check->execute([$torneio_id, $categoria_id, $jogador1_id, $jogador2_id, $jogador2_id, $jogador1_id]);
-            if ($stmt_check->fetch()) {
-                error_log("Tentativa de inscrição duplicada para torneio_id: $torneio_id, categoria_id: $categoria_id, dupla: $jogador1_id-$jogador2_id");
-                return false; // Dupla já inscrita
+            // NOVO: Verifica se o jogador1 já está inscrito nesta categoria do torneio
+            $stmt_check_j1 = $conn->prepare("SELECT id FROM torneio_inscricoes WHERE torneio_id = ? AND categoria_id = ? AND (jogador1_id = ? OR jogador2_id = ?)");
+            $stmt_check_j1->execute([$torneio_id, $categoria_id, $jogador1_id, $jogador1_id]);
+            if ($stmt_check_j1->fetch()) {
+                error_log("Jogador1 (ID: $jogador1_id) já está inscrito na categoria $categoria_id do torneio $torneio_id.");
+                return false; // Jogador1 já inscrito nesta categoria
+            }
+
+            // NOVO: Verifica se o jogador2 já está inscrito nesta categoria do torneio
+            $stmt_check_j2 = $conn->prepare("SELECT id FROM torneio_inscricoes WHERE torneio_id = ? AND categoria_id = ? AND (jogador1_id = ? OR jogador2_id = ?)");
+            $stmt_check_j2->execute([$torneio_id, $categoria_id, $jogador2_id, $jogador2_id]);
+            if ($stmt_check_j2->fetch()) {
+                error_log("Jogador2 (ID: $jogador2_id) já está inscrito na categoria $categoria_id do torneio $torneio_id.");
+                return false; // Jogador2 já inscrito nesta categoria
             }
 
             $stmt = $conn->prepare("INSERT INTO torneio_inscricoes (torneio_id, categoria_id, titulo_dupla, jogador1_id, jogador2_id, data_inscricao, status) VALUES (?, ?, ?, ?, ?, NOW(), 'pendente')");
@@ -187,6 +194,69 @@ class InscricaoTorneio
     }
 
     /**
+     * Busca todas as inscrições de um usuário em um torneio específico.
+     *
+     * @param int $torneio_id O ID do torneio.
+     * @param int $usuario_id O ID do usuário.
+     * @return array Um array de arrays associativos com os detalhes das inscrições.
+     */
+    public static function getInscricoesByTorneioAndUserId($torneio_id, $usuario_id)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("
+                SELECT
+                    ti.id AS inscricao_id,
+                    ti.titulo_dupla,
+                    ti.jogador1_id,
+                    ti.jogador2_id,
+                    tc.titulo AS categoria_titulo,
+                    tc.genero AS categoria_genero,
+                    u1.nome AS j1_nome,
+                    u1.apelido AS j1_apelido,
+                    u2.nome AS j2_nome,
+                    u2.apelido AS j2_apelido
+                FROM
+                    torneio_inscricoes ti
+                JOIN
+                    torneio_categorias tc ON ti.categoria_id = tc.id
+                JOIN
+                    usuario u1 ON ti.jogador1_id = u1.id
+                JOIN
+                    usuario u2 ON ti.jogador2_id = u2.id
+                WHERE
+                    ti.torneio_id = ? AND (ti.jogador1_id = ? OR ti.jogador2_id = ?)
+                ORDER BY tc.titulo ASC, ti.titulo_dupla ASC
+            ");
+            $stmt->execute([$torneio_id, $usuario_id, $usuario_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar inscrições por torneio e usuário: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Verifica se um usuário já possui alguma inscrição em um torneio.
+     *
+     * @param int $torneio_id O ID do torneio.
+     * @param int $usuario_id O ID do usuário.
+     * @return bool True se o usuário já possui uma inscrição, false caso contrário.
+     */
+    public static function hasExistingRegistrationInTorneio($torneio_id, $usuario_id)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("SELECT COUNT(*) FROM torneio_inscricoes WHERE torneio_id = ? AND (jogador1_id = ? OR jogador2_id = ?)");
+            $stmt->execute([$torneio_id, $usuario_id, $usuario_id]);
+            return $stmt->fetchColumn() > 0;
+        } catch (PDOException $e) {
+            error_log("Erro ao verificar inscrição existente para usuário no torneio: " . $e->getMessage());
+            return false; // Assume false em caso de erro para não bloquear novas inscrições indevidamente
+        }
+    }
+
+    /**
      * Cria os registros de pagamento para os jogadores de uma dupla inscrita.
      *
      * @param int $inscricao_id O ID da inscrição recém-criada.
@@ -236,6 +306,46 @@ class InscricaoTorneio
             return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
             error_log("Erro ao atualizar status de pagamento: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Verifica se todos os pagamentos de uma inscrição foram confirmados.
+     *
+     * @param int $inscricao_id O ID da inscrição.
+     * @return bool True se todos os pagamentos estiverem 'pago', false caso contrário.
+     */
+    public static function areAllPaymentsConfirmed($inscricao_id)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+            // Conta quantos pagamentos para esta inscrição NÃO estão com status 'pago'.
+            $stmt = $conn->prepare("SELECT COUNT(*) FROM torneio_pagamentos WHERE inscricao_id = ? AND status_pagamento != 'pago'");
+            $stmt->execute([$inscricao_id]);
+            // Se a contagem for 0, significa que todos estão pagos.
+            return $stmt->fetchColumn() == 0;
+        } catch (PDOException $e) {
+            error_log("Erro ao verificar pagamentos da inscrição: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Atualiza o status de uma inscrição na tabela torneio_inscricoes.
+     *
+     * @param int $inscricao_id O ID da inscrição.
+     * @param string $novo_status O novo status ('pendente', 'confirmada', 'cancelada').
+     * @return bool True se a atualização foi bem-sucedida, false caso contrário.
+     */
+    public static function updateInscricaoStatus($inscricao_id, $novo_status)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("UPDATE torneio_inscricoes SET status = ? WHERE id = ?");
+            return $stmt->execute([$novo_status, $inscricao_id]);
+        } catch (PDOException $e) {
+            error_log("Erro ao atualizar status da inscrição: " . $e->getMessage());
             return false;
         }
     }

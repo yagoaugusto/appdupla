@@ -16,34 +16,47 @@ require_once '#_global.php';
 
         <!-- Conteúdo principal -->
         <main class="flex-1 p-2 sm:p-4">
-            <section class="max-w-6xl mx-auto w-full bg-white rounded-2xl shadow-xl p-6 md:p-8">
-                <div class="flex items-center gap-3 mb-6">
-                    <span class="text-3xl">🔍</span>
-                    <h1 class="text-2xl font-bold text-gray-800">Encontrar Torneios</h1>
+            <section class="max-w-6xl mx-auto w-full">
+                <!-- Header Section -->
+                <div class="text-center mb-8">
+                    <span class="text-6xl mb-4 block animate-pulse">✨</span>
+                    <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Descubra seu Próximo Desafio</h1>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto">Encontre torneios de Beach Tennis perto de você ou explore eventos incríveis. Sua próxima vitória espera!</p>
                 </div>
 
-                <p class="text-gray-600 mb-4">Explore os torneios mais recentes ou use a busca para encontrar um específico.</p>
-
-                <!-- Barra de Busca e Filtros -->
-                <div class="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="md:col-span-2">
-                            <label for="buscaTorneio" class="block text-sm font-medium text-gray-700 mb-1">Buscar por nome</label>
-                            <input type="text" id="buscaTorneio" placeholder="Nome do torneio ou arena..." class="input input-bordered w-full">
+                <!-- Search & Filter Section -->
+                <div class="sticky top-0 z-10 bg-gray-100 py-4 -mx-4 px-4 sm:px-0 sm:-mx-0 rounded-b-2xl shadow-md mb-8">
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-inner">
+                        <div class="mb-4">
+                            <label for="buscaTorneio" class="sr-only">Buscar torneio</label>
+                            <div class="relative">
+                                <input type="text" id="buscaTorneio" placeholder="Buscar por nome do torneio ou arena..." class="input input-bordered w-full pr-10 text-lg force-white-bg">
+                                <button id="clearSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 hidden">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
                         </div>
+
                         <div>
-                            <label for="filtroStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <select id="filtroStatus" class="select select-bordered w-full">
-                                <option value="todos">Todos</option>
-                                <option value="aberto">Inscrições Abertas</option>
-                                <option value="andamento">Em Andamento</option>
-                                <option value="finalizado">Finalizado</option>
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status do Torneio</label>
+                            <div class="flex flex-wrap gap-2">
+                                <input type="radio" name="statusFilterRadio" id="statusTodos" value="todos" class="radio hidden" checked />
+                                <label for="statusTodos" class="btn btn-sm btn-outline btn-primary status-filter-btn" role="button">Todos</label>
+
+                                <input type="radio" name="statusFilterRadio" id="statusAberto" value="aberto" class="radio hidden" />
+                                <label for="statusAberto" class="btn btn-sm btn-outline btn-success status-filter-btn" role="button">Inscrições Abertas</label>
+
+                                <input type="radio" name="statusFilterRadio" id="statusAndamento" value="andamento" class="radio hidden" />
+                                <label for="statusAndamento" class="btn btn-sm btn-outline btn-warning status-filter-btn" role="button">Em Andamento</label>
+
+                                <input type="radio" name="statusFilterRadio" id="statusFinalizado" value="finalizado" class="radio hidden" />
+                                <label for="statusFinalizado" class="btn btn-sm btn-outline btn-error status-filter-btn" role="button">Finalizado</label>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Container dos Torneios -->
+                <!-- Tournament List Container -->
                 <div id="listaTorneios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <?php
                     // Função auxiliar para determinar o status do torneio
@@ -68,7 +81,7 @@ require_once '#_global.php';
                     <?php
                     else :
                         foreach ($recent_torneios as $torneio) :
-                            $status = get_torneio_status($torneio);
+                            $status = get_torneio_status($torneio); // Re-using the helper function
                     ?>
                             <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer card-torneio" data-torneio-id="<?= htmlspecialchars($torneio['id']) ?>">
                                 <div class="card-body p-4">
@@ -87,7 +100,7 @@ require_once '#_global.php';
                     ?>
                 </div>
                 <!-- Skeleton Loader (para feedback de busca) -->
-                <div id="skeletonLoader" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="skeletonLoader" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <?php for ($i = 0; $i < 6; $i++): ?>
                     <div class="flex flex-col gap-4 w-full bg-white p-4 rounded-2xl shadow-lg">
                         <div class="skeleton h-6 w-3/4"></div>
@@ -96,6 +109,12 @@ require_once '#_global.php';
                         <div class="skeleton h-4 w-full"></div>
                     </div>
                     <?php endfor; ?>
+                </div>
+                <!-- No Tournaments Found Message -->
+                <div id="noResultsMessage" class="hidden text-center py-10">
+                    <span class="text-6xl block mb-4">😔</span>
+                    <h3 class="text-2xl font-bold text-gray-700">Ops! Nenhum torneio encontrado.</h3>
+                    <p class="text-gray-500 mt-2">Tente ajustar seus filtros ou buscar por outro nome.</p>
                 </div>
             </section>
             <br><br><br>
@@ -265,16 +284,18 @@ require_once '#_global.php';
             });
 
             // Lógica para busca e filtro de torneios
-            const buscaTorneioInput = $('#buscaTorneio');
-            const filtroStatusSelect = $('#filtroStatus');
+            const buscaTorneioInput = $('#buscaTorneio'); // Search input
+            const statusFilterRadios = $('input[name="statusFilterRadio"]'); // Radio buttons for status filter
             const listaTorneiosDiv = $('#listaTorneios');
             const skeletonLoaderDiv = $('#skeletonLoader');
+            const noResultsMessageDiv = $('#noResultsMessage'); // New element for no results message
 
             let searchTimeout = null;
 
+            // Function to perform the search and update the list
             function performSearch() {
                 const searchTerm = buscaTorneioInput.val();
-                const statusFilter = filtroStatusSelect.val();
+                const statusFilter = statusFilterRadios.filter(':checked').val(); // Get selected radio value
 
                 // Mostra o skeleton loader e esconde a lista atual
                 listaTorneiosDiv.addClass('hidden');
@@ -284,16 +305,17 @@ require_once '#_global.php';
                     url: 'controller-torneio/search-torneios.php',
                     method: 'GET',
                     data: {
-                        q: searchTerm,
+                        q: searchTerm, // Search term
                         status: statusFilter,
                         limit: 12 // Mantém o limite de 12 para a exibição inicial
                     },
                     dataType: 'json',
                     success: function(response) {
                         skeletonLoaderDiv.addClass('hidden'); // Esconde o skeleton
-                        listaTorneiosDiv.removeClass('hidden'); // Mostra a lista
-
-                        if (response.success && response.torneios.length > 0) {
+                        
+                        if (response.success && response.torneios.length > 0) { // If tournaments are found
+                            listaTorneiosDiv.removeClass('hidden'); // Show list
+                            noResultsMessageDiv.addClass('hidden'); // Hide no results message
                             let torneiosHtml = '';
                             response.torneios.forEach(torneio => {
                                 // Reutiliza a lógica de status do PHP para o JS
@@ -325,25 +347,54 @@ require_once '#_global.php';
                                     </div>`;
                             });
                             listaTorneiosDiv.html(torneiosHtml);
-                        } else {
-                            listaTorneiosDiv.html('<p class="col-span-full text-center text-gray-500 italic">Nenhum torneio encontrado com os critérios de busca.</p>');
+                        } else { // If no tournaments are found
+                            listaTorneiosDiv.html(''); // Clear list
+                            noResultsMessageDiv.removeClass('hidden'); // Show no results message
                         }
                     },
                     error: function() {
                         skeletonLoaderDiv.addClass('hidden');
                         listaTorneiosDiv.removeClass('hidden');
-                        listaTorneiosDiv.html('<p class="col-span-full text-center text-red-500 italic">Erro ao carregar torneios. Tente novamente.</p>');
+                        listaTorneiosDiv.html(''); // Clear list
+                        noResultsMessageDiv.removeClass('hidden'); // Show no results message
+                        noResultsMessageDiv.html('<span class="text-6xl block mb-4">⚠️</span><h3 class="text-2xl font-bold text-red-700">Erro ao carregar torneios.</h3><p class="text-red-500 mt-2">Ocorreu um problema na comunicação com o servidor. Tente novamente mais tarde.</p>');
                     }
                 });
             }
 
-            // Event listeners para busca e filtro
-            $('#buscaTorneio, #filtroStatus').on('input change', function() {
+            // Event listeners for search input
+            buscaTorneioInput.on('input', function() {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(performSearch, 300); // Debounce de 300ms
+                $('#clearSearch').toggleClass('hidden', $(this).val().length === 0); // Toggle clear button visibility
             });
+
+            // Event listener for clear search button
+            $('#clearSearch').on('click', function() {
+                buscaTorneioInput.val('').trigger('input'); // Clear input and trigger search
+            });
+
+            // Event listeners for status filter radio buttons
+            statusFilterRadios.on('change', function() {
+                performSearch(); // Perform search immediately on filter change
+                // Update active state for labels
+                $('label.status-filter-btn').removeClass('btn-active'); // Remove from all
+                $(`label[for="${$(this).attr('id')}"]`).addClass('btn-active'); // Add to the selected one
+            });
+
+            // Initial call to set active state for default checked radio on page load
+            $('input[name="statusFilterRadio"]:checked').each(function() {
+                $(`label[for="${$(this).attr('id')}"]`).addClass('btn-active');
+            });
+
+            // Initial search on page load
+            performSearch();
         });
     </script>
+
+</body>
+
+</html>
 
 </body>
 

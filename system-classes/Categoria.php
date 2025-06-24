@@ -80,4 +80,23 @@ class Categoria
             return false;
         }
     }
+
+    /**
+     * Verifica se existem inscrições associadas a uma categoria.
+     *
+     * @param int $categoria_id O ID da categoria.
+     * @return bool True se existirem inscrições, false caso contrário.
+     */
+    public static function hasRegistrations($categoria_id)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("SELECT COUNT(*) FROM torneio_inscricoes WHERE categoria_id = ?");
+            $stmt->execute([$categoria_id]);
+            return $stmt->fetchColumn() > 0;
+        } catch (PDOException $e) {
+            error_log("Erro ao verificar inscrições para categoria: " . $e->getMessage());
+            return true; // Em caso de erro, assume que há inscrições para evitar exclusão acidental
+        }
+    }
 }

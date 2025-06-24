@@ -31,6 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // VERIFICAÇÃO CRÍTICA: Se existem inscrições para esta categoria
+    if (Categoria::hasRegistrations($categoria_id)) {
+        $response['message'] = 'Não é possível excluir a categoria, pois já existem duplas inscritas nela.';
+        echo json_encode($response);
+        exit;
+    }
+
     if (Categoria::deleteCategory($categoria_id, $torneio_id)) {
         $response['success'] = true;
         $response['message'] = "Categoria excluída com sucesso!";

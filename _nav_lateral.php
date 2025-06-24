@@ -11,9 +11,9 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
 ?>
 <!-- Sidebar Backdrop (for mobile) -->
 <!-- This div will act as an overlay when the sidebar is open on small screens -->
-<div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
+<div id="sidebar-backdrop" class="fixed inset-0 top-16 bg-black bg-opacity-50 z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 <!-- The sidebar itself -->
-<aside id="sidebar" class="w-64 bg-white border-r border-gray-200 p-4 fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50 lg:translate-x-0 lg:static">
+<aside id="sidebar" class="w-64 bg-white border-r border-gray-200 p-4 fixed top-16 inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50 lg:translate-x-0 lg:fixed lg:top-16">
   <nav class="flex flex-col space-y-0.5">
     <a href="principal.php" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium <?= basename($_SERVER['PHP_SELF']) == 'principal.php' ? 'bg-gray-100' : '' ?>">
       <span class="text-lg">🏠</span>
@@ -86,3 +86,6 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
     </a>
   </nav>
 </aside>
+
+<!-- Spacer so main content não deslize para baixo do sidebar em telas grandes -->
+<div class="hidden lg:block w-64"></div>
