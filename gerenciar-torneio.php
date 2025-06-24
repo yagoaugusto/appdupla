@@ -56,18 +56,27 @@ function getTorneioInscritosComPagamento($torneio_id) {
                 ti.titulo_dupla,
                 tc.titulo AS categoria_titulo,
                 tc.genero AS categoria_genero,
-                u1.nome AS j1_nome,
-                u2.nome AS j2_nome,
+                -- Informações dos jogadores da dupla (para referência, se necessário)
+                u1.nome AS jogador1_nome,
+                u1.apelido AS jogador1_apelido,
+                u2.nome AS jogador2_nome,
+                u2.apelido AS jogador2_apelido,
+                -- Informações do pagamento e do jogador pagador
+                tp.id AS pagamento_id,
+                ti.data_inscricao,
                 tp.status_pagamento,
-                tp.data_pagamento
+                tp.data_pagamento,
+                up.nome AS pagador_nome,
+                up.apelido AS pagador_apelido
             FROM
                 torneio_inscricoes ti
             JOIN torneio_categorias tc ON ti.categoria_id = tc.id
             JOIN usuario u1 ON ti.jogador1_id = u1.id
             JOIN usuario u2 ON ti.jogador2_id = u2.id
-            LEFT JOIN torneio_pagamentos tp ON ti.id = tp.inscricao_id  -- Join com a tabela de pagamentos
+            JOIN torneio_pagamentos tp ON ti.id = tp.inscricao_id  -- Join com a tabela de pagamentos
+            JOIN usuario up ON tp.usuario_id = up.id -- Join para obter os dados do usuário que fez o pagamento
             WHERE ti.torneio_id = ?
-            ORDER BY tc.titulo ASC, ti.titulo_dupla ASC
+            ORDER BY tc.titulo ASC, ti.titulo_dupla ASC, up.nome ASC
         ";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$torneio_id]);
@@ -190,28 +199,36 @@ $categorias = Categoria::getCategoriesByTorneioId($torneio_id);
                                 <?php if (empty($inscritos_com_pagamento)): ?>
                                     <p class="text-gray-600 italic">Nenhuma inscrição encontrada para este torneio.</p>
                                 <?php else: ?>
-                                    <?php foreach ($inscritos_com_pagamento as $categoria => $inscricoes): ?>
+                                    <?php foreach ($inscritos_com_pagamento as $categoria => $pagamentos_por_categoria): ?>
                                         <div class="mb-4">
                                             <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($categoria) ?></h4>
                                             <ul class="mt-2 space-y-2">
-                                                <?php foreach ($inscricoes as $inscricao): ?>
-                                                    <li class="bg-gray-50 rounded-md p-3 flex justify-between items-center">
-                                                        <div>
+                                                <?php foreach ($pagamentos_por_categoria as $pagamento): ?>
+                                                    <li class="bg-gray-50 rounded-md p-3 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                                                        <div class="mb-2 sm:mb-0">
                                                             <p class="text-sm font-medium text-gray-700">
-                                                                <?= htmlspecialchars($inscricao['titulo_dupla']) ?>
+                                                                Dupla: <?= htmlspecialchars($pagamento['titulo_dupla']) ?>
                                                             </p>
-                                                            <p class="text-xs text-gray-500">
-                                                                <?= htmlspecialchars($inscricao['j1_nome']) ?> & <?= htmlspecialchars($inscricao['j2_nome']) ?>
+                                                            <p class="text-base font-semibold text-gray-800">
+                                                                <?= htmlspecialchars($pagamento['pagador_nome']) ?>
+                                                                <?php if (!empty($pagamento['pagador_apelido'])): ?>
+                                                                    <span class="text-sm text-gray-500">(<?= htmlspecialchars($pagamento['pagador_apelido']) ?>)</span>
+                                                                <?php endif; ?>
+                                                            </p>
+                                                            <p class="text-xs text-gray-500 mt-1">
+                                                                Inscrição: <?= date('d/m/Y H:i', strtotime($pagamento['data_inscricao'])) ?>
                                                             </p>
                                                         </div>
-                                                        <div class="text-right">
+
+
+                                                        <div class="text-left sm:text-right">
                                                             <?php
                                                                 $status_class = '';
                                                                 $status_text = '';
-                                                                if ($inscricao['status_pagamento'] == 'pago') {
+                                                                if ($pagamento['status_pagamento'] == 'pago') {
                                                                     $status_class = 'text-green-600';
                                                                     $status_text = 'Pago';
-                                                                } elseif ($inscricao['status_pagamento'] == 'pendente') {
+                                                                } elseif ($pagamento['status_pagamento'] == 'pendente') {
                                                                     $status_class = 'text-orange-600';
                                                                     $status_text = 'Pendente';
                                                                 } else {
@@ -222,14 +239,15 @@ $categorias = Categoria::getCategoriesByTorneioId($torneio_id);
                                                             <p class="text-sm font-semibold <?= $status_class ?>">
                                                                 <?= $status_text ?>
                                                             </p>
-                                                            <?php if ($inscricao['data_pagamento']): ?>
+                                                            <?php if ($pagamento['data_pagamento']): ?>
                                                                 <p class="text-gray-500 text-xs">
-                                                                    <?= date('d/m/Y', strtotime($inscricao['data_pagamento'])) ?>
+                                                                    <?= date('d/m/Y H:i', strtotime($pagamento['data_pagamento'])) ?>
                                                                 </p>
                                                             <?php else: ?>
-                                                                <p class="text-gray-500 text-xs">
-                                                                    Data não disponível
-                                                                </p>
+                                                                <p class="text-red-500 text-xs font-medium">Não pago ainda</p>
+                                                            <?php endif; ?>
+                                                            <?php if ($pagamento['pagamento_id']): ?>
+                                                                <p class="text-gray-500 text-xs">Pagamento ID: #<?= htmlspecialchars($pagamento['pagamento_id']) ?></p>
                                                             <?php endif; ?>
                                                         </div>
                                                     </li>
@@ -239,10 +257,6 @@ $categorias = Categoria::getCategoriesByTorneioId($torneio_id);
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
-
-
-
-
 
                         </div>
                     </div>
