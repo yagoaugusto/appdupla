@@ -52,7 +52,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   <meta name="twitter:title" content="DUPLA - Ranking de Beach Tennis">
   <meta name="twitter:description" content="Valide partidas, suba no ranking e jogue com amigos!">
   <meta name="twitter:image" content="https://beta.appdupla.com/img/og.jpg">
-
+  <meta name="color-scheme" content="light">
   <?php $version = time(); // Use um timestamp para forçar o recarregamento durante o desenvolvimento. Em produção, use uma string de versão fixa. 
   ?>
   <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
@@ -69,29 +69,4 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       }
     }
   </script>
-  <style>
-    /* Estilo para forçar o fundo branco em inputs, útil contra autofill de navegadores que mudam a cor de fundo */
-    input[type="text"],
-    input[type="tel"],
-    input[type="password"],
-    input[type="email"],
-    input[type="datetime-local"],
-    textarea {
-      background-color: #fff !important;
-      -webkit-text-fill-color: #222 !important;
-    }
-
-    /* Hack para sobrescrever o estilo de autofill do Chrome/Safari */
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover,
-    input:-webkit-autofill:focus,
-    input:-webkit-autofill:active {
-      -webkit-box-shadow: 0 0 0 30px white inset !important;
-      -webkit-text-fill-color: #222 !important;
-      /* Garante que o texto também seja visível */
-    }
-  </style>
-
-
-  <meta name="color-scheme" content="light">
 </head>
