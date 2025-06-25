@@ -60,20 +60,32 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
 
   <!--  SEU override deve vir DEPOIS disso -->
   <style>
-    /* força o modo claro globalmente */
-    html {
-      color-scheme: light !important;
-    }
+  /* === Força modo claro em todo o documento === */
+  html { color-scheme: light !important; }
 
-    /* garante campos claros */
-    input,
-    select,
-    textarea,
-    button {
-      background: #fff !important;
-      color: #111 !important;
-      border: 1px solid #ccc;
-    }
+  /* === Impede Safari/iOS de escurecer campos === */
+  input,
+  select,
+  textarea,
+  button {
+    background-color:#fff !important;
+    color:#111 !important;
+    border:1px solid #ccc;
+    /* desativa variação automática de cor */
+    color-scheme: light;
+    -webkit-appearance: none;
+  }
+
+  /* mantém cor ao focar */
+  input:focus,
+  select:focus,
+  textarea:focus { background-color:#fff !important; }
+
+  /* corrige campos com autofill amarelo/escuro */
+  input:-webkit-autofill {
+    -webkit-text-fill-color:#111 !important;
+    transition: background-color 9999s ease-out 0s;
+  }
   </style>
 
   <script>
