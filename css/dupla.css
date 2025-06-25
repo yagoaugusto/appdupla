@@ -1,4 +1,24 @@
 /* DUPLA UI - CSS BASE */
+/* === Corrige Dark Mode do iOS === */
+html { color-scheme: light; }
+
+input,
+select,
+textarea,
+button {
+  background-color: #fff !important;
+  color: #111 !important;
+  border: 1px solid #ccc;
+}
+
+input::placeholder,
+textarea::placeholder { color: #888; }
+
+input:-webkit-autofill {
+  -webkit-text-fill-color: #111 !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
 
 :root {
   --color-primary: #00b894;

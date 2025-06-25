@@ -1,40 +1,40 @@
-<?php 
+<?php
 session_start();
 
 if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
-	include_once("system-autenticacao/conexao.php");
-	$token = $_COOKIE['DuplaLoginToken'];
+  include_once("system-autenticacao/conexao.php");
+  $token = $_COOKIE['DuplaLoginToken'];
 
-	$query = "SELECT * FROM usuario WHERE token_login = '{$token}' LIMIT 1";
-	$resultado = mysqli_query($conn, $query);
-	$usuario = mysqli_fetch_assoc($resultado);
+  $query = "SELECT * FROM usuario WHERE token_login = '{$token}' LIMIT 1";
+  $resultado = mysqli_query($conn, $query);
+  $usuario = mysqli_fetch_assoc($resultado);
 
-	if ($usuario) {
-		$_SESSION['DuplaUserId'] = $usuario['id'];
-		$_SESSION['DuplaUserNome'] = $usuario['nome'];
-		$_SESSION['DuplaUserApelido'] = $usuario['apelido'];
-		$_SESSION['DuplaUserTelefone'] = $usuario['telefone'];
-		$_SESSION['DuplaUserSenha'] = $usuario['senha'];
-		$_SESSION['DuplaUserCidade'] = $usuario['cidade'];
-		$_SESSION['DuplaUserEmpunhadura'] = $usuario['empunhadura'];
-	} else {
-		// Token inválido: limpa o cookie e força login
-		setcookie('DuplaLoginToken', '', time() - 3600, '/');
-		header("Location: index.php");
-		exit;
-	}
- 
-}else{
+  if ($usuario) {
+    $_SESSION['DuplaUserId'] = $usuario['id'];
+    $_SESSION['DuplaUserNome'] = $usuario['nome'];
+    $_SESSION['DuplaUserApelido'] = $usuario['apelido'];
+    $_SESSION['DuplaUserTelefone'] = $usuario['telefone'];
+    $_SESSION['DuplaUserSenha'] = $usuario['senha'];
+    $_SESSION['DuplaUserCidade'] = $usuario['cidade'];
+    $_SESSION['DuplaUserEmpunhadura'] = $usuario['empunhadura'];
+  } else {
+    // Token inválido: limpa o cookie e força login
+    setcookie('DuplaLoginToken', '', time() - 3600, '/');
+    header("Location: index.php");
+    exit;
+  }
+} else {
   if (!isset($_SESSION['DuplaUserId']) && !isset($_COOKIE['DuplaLoginToken'])) {
     header("Location: index.php");
     exit;
   }
 }
 ?>
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-    <!-- SEO Meta Tags -->
+  <!-- SEO Meta Tags -->
   <title>DUPLA - Seu Ranking de Beach Tennis</title>
   <meta name="description" content="Registre partidas, evolua no ranking, crie comunidades e compartilhe seus resultados com amigos. DUPLA é o app ideal para beach tennis.">
   <meta name="keywords" content="beach tennis, dupla, ranking, partidas, esportes, app, comunidades, torneios, validação de partidas">
@@ -53,7 +53,8 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   <meta name="twitter:description" content="Valide partidas, suba no ranking e jogue com amigos!">
   <meta name="twitter:image" content="https://beta.appdupla.com/img/og.jpg">
 
-<?php $version = time(); // Use um timestamp para forçar o recarregamento durante o desenvolvimento. Em produção, use uma string de versão fixa. ?>
+  <?php $version = time(); // Use um timestamp para forçar o recarregamento durante o desenvolvimento. Em produção, use uma string de versão fixa. 
+  ?>
   <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css?v=<?php echo $version; ?>" rel="stylesheet" type="text/css" />
 
@@ -76,16 +77,21 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     input[type="email"],
     input[type="datetime-local"],
     textarea {
-        background-color: #fff !important;
-        -webkit-text-fill-color: #222 !important;
+      background-color: #fff !important;
+      -webkit-text-fill-color: #222 !important;
     }
+
     /* Hack para sobrescrever o estilo de autofill do Chrome/Safari */
     input:-webkit-autofill,
-    input:-webkit-autofill:hover, 
-    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
     input:-webkit-autofill:active {
-        -webkit-box-shadow: 0 0 0 30px white inset !important;
-        -webkit-text-fill-color: #222 !important; /* Garante que o texto também seja visível */
+      -webkit-box-shadow: 0 0 0 30px white inset !important;
+      -webkit-text-fill-color: #222 !important;
+      /* Garante que o texto também seja visível */
     }
   </style>
+
+
+  <meta name="color-scheme" content="light">
 </head>
