@@ -1,36 +1,56 @@
 <?php
 
-session_start ();
+session_start();
 require_once '#_global.php';
 
 $nome = $_POST['nome'];
-$telefone = '55'.$_POST['telefone'];
+$telefone = '55' . $_POST['telefone'];
 $empunhadura = $_POST['empunhadura'];
-$senha = rand(1000, 9999);
+// Gera senha de 4 dígitos (ex.: 0427) para o usuário
+$senha_plain = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+// Hash seguro para armazenar no banco
+$senha_hash  = password_hash($senha_plain, PASSWORD_BCRYPT);
 $cidade = $_POST['cidade'];
 $cpf = $_POST['cpf'];
 $sobrenome = $_POST['sobrenome'];
 $apelido = $_POST['apelido'];
 $sexo = $_POST['sexo'];
+$email = $_POST['email'];
 
 $novo_telefone = preg_replace('/\D/', '', $telefone);
 $novo_cpf = preg_replace('/\D/', '', $cpf);
 
+/* --- Verificar existência de CPF ou telefone antes de cadastrar --- */
+$conexao = Conexao::pegarConexao();
+$dupCheck = $conexao->prepare("SELECT id FROM usuario WHERE telefone = :tel OR cpf = :cpf OR email = :email LIMIT 1");
+$dupCheck->execute([
+  ':tel' => $novo_telefone,
+  ':cpf' => $novo_cpf,
+  ':email' => $email
+]);
+if ($dupCheck->rowCount() > 0) {
+  $_SESSION['DuplaLogin'] = "Usuário já cadastrado. Utilize o login ou recupere a senha.";
+  $_SESSION['DuplaLoginTipo'] = 'error';
+  header("Location: ../index.php");
+  exit;
+}
 
 $usuario = new Usuario();
-$cadastrar = $usuario->cadastrar_usuario($nome, $novo_telefone, $senha, $cidade, $empunhadura, $novo_cpf, $sobrenome, $apelido, $sexo);
+$cadastrar = $usuario->cadastrar_usuario($nome, $novo_telefone, $senha_hash, $cidade, $empunhadura, $novo_cpf, $sobrenome, $apelido, $sexo, $email);
+$_SESSION['DuplaLogin'] = "Bem vindo ao Dupla. Você receberá um WhatsApp com sua senha de acesso em breve!";
+$_SESSION['DuplaLoginTipo'] = 'success';
 
 $mensagem = "Olá, $nome! 👋\n\n" .
-            "Seja bem-vindo ao DUPLA, o sistema de ranking de Beach Tennis mais divertido do Brasil! 🎾🔥\n" .
-            "Seu cadastro foi realizado com sucesso. Aqui está sua senha de acesso:\n\n" .
-            "🔐 Senha: $senha\n\n" .
-            "Acesse o sistema em https://beta.appdupla.com e comece a jogar, pontuar e desbloquear conquistas!\n\n" .
-            "Deu game? Dá Ranking! 🏆\n— Equipe DUPLA";
+  "Seja bem-vindo ao DUPLA, o sistema de ranking de Beach Tennis mais divertido do Brasil! 🎾🔥\n" .
+  "Seu cadastro foi realizado com sucesso. Aqui está sua senha de acesso:\n\n" .
+  "🔐 Senha: $senha_plain\n\n" .
+  "Acesse o sistema em https://beta.appdupla.com e comece a jogar, pontuar e desbloquear conquistas!\n\n" .
+  "Deu game? Dá Ranking! 🏆\n— Equipe DUPLA";
 
-$params=array(
-'token' => 'vtts75qh13n0jdc7',
-'to' => $telefone,
-'body' => $mensagem
+$params = array(
+  'token' => 'vtts75qh13n0jdc7',
+  'to' => $telefone,
+  'body' => $mensagem
 );
 $curl = curl_init();
 curl_setopt_array($curl, array(
@@ -61,4 +81,3 @@ if ($err) {
 }
 
 header('Location:../index.php');
-

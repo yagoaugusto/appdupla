@@ -60,47 +60,8 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   <script>
     document.documentElement.setAttribute('data-theme', 'light');
   </script>
+
   <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css?v=<?php echo $version; ?>" rel="stylesheet" type="text/css" />
 
-  <!--  SEU override deve vir DEPOIS disso -->
-  <style>
-  /* === Força modo claro em todo o documento === */
-  html { color-scheme: light !important; }
-
-  /* === Impede Safari/iOS de escurecer campos === */
-  input,
-  select,
-  textarea,
-  button {
-    background-color:#fff !important;
-    color:#111 !important;
-    border:1px solid #ccc;
-    /* desativa variação automática de cor */
-    color-scheme: light;
-  }
-
-  /* mantém cor ao focar */
-  input:focus,
-  select:focus,
-  textarea:focus { background-color:#fff !important; }
-
-  /* corrige campos com autofill amarelo/escuro */
-  input:-webkit-autofill {
-    -webkit-text-fill-color:#111 !important;
-    transition: background-color 9999s ease-out 0s;
-  }
-  </style>
-
-  <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const backdrop = document.getElementById('sidebar-backdrop');
-      if (sidebar && backdrop) {
-        sidebar.classList.toggle('-translate-x-full'); // Toggles sidebar visibility
-        backdrop.classList.toggle('hidden'); // Toggles backdrop visibility
-        document.body.classList.toggle('overflow-hidden'); // Toggles body scroll lock
-      }
-    }
-  </script>
 </head>

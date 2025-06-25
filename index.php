@@ -131,15 +131,45 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       font-size: 14px;
     }
 
-    .link-cadastro a {
-      color: #0abde3;
+    .link-cadastro .btn-discreto {
+      display: inline-block;
+      padding: 8px 15px;
+      margin-top: 10px;
+      border-radius: 8px;
       text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .link-cadastro .btn-cadastro {
+      border: 1px solid #0abde3;
+      color: #0abde3;
+      background-color: transparent;
+    }
+
+    .link-cadastro .btn-cadastro:hover {
+      background-color: #e0f7fa; /* Light cyan */
+    }
+
+    .link-cadastro .btn-esqueci-senha {
+      border: 1px solid transparent; /* No border initially */
+      color: #777; /* Slightly darker gray */
+      background-color: transparent;
+      font-size: 13px; /* Slightly smaller */
     }
   </style>
 </head>
 <body>
   <div class="container">
     <img src="img/dupla.png" alt="Logo Dupla" class="logo">
+    <?php if (!empty($_SESSION['DuplaLogin'])): ?>
+      <div style="background:#ffeef0;border:1px solid #ffbdbd;color:#c0392b;padding:10px;border-radius:8px;margin-bottom:18px;font-size:14px;">
+        <?php
+          echo htmlspecialchars($_SESSION['DuplaLogin']);
+          unset($_SESSION['DuplaLogin']);
+        ?>
+      </div>
+    <?php endif; ?>
     <form action="system-autenticacao/valida.php" method="post">
       <input type="tel" name="telefone" placeholder="Telefone" required>
       <input type="password" name="senha" placeholder="Senha" required>
@@ -152,9 +182,9 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       <button type="submit">Entrar</button>
     </form>
     <div class="link-cadastro">
-      <p>Não tem conta? <a href="cadastrar.php">Cadastre-se aqui</a></p>
+      <p>Não tem conta? <a href="cadastrar.php" class="btn-discreto btn-cadastro">Cadastre-se aqui</a></p>
       <br><br>
-      <p><a href="cadastrar.php" style="color:#aaa;">Esqueci minha senha ):</a></p>
+      <p><a href="recuperar-senha.php" class="btn-discreto btn-esqueci-senha">Esqueci minha senha ):</a></p>
     </div>
   </div>
 </body>

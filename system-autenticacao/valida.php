@@ -9,43 +9,54 @@ if ((isset($_POST['telefone'])) && (isset($_POST['senha']))) {
 
 	$telefone = '55' . $telefone;
 
-	//Buscar na tabela usuario o usuário que corresponde com os dados digitado no formulário
-	$result_usuario = "SELECT * from usuario where telefone='{$telefone}' and senha='{$senha}' 
-		-- and status='ATIVO'
-		limit 1";
+	//Buscar na tabela usuario apenas pelo telefone
+	$result_usuario = "SELECT * FROM usuario WHERE telefone = '{$telefone}' LIMIT 1";
 	$resultado_usuario = mysqli_query($conn, $result_usuario);
 	$resultado = mysqli_fetch_assoc($resultado_usuario);
 
 	//Encontrado um usuario na tabela usuário com os mesmos dados digitado no formulário
-	if (isset($resultado)) {
-		//VARIAVEIS DE USUARIO
-		$_SESSION['DuplaUserId'] = $resultado['id'];
-		$_SESSION['DuplaUserNome'] = $resultado['nome'];
-		$_SESSION['DuplaUserTelefone'] = $resultado['telefone'];
-		$_SESSION['DuplaUserSenha'] = $resultado['senha'];
-		$_SESSION['DuplaUserCidade'] = $resultado['cidade'];
-		$_SESSION['DuplaUserEmpunhadura'] = $resultado['empunhadura'];
+	if ($resultado) {
+		$hash_bd = $resultado['senha'];
+		$login_ok = false;
 
-		if (isset($_POST['manter_logado'])) {
-			$token = bin2hex(random_bytes(32)); // Token seguro
-			$user_id = $resultado['id'];
+		// 1) Senha já está hasheada (bcrypt) → usa password_verify
+		if (password_verify($senha, $hash_bd)) {
+			$login_ok = true;
+		}
+		// 2) Senha em texto puro ainda
+		elseif ($hash_bd === $senha) {
+			$login_ok = true;
 
-			// Atualiza no banco
-			$update = "UPDATE usuario SET token_login = '{$token}' WHERE id = {$user_id}";
-			mysqli_query($conn, $update);
-
-			// Define cookie válido por 30 dias
-			setcookie('DuplaLoginToken', $token, time() + (86400 * 30), "/");
+			// gera hash seguro e atualiza banco
+			$novo_hash = password_hash($senha, PASSWORD_BCRYPT);
+			$uid = $resultado['id'];
+			mysqli_query($conn, "UPDATE usuario SET senha = '{$novo_hash}' WHERE id = {$uid}");
 		}
 
-		header("Location: ../principal.php");
-		//Não foi encontrado um usuario na tabela usuário com os mesmos dados digitado no formulário
-		//redireciona o usuario para a página de login
-	} else {
-		//Váriavel global recebendo a mensagem de erro
-		$_SESSION['DuplaLogin'] = "Usuário ou senha Inválido";
-		header("Location: ../index.php");
+		if ($login_ok) {
+			//VARIAVEIS DE USUARIO
+			$_SESSION['DuplaUserId']        = $resultado['id'];
+			$_SESSION['DuplaUserNome']      = $resultado['nome'];
+			$_SESSION['DuplaUserTelefone']  = $resultado['telefone'];
+			$_SESSION['DuplaUserCidade']    = $resultado['cidade'];
+			$_SESSION['DuplaUserEmpunhadura'] = $resultado['empunhadura'];
+			$_SESSION['DuplaUserTipo']      = $resultado['tipo'];
+
+			// mantém login (cookie) se marcado
+			if (isset($_POST['manter_logado'])) {
+				$token = bin2hex(random_bytes(32));
+				mysqli_query($conn, "UPDATE usuario SET token_login = '{$token}' WHERE id = {$resultado['id']}");
+				setcookie('DuplaLoginToken', $token, time() + (86400 * 30), "/");
+			}
+			header("Location: ../principal.php");
+			exit;
+		}
 	}
+
+	/* Falhou login */
+	$_SESSION['DuplaLogin'] = "Usuário ou senha inválidos";
+	header("Location: ../index.php");
+	exit;
 	//O campo usuário e senha não preenchido entra no else e redireciona o usuário para a página de login
 } else {
 	$_SESSION['DuplaLogin'] = "Usuário ou senha inválido";

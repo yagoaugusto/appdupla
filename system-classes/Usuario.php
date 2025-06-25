@@ -46,17 +46,85 @@ class Usuario
         }
     }
 
-    public function cadastrar_usuario($nome, $telefone, $senha, $cidade, $empunhadura, $cpf, $sobrenome, $apelido, $sexo)
+    public function cadastrar_usuario($nome, $telefone, $senha, $cidade, $empunhadura, $cpf, $sobrenome, $apelido, $sexo, $email)
     {
         $query =
-            "INSERT INTO usuario(nome,sobrenome,apelido,sexo,telefone,senha,cidade,empunhadura,cpf) 
+            "INSERT INTO usuario(nome,sobrenome,apelido,sexo,telefone,senha,cidade,empunhadura,cpf,email) 
       values ('{$nome}','{$sobrenome}','{$apelido}','{$sexo}','{$telefone}','{$senha}',
-      '{$cidade}','{$empunhadura}','{$cpf}')";
+      '{$cidade}','{$empunhadura}','{$cpf}','{$email}')";
         $conexao = Conexao::pegarConexao();
         $stmt = $conexao->prepare($query);
         $stmt->execute();
     }
 
+    /**
+     * Armazena um token de recuperação de senha para um usuário.
+     *
+     * @param int $usuario_id O ID do usuário.
+     * @param string $token O token gerado.
+     * @param string $expires_at A data e hora de expiração do token (formato 'YYYY-MM-DD HH:MM:SS').
+     * @return bool True em caso de sucesso, false caso contrário.
+     */
+    public static function setRecoveryToken($usuario_id, $token, $expires_at)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("UPDATE usuario SET recovery_token = ?, recovery_token_expires_at = ? WHERE id = ?");
+            return $stmt->execute([$token, $expires_at, $usuario_id]);
+        } catch (PDOException $e) {
+            error_log("Erro ao definir token de recuperação para o usuário ID $usuario_id: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Busca um usuário pelo token de recuperação de senha, verificando a validade.
+     *
+     * @param string $token O token de recuperação.
+     * @return array|false Um array associativo com os dados do usuário se o token for válido, ou false.
+     */
+    public static function getUsuarioByRecoveryToken($token)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("SELECT id, nome, email, telefone FROM usuario WHERE recovery_token = ? AND recovery_token_expires_at > NOW()");
+            $stmt->execute([$token]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar usuário por token de recuperação: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Atualiza a senha de um usuário.
+     *
+     * @param int $usuario_id O ID do usuário.
+     * @param string $nova_senha_hash A nova senha já hasheada.
+     * @return bool True em caso de sucesso, false caso contrário.
+     */
+    public static function updateSenha($usuario_id, $nova_senha_hash)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("UPDATE usuario SET senha = ? WHERE id = ?");
+            return $stmt->execute([$nova_senha_hash, $usuario_id]);
+        } catch (PDOException $e) {
+            error_log("Erro ao atualizar senha para o usuário ID $usuario_id: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Limpa o token de recuperação de senha para um usuário.
+     *
+     * @param int $usuario_id O ID do usuário.
+     * @return bool True em caso de sucesso, false caso contrário.
+     */
+    public static function clearRecoveryToken($usuario_id)
+    {
+        return self::setRecoveryToken($usuario_id, null, null);
+    }
     public static function listar_usuarios_busca($nome)
     {
         $query =
