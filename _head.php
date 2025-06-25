@@ -58,6 +58,24 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css?v=<?php echo $version; ?>" rel="stylesheet" type="text/css" />
 
+  <!--  SEU override deve vir DEPOIS disso -->
+  <style>
+    /* força o modo claro globalmente */
+    html {
+      color-scheme: light !important;
+    }
+
+    /* garante campos claros */
+    input,
+    select,
+    textarea,
+    button {
+      background: #fff !important;
+      color: #111 !important;
+      border: 1px solid #ccc;
+    }
+  </style>
+
   <script>
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
