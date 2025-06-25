@@ -111,6 +111,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 break;
 
+
+            case 'promote':
+                if ($is_founder && !$is_self_action) {
+                    $success = Arena::updateMemberStatus($arena_id, $usuario_id, 'fundador');
+                    $message = 'Membro promovido a fundador com sucesso!';
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Ação não autorizada.']);
+                    exit;
+                }
+                break;
+
+
             default:
                 echo json_encode(['success' => false, 'message' => 'Ação inválida.']);
                 exit;
@@ -128,4 +140,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     echo json_encode(['success' => false, 'message' => 'Método de requisição inválido.']);
 }
-?>

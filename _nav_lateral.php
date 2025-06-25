@@ -6,6 +6,17 @@ $is_pagina_torneio_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_tor
 $paginas_central_dupla = ['dupla.php', 'hist-partidas.php', 'ranking-geral.php']; // Adicionado hist-partidas e ranking-geral
 $is_pagina_central_dupla_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_central_dupla);
 
+// Novas páginas para o menu Quadras
+$paginas_quadras = ['criar-quadra.php', 'funcionamento-quadra.php', 'agendamento-quadra.php', 'relatorios-quadra.php'];
+$is_pagina_quadras_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_quadras);
+
+// Novas páginas para o menu Alunos
+$paginas_alunos = ['cadastro-aluno.php', 'listar-alunos.php', 'relatorios-aluno.php'];
+$is_pagina_alunos_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_alunos);
+
+// Novas páginas para o menu Yago
+$paginas_yago = ['usuarios-yago.php', 'arenas-yago.php'];
+$is_pagina_yago_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_yago);
 
 
 $paginas_arena = ['criar-arena.php', 'arenas.php', 'arena-page.php'];
@@ -87,6 +98,59 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
         </ul>
       </div>
     </div>
+
+<?php if (isset($_SESSION['DuplaUserTipo']) && ($_SESSION['DuplaUserTipo'] === 'gestor' || $_SESSION['DuplaUserTipo'] === 'super')): ?>
+    <!-- Menu Dropdown Quadras -->
+    <div class="collapse collapse-arrow">
+      <input type="checkbox" <?= $is_pagina_quadras_ativa ? 'checked' : '' ?> /> 
+      <div class="collapse-title flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium">
+        <span class="text-lg">🎾</span> <!-- Icone para Quadras -->
+        <span class="whitespace-nowrap">Quadras</span>
+      </div>
+      <div class="collapse-content !p-0"> 
+        <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
+          <li><a href="criar-quadra.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'criar-quadra.php' ? 'active' : '' ?>">Criar Quadra</a></li>
+          <li><a href="funcionamento-quadra.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'funcionamento-quadra.php' ? 'active' : '' ?>">Funcionamento</a></li>
+          <li><a href="agendamento-quadra.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'agendamento-quadra.php' ? 'active' : '' ?>">Agendamento</a></li>
+          <li><a href="relatorios-quadra.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'relatorios-quadra.php' ? 'active' : '' ?>">Relatórios</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Menu Dropdown Alunos -->
+    <div class="collapse collapse-arrow">
+      <input type="checkbox" <?= $is_pagina_alunos_ativa ? 'checked' : '' ?> /> 
+      <div class="collapse-title flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium">
+        <span class="text-lg">🧑‍🎓</span> <!-- Icone para Alunos -->
+        <span class="whitespace-nowrap">Alunos</span>
+      </div>
+      <div class="collapse-content !p-0"> 
+        <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
+          <li><a href="cadastro-aluno.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'cadastro-aluno.php' ? 'active' : '' ?>">Cadastro</a></li>
+          <li><a href="listar-alunos.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'listar-alunos.php' ? 'active' : '' ?>">Alunos</a></li>
+          <li><a href="relatorios-aluno.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'relatorios-aluno.php' ? 'active' : '' ?>">Relatórios</a></li>
+        </ul>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['DuplaUserTipo']) && $_SESSION['DuplaUserTipo'] === 'super'): ?>
+    <!-- Menu Dropdown Yago -->
+    <div class="collapse collapse-arrow">
+      <input type="checkbox" <?= $is_pagina_yago_ativa ? 'checked' : '' ?> /> 
+      <div class="collapse-title flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium">
+        <span class="text-lg">👑</span> <!-- Icone para Yago -->
+        <span class="whitespace-nowrap">Yago</span>
+      </div>
+      <div class="collapse-content !p-0"> 
+        <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
+          <li><a href="usuarios-yago.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'usuarios-yago.php' ? 'active' : '' ?>">Usuários</a></li>
+          <li><a href="arenas-yago.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'arenas-yago.php' ? 'active' : '' ?>">Arenas</a></li>
+        </ul>
+      </div>
+    </div>
+    <?php endif; ?>
+
   </nav>
 </aside>
 

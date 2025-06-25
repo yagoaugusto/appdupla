@@ -116,6 +116,7 @@ require_once '#_global.php';
 
 
                 <!-- Seção de Membros -->
+                 <?php if ($is_founder): ?>
                 <details class="collapse collapse-arrow bg-white rounded-2xl shadow-xl border border-gray-200 mb-6">
                     <summary class="collapse-title text-xl font-bold text-gray-800 flex items-center gap-2">
                         <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -143,6 +144,11 @@ require_once '#_global.php';
                                             <span class="text-xs font-medium text-gray-500 capitalize"><?= htmlspecialchars($membro['situacao']) ?></span>
                                             <?php if ($is_founder && $membro['usuario_id'] != $_SESSION['DuplaUserId']): ?>
                                                 <button class="btn btn-xs btn-outline btn-error" data-action="remove" data-usuario-id="<?= $membro['usuario_id'] ?>" data-arena-id="<?= $arena_id ?>">Remover</button>
+                                                <?php if ($is_founder && $membro['usuario_id'] != $_SESSION['DuplaUserId']): ?>
+                                                    <button class="btn btn-xs btn-outline btn-warning" data-action="promote" data-usuario-id="<?= $membro['usuario_id'] ?>" data-arena-id="<?= $arena_id ?>">
+                                                        Tornar Fundador
+                                                    </button>
+                                                <?php endif; ?>
                                             <?php endif; ?>
                                         </div>
                                     </li>
@@ -151,6 +157,7 @@ require_once '#_global.php';
                         <?php endif; ?>
                     </div>
                 </details>
+                <?php endif; ?>
 
                 <!-- Seção de Ranking da Arena -->
                 <details class="collapse collapse-arrow bg-white rounded-2xl shadow-xl border border-gray-200 mb-6">
@@ -473,9 +480,20 @@ require_once '#_global.php';
                 const usuarioId = target.dataset.usuarioId;
                 const arenaId = target.dataset.arenaId;
 
-                if (action === 'remove' || action === 'reject') {
-                    const confirmationMessage = action === 'remove' ? 'Tem certeza que deseja remover este membro?' : 'Tem certeza que deseja rejeitar?';
-                    if (!confirm(confirmationMessage)) return;
+                switch (action) {
+                    case 'remove':
+                    case 'reject':
+                        {
+                            const confirmationMessage = action === 'remove'
+                                ? 'Tem certeza que deseja remover este membro?'
+                                : 'Tem certeza que deseja rejeitar?';
+                            if (!confirm(confirmationMessage)) return;
+                        }
+                        break;
+                    case 'promote':
+                        if (!confirm('Tem certeza que deseja tornar este membro o novo fundador? ')) return;
+                        break;
+                    // outros casos podem ser adicionados aqui
                 }
 
                 try {
