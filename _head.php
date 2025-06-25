@@ -55,6 +55,11 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   <meta name="color-scheme" content="light">
   <?php $version = time(); // Use um timestamp para forçar o recarregamento durante o desenvolvimento. Em produção, use uma string de versão fixa. 
   ?>
+
+  <!-- garante tema claro antes do carregamento DaisyUI -->
+  <script>
+    document.documentElement.setAttribute('data-theme', 'light');
+  </script>
   <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css?v=<?php echo $version; ?>" rel="stylesheet" type="text/css" />
 
@@ -73,7 +78,6 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     border:1px solid #ccc;
     /* desativa variação automática de cor */
     color-scheme: light;
-    -webkit-appearance: none;
   }
 
   /* mantém cor ao focar */
