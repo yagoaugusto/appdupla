@@ -92,3 +92,16 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
 
 <!-- Spacer so main content não deslize para baixo do sidebar em telas grandes -->
 <div class="hidden lg:block w-64"></div>
+
+<script>
+  // Função para alternar a visibilidade da sidebar em telas pequenas
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+
+    if (sidebar && backdrop) {
+      sidebar.classList.toggle('-translate-x-full'); // Move a sidebar para dentro/fora da tela
+      backdrop.classList.toggle('hidden'); // Mostra/esconde o overlay
+    }
+  }
+</script>
