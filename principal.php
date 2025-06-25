@@ -169,22 +169,31 @@ if ($variacao_valor > 0) {
           </div>
 
           <!-- Card Conquistas -->
-          <div class="bg-white rounded-xl shadow p-3 text-center flex flex-col items-center justify-center">
+          <!-- <div class="bg-white rounded-xl shadow p-3 text-center flex flex-col items-center justify-center">
             <div class="w-8 h-8 flex items-center justify-center rounded-full bg-yellow-100 text-yellow-600 text-lg mb-1">🏆</div>
             <div class="text-xl font-bold text-yellow-600"><?= $total_conquistas ?></div>
             <div class="text-xs text-gray-500 mt-1">Conquistas Desbloqueadas</div>
-          </div>
+          </div> -->
 
           <!-- Card Variação (10d) -->
-          <div class="bg-white rounded-xl shadow p-3 text-center flex flex-col items-center justify-center">
+          <!-- <div class="bg-white rounded-xl shadow p-3 text-center flex flex-col items-center justify-center">
             <div class="w-8 h-8 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 text-lg mb-1">📈</div>
             <div class="text-xl font-bold <?= $variacao_color_class ?>"><?= $variacao_formatada ?> <?= $variacao_icon ?></div>
             <div class="text-xs text-gray-500 mt-1">Variação de Rating (10d)</div>
-          </div>
+          </div> -->
         </div>
 
         <!-- Gráfico e ranking -->
-        <div class="grid grid-cols-1 gap-3 mb-3">
+        <div class="grid grid-cols-1 gap-3 mb-3"> 
+            <?php if (empty($hist_rating)): ?>
+            <div class="bg-white rounded-xl shadow p-4 text-center">
+                <h3 class="text-base font-semibold mb-3 flex items-center justify-center gap-2 text-gray-700">
+                    <span class="text-xl">📊</span>
+                    Histórico de Rating
+                </h3>
+                <p class="text-gray-600 italic">Você ainda não tem histórico de rating. Jogue sua primeira partida para começar a acompanhar sua evolução!</p>
+            </div>
+            <?php else: ?>
             <div class="bg-white rounded-xl shadow p-4">
               <h3 class="text-base font-semibold mb-3 flex items-center gap-2 text-gray-700">
                 <span class="text-xl">📊</span>
@@ -192,6 +201,7 @@ if ($variacao_valor > 0) {
               </h3>
               <canvas id="graficoRating" height="100"></canvas>
             </div>
+            <?php endif; ?>
           <div class="bg-white rounded-xl shadow p-4">
             <h3 class="text-base font-semibold mb-3 flex items-center gap-2 text-gray-700">
               <span class="text-xl">🏆</span>

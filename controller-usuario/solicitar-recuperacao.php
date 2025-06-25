@@ -102,7 +102,7 @@ try {
             echo '</pre>';
             // Em modo debug, paramos aqui para ver a saída.
             // Comente a linha abaixo para produção.
-            exit;
+            // exit;
         }
 
     } catch (Exception $e) {

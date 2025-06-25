@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
   <title>DUPLA - Recuperar Senha</title>
   <style>
     * {
@@ -50,6 +50,7 @@
     }
 
     input[type="email"],
+    input[type="text"],
     input[type="tel"] {
       width: 100%;
       padding: 12px;
