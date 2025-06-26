@@ -385,20 +385,18 @@ if ($variacao_valor > 0) {
     </footer>
 
   <!-- Barra de navegação inferior flutuante -->
-  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40"> <!-- Alterado z-index para z-40 -->
       <div class="flex items-center gap-2 bg-white/80 backdrop-blur-md border border-gray-200/80 rounded-full shadow-xl px-3 py-2">
-          <!-- Botão Arenas -->
-
           <!-- Botão Mapa -->
           <a href="mapa-arenas.php" class="flex flex-col items-center justify-center text-gray-700 hover:text-green-600 transition-colors w-16 h-14 rounded-full hover:bg-green-50">
               <span class="text-2xl">🗺️</span>
               <span class="text-xs font-semibold">Mapa</span>
           </a>
-          <!-- Botão Inscrições -->
-          <button disabled id="btnInscricoes" class="flex flex-col items-center justify-center text-gray-700 hover:text-green-600 transition-colors w-16 h-14 rounded-full hover:bg-green-50">
-              <span class="text-2xl">📝</span>
-              <span class="text-xs font-semibold">Inscrições</span>
-          </button>
+          <!-- Botão Torneios (antigo Inscrições) -->
+          <a href="meus-torneios.php" class="flex flex-col items-center justify-center text-gray-700 hover:text-purple-600 transition-colors w-16 h-14 rounded-full hover:bg-purple-50">
+              <span class="text-2xl">🏆</span>
+              <span class="text-xs font-semibold">Torneios</span>
+          </a>
           <!-- Botão Análise IA -->
           <button id="btnGpt" class="flex flex-col items-center justify-center text-gray-700 hover:text-indigo-600 transition-colors w-16 h-14 rounded-full hover:bg-indigo-50">
               <span class="text-2xl">🤖</span>
@@ -407,29 +405,8 @@ if ($variacao_valor > 0) {
       </div>
   </div>
 
-<!-- Modal de Arenas -->
-<div id="modalArenas" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-2xl shadow-2xl p-6 w-80 max-w-full flex flex-col items-center gap-4 relative">
-    <button id="fecharModalArenas" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
-    <div class="text-2xl mb-2">🏟️ <span class="font-extrabold text-blue-700">Arenas</span></div>
-    <a href="criar-arena.php" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Criar Arena</a>
-    <a href="arenas.php" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Visitar Arenas</a>
-  </div>
-</div>
-
-<!-- Modal de Torneios -->
-<div id="modalTorneios" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-2xl shadow-2xl p-6 w-80 max-w-full flex flex-col items-center gap-4 relative">
-    <button id="fecharModalTorneios" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
-    <div class="text-2xl mb-2">🏆 <span class="font-extrabold text-purple-700">Torneios</span></div>
-    <a href="criar-torneio.php" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Criar Torneio</a>
-    <a href="meu-torneio.php" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Meus Torneios</a>
-    <a href="encontrar-torneio.php" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 rounded-xl shadow text-center transition">Encontrar Torneios</a>
-  </div>
-</div>
-
 <!-- Modal de Análise IA -->
-<div id="modalGpt" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+<div id="modalGpt" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-51 hidden"> <!-- Alterado z-index para z-51 -->
   <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md flex flex-col items-center gap-4 relative">
     <button id="fecharModalGpt" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
     <div class="text-2xl mb-2">🤖 <span class="font-extrabold text-indigo-700">Análise de Desempenho</span></div>
@@ -456,20 +433,6 @@ if ($variacao_valor > 0) {
         const modal = document.getElementById(modalId);
         if (modal) modal.classList.add('hidden');
     }
-
-    // --- LÓGICA PARA MODAL DE ARENAS ---
-    document.getElementById('btnArenas').addEventListener('click', () => openModal('modalArenas'));
-    document.getElementById('fecharModalArenas').addEventListener('click', () => closeModal('modalArenas'));
-    document.getElementById('modalArenas').addEventListener('click', (e) => {
-        if (e.target.id === 'modalArenas') closeModal('modalArenas');
-    });
-
-    // --- LÓGICA PARA MODAL DE TORNEIOS ---
-    document.getElementById('btnTorneios').addEventListener('click', () => openModal('modalTorneios'));
-    document.getElementById('fecharModalTorneios').addEventListener('click', () => closeModal('modalTorneios'));
-    document.getElementById('modalTorneios').addEventListener('click', (e) => {
-        if (e.target.id === 'modalTorneios') closeModal('modalTorneios');
-    });
 
     // --- LÓGICA PARA ANÁLISE DE IA ---
     const btnGpt = document.getElementById('btnGpt');

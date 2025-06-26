@@ -64,6 +64,12 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css?v=<?php echo $version; ?>" rel="stylesheet" type="text/css" />
   <style>
-
+    /* Adiciona margem à esquerda no conteúdo principal em telas grandes para acomodar a barra lateral */
+    @media (min-width: 1024px) { /* Ponto de quebra 'lg' do Tailwind */
+      main.flex-1 {
+        /* A sidebar tem w-64, que corresponde a 16rem (256px) */
+        margin-left: 16rem;
+      }
+    }
   </style>
 </head>
