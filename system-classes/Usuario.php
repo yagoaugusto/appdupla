@@ -145,6 +145,31 @@ class Usuario
         return $lista;
     }
 
+    /**
+     * Busca usuários por termo de pesquisa (nome, apelido, CPF).
+     *
+     * @param string $searchTerm O termo a ser pesquisado.
+     * @return array Lista de usuários encontrados.
+     */
+    public static function buscarUsuariosPorTermo($searchTerm)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("
+                SELECT id, nome, apelido, cpf, telefone
+                FROM usuario
+                WHERE nome LIKE ? OR apelido LIKE ? OR cpf LIKE ?
+                LIMIT 10
+            ");
+            $likeTerm = '%' . $searchTerm . '%';
+            $stmt->execute([$likeTerm, $likeTerm, $likeTerm]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar usuários por termo: " . $e->getMessage());
+            return [];
+        }
+    }
+
     public static function partidas_usuario($id)
     {
         $query =

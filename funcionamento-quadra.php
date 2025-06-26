@@ -65,8 +65,11 @@ $quadra_id = $_GET['quadra_id'] ?? null;
                     ?>
 
                     <div class="bg-white rounded-xl shadow p-4 mb-6 border border-gray-200">
-                        <h2 class="text-xl font-bold text-gray-700 mb-3">
-                            Quadra: <span class="text-blue-600"><?= htmlspecialchars($quadra_info['nome']) ?></span>
+                        <h2 class="text-xl font-bold text-gray-700 mb-3 flex justify-between items-center">
+                            <span>Quadra: <span class="text-blue-600"><?= htmlspecialchars($quadra_info['nome']) ?></span></span>
+                            <span class="text-lg font-semibold text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                                R$ <?= number_format($quadra_info['valor_base'], 2, ',', '.') ?> / hora
+                            </span>
                         </h2>
                         <p class="text-gray-600 text-sm mb-4">
                             Selecione os horários em que esta quadra estará disponível para agendamento.
@@ -89,16 +92,19 @@ $quadra_id = $_GET['quadra_id'] ?? null;
                                             <th>Sex</th>
                                             <th>Sáb</th>
                                             <th>Dom</th>
+                                            <th>Ações</th>
                                         </tr>
                                         <tr>
                                             <th></th> <!-- Empty for "Horário" column -->
                                             <?php foreach (array_keys($dias_semana) as $dia_key): ?>
                                                 <th class="text-center">
-                                                    <button type="button" class="btn btn-xs btn-outline btn-error clear-day-btn" data-day="<?= $dia_key ?>">
-                                                        Limpar
-                                                    </button>
+                                                    <div class="flex justify-center items-center gap-1">
+                                                        <button type="button" class="btn btn-xs btn-outline btn-success mark-day-btn" data-day="<?= $dia_key ?>">Marcar</button>
+                                                        <button type="button" class="btn btn-xs btn-outline btn-error clear-day-btn" data-day="<?= $dia_key ?>">Limpar</button>
+                                                    </div>
                                                 </th>
                                             <?php endforeach; ?>
+                                            <th></th> <!-- Empty for "Ações" column -->
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -115,7 +121,7 @@ $quadra_id = $_GET['quadra_id'] ?? null;
                                         for ($h = 6; $h < 23; $h++) { // Horários de 06:00 a 22:00
                                             $inicio = sprintf("%02d:00", $h);
                                             $fim = sprintf("%02d:00", $h + 1);
-                                            echo "<tr>";
+                                            echo "<tr data-hour-row='{$inicio}'>";
                                             echo "<th class='text-xs sm:text-sm font-semibold text-gray-700'>{$inicio} - {$fim}</th>";
                                             foreach (array_keys($dias_semana) as $dia_key) {
                                                 $id = "{$dia_key}_{$inicio}";
@@ -130,6 +136,11 @@ $quadra_id = $_GET['quadra_id'] ?? null;
                                                 echo "</div>";
                                                 echo "</td>";
                                             }
+                                            // Ações da Linha
+                                            echo "<td class='p-1'><div class='flex justify-center items-center gap-1'>";
+                                            echo "<button type='button' class='btn btn-xs btn-outline btn-success mark-hour-btn' data-hour='{$inicio}'>Marcar</button>";
+                                            echo "<button type='button' class='btn btn-xs btn-outline btn-error clear-hour-btn' data-hour='{$inicio}'>Limpar</button>";
+                                            echo "</div></td>";
                                             echo "</tr>";
                                         }
                                         ?>
@@ -339,16 +350,47 @@ $quadra_id = $_GET['quadra_id'] ?? null;
                 alert('Valor adicional aplicado aos horários selecionados!');
             });
 
-            // Função para limpar horários de um dia específico
+            // Adiciona os botões de marcação/limpeza por coluna (dia)
+            document.querySelectorAll('.mark-day-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const day = button.dataset.day;
+                    document.querySelectorAll(`.func-checkbox[data-dia="${day}"]`).forEach(checkbox => {
+                        checkbox.checked = true;
+                    });
+                });
+            });
             document.querySelectorAll('.clear-day-btn').forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const dayToClear = event.target.dataset.day;
-                    document.querySelectorAll(`.func-checkbox[data-dia="${dayToClear}"]`).forEach(input => {
-                        input.checked = false;
-                        input.dataset.valorAdicional = 0; // Reset additional value
-                        const valorSpan = document.getElementById(`valor-${input.id}`);
+                button.addEventListener('click', () => {
+                    const day = button.dataset.day;
+                    document.querySelectorAll(`.func-checkbox[data-dia="${day}"]`).forEach(checkbox => {
+                        checkbox.checked = false;
+                        checkbox.dataset.valorAdicional = 0;
+                        const valorSpan = document.getElementById(`valor-${checkbox.id}`);
                         if (valorSpan) {
-                            valorSpan.classList.add('hidden'); // Hide the value span
+                            valorSpan.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            // Adiciona os botões de marcação/limpeza por linha (hora)
+            document.querySelectorAll('.mark-hour-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const hour = button.dataset.hour;
+                    document.querySelectorAll(`.func-checkbox[data-inicio="${hour}"]`).forEach(checkbox => {
+                        checkbox.checked = true;
+                    });
+                });
+            });
+            document.querySelectorAll('.clear-hour-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const hour = button.dataset.hour;
+                    document.querySelectorAll(`.func-checkbox[data-inicio="${hour}"]`).forEach(checkbox => {
+                        checkbox.checked = false;
+                        checkbox.dataset.valorAdicional = 0;
+                        const valorSpan = document.getElementById(`valor-${checkbox.id}`);
+                        if (valorSpan) {
+                            valorSpan.classList.add('hidden');
                         }
                     });
                 });

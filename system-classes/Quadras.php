@@ -139,17 +139,25 @@ class Quadras {
     /**
      * Limpa os horários de funcionamento de uma quadra para um dia específico.
      *
+     * Se $dia_semana for null, limpa todos os horários de funcionamento da quadra.
+     *
      * @param int $quadra_id O ID da quadra.
-     * @param string $dia_semana O dia da semana (ex: 'segunda', 'terca').
+     * @param string|null $dia_semana O dia da semana (ex: 'segunda', 'terca') ou null para todos os dias.
      * @return bool True em caso de sucesso, false caso contrário.
      */
-    public static function clearFuncionamentoQuadra($quadra_id, $dia_semana) {
+    public static function clearFuncionamentoQuadra($quadra_id, $dia_semana = null) {
         try {
             $conn = Conexao::pegarConexao();
-            $stmt = $conn->prepare("DELETE FROM quadras_funcionamento WHERE quadra_id = ? AND dia_semana = ?");
-            return $stmt->execute([$quadra_id, $dia_semana]);
+            $sql = "DELETE FROM quadras_funcionamento WHERE quadra_id = ?";
+            $params = [$quadra_id];
+            if ($dia_semana !== null) {
+                $sql .= " AND dia_semana = ?";
+                $params[] = $dia_semana;
+            }
+            $stmt = $conn->prepare($sql);
+            return $stmt->execute($params);
         } catch (PDOException $e) {
-            error_log("Erro ao limpar funcionamento da quadra para o dia $dia_semana: " . $e->getMessage());
+            error_log("Erro ao limpar funcionamento da quadra: " . $e->getMessage());
             return false;
         }
     }
@@ -173,6 +181,27 @@ class Quadras {
         } catch (PDOException $e) {
             error_log("Erro ao adicionar funcionamento da quadra: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Busca o valor adicional para um slot de horário específico.
+     *
+     * @param int $quadra_id O ID da quadra.
+     * @param string $dia_semana O dia da semana (ex: 'segunda').
+     * @param string $hora_inicio A hora de início (ex: '08:00').
+     * @return float O valor adicional, ou 0 se não encontrado.
+     */
+    public static function getValorAdicionalPorSlot($quadra_id, $dia_semana, $hora_inicio) {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("SELECT valor_adicional FROM quadras_funcionamento WHERE quadra_id = ? AND dia_semana = ? AND hora_inicio = ?");
+            $stmt->execute([$quadra_id, $dia_semana, $hora_inicio . ':00']);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? (float)$result['valor_adicional'] : 0.0;
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar valor adicional do slot: " . $e->getMessage());
+            return 0.0;
         }
     }
 }

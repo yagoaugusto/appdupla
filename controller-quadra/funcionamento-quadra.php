@@ -25,18 +25,9 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 }
 
 try {
-    $dias_processados = [];
-    foreach ($horarios_selecionados as $slot) {
-        if (!in_array($slot['dia'], $dias_processados)) {
-            $dias_processados[] = $slot['dia'];
-        }
-    }
-
-    // Para cada dia que teve alguma seleção (ou deseleção), limpamos os horários existentes
-    // e depois inserimos os novos. Isso garante que a deseleção funcione.
-    foreach ($dias_processados as $dia) {
-        Quadras::clearFuncionamentoQuadra($quadra_id, $dia);
-    }
+    // Limpa TODOS os horários de funcionamento existentes para esta quadra.
+    // Isso garante que horários desmarcados no formulário sejam removidos do banco.
+    Quadras::clearFuncionamentoQuadra($quadra_id);
 
     // Insere os novos horários selecionados
     foreach ($horarios_selecionados as $slot) {
