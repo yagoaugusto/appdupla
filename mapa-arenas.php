@@ -6,6 +6,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <style>
     #map {
+        position: relative; /* Garante que o z-index funcione */
+        z-index: 1; /* Coloca o mapa abaixo de outros elementos com z-index maior */
         height: 75vh;
         width: 100%;
         border-radius: 1rem;
@@ -16,8 +18,8 @@
     /* Estilos para o marcador personalizado */
     .custom-marker-icon {
         background-color: #008000; /* Verde padrão para disponível */
-        width: 30px;
-        height: 30px;
+        width: 40px; /* Aumentado e alinhado com iconSize no JS */
+        height: 40px; /* Aumentado e alinhado com iconSize no JS */
         border-radius: 50%;
         border: 3px solid #fff;
         box-shadow: 0 2px 5px rgba(0,0,0,0.3);
@@ -28,7 +30,6 @@
         font-weight: bold;
         font-size: 14px;
         position: relative;
-        /* Centraliza o ícone no ponto */
     }
     .custom-marker-icon.unavailable {
         background-color: #FF0000; /* Vermelho para indisponível */
@@ -51,18 +52,17 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa();
         <!-- Menu lateral -->
         <?php require_once '_nav_lateral.php' ?>
 
+        <!-- Botão Voltar ao Início (Fixo) -->
+        <div class="fixed top-16 left-0 lg:left-64 right-0 z-30 bg-gray-100 p-4 shadow-md border-b border-gray-200">
+            <a href="principal.php" class="btn btn-md w-full max-w-6xl mx-auto block bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold shadow-lg hover:from-blue-700 hover:to-blue-900 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" /></svg>
+                <span class="flex items-center justify-center">Voltar ao Início</span>
+            </a>
+        </div>
+
         <!-- Conteúdo principal -->
-        <main class="flex-1 p-4 sm:p-6">
-            <section class="max-w-6xl mx-auto w-full pt-32"> <!-- Adicionado pt-32 para empurrar o conteúdo para baixo, evitando sobreposição com o botão fixo -->
-                <!-- Botão Voltar ao Início -->
-                <!-- Novo contêiner fixo para o botão "Voltar ao Início" -->
-                <div class="fixed top-16 left-0 right-0 z-30 bg-gray-100 p-4 shadow-md border-b border-gray-200">
-                    <!-- O botão agora ocupa a largura total do contêiner fixo e é centralizado, com um estilo mais moderno -->
-                    <a href="principal.php" class="btn btn-md w-full max-w-6xl mx-auto block bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold shadow-lg hover:from-blue-700 hover:to-blue-900 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" /></svg>
-                        Voltar ao Início
-                    </a>
-                </div>
+        <main class="flex-1 p-4 sm:p-6 pt-32"> <!-- pt-32 para criar espaço para o navbar e o botão fixo -->
+            <section class="max-w-6xl mx-auto w-full">
 
                 <!-- Header -->
                 <div class="text-center mb-8">
@@ -121,8 +121,8 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa();
 
             const map = L.map('map').setView([centerLat, centerLng], zoomLevel);
 
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
             }).addTo(map);
 
             // Ajusta o mapa para cobrir todas as arenas se houver mais de uma
@@ -136,9 +136,9 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa();
 
                 const customIcon = L.divIcon({
                     className: markerClass,
-                    iconSize: [40, 40], // Largura e Altura iguais para um círculo perfeito
-                    iconAnchor: [15, 15], // Metade da largura e altura para centralizar o ícone no ponto
-                    popupAnchor: [0, -15], // Metade da altura para o popup aparecer acima do círculo
+                    iconSize: [40, 40], // Tamanho do ícone (deve corresponder ao CSS)
+                    iconAnchor: [35, 35], // Metade da largura/altura para centralizar
+                    popupAnchor: [0, -20], // Ajustado para o novo tamanho do ícone
                     html: `<span>${arena.horarios_disponiveis_hoje}</span>` // Exibe a quantidade de horários dentro do marcador
                 });
 

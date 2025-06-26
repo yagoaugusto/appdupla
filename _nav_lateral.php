@@ -155,9 +155,6 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
   </nav>
 </aside>
 
-<!-- Spacer so main content não deslize para baixo do sidebar em telas grandes -->
-<div class="hidden lg:block w-64"></div>
-
 <script>
   // Função para alternar a visibilidade da sidebar em telas pequenas
   function toggleSidebar() {
