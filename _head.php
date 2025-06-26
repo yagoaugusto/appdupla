@@ -63,5 +63,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
 
   <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css?v=<?php echo $version; ?>" rel="stylesheet" type="text/css" />
+  <style>
 
+  </style>
 </head>

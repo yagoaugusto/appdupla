@@ -352,4 +352,52 @@ class Arena
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Busca arenas com coordenadas geográficas e conta os horários de funcionamento disponíveis para o dia atual.
+     *
+     * @return array Retorna uma lista de arenas com seus dados e a contagem de horários.
+     */
+    public static function getArenasComHorariosParaMapa() {
+        try {
+            $conn = Conexao::pegarConexao();
+
+            // Mapeia os nomes dos dias da semana em inglês para as chaves usadas no banco de dados
+            $dias_semana_map = [
+                'Monday'    => 'segunda',
+                'Tuesday'   => 'terca',
+                'Wednesday' => 'quarta',
+                'Thursday'  => 'quinta',
+                'Friday'    => 'sexta',
+                'Saturday'  => 'sabado',
+                'Sunday'    => 'domingo'
+            ];
+            $dia_hoje_en = date('l'); // Obtém o nome do dia da semana em inglês (ex: 'Monday')
+            $dia_hoje_pt = $dias_semana_map[$dia_hoje_en];
+
+            $sql = "
+                SELECT
+                    a.id, a.titulo, a.bandeira, a.endereco, a.latitude, a.longitude,
+                    COUNT(qf.id) as horarios_disponiveis_hoje
+                FROM
+                    arenas a
+                LEFT JOIN quadras q ON a.id = q.arena_id
+                LEFT JOIN quadras_funcionamento qf ON q.id = qf.quadra_id AND qf.dia_semana = :dia_semana_hoje
+                WHERE
+                    a.latitude IS NOT NULL AND a.latitude <> '' AND
+                    a.longitude IS NOT NULL AND a.longitude <> ''
+                GROUP BY
+                    a.id, a.titulo, a.bandeira, a.endereco, a.latitude, a.longitude
+                ORDER BY a.titulo ASC
+            ";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':dia_semana_hoje', $dia_hoje_pt, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar arenas para o mapa: " . $e->getMessage());
+            return [];
+        }
+    }
 }

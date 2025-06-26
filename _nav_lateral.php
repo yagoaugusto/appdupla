@@ -97,7 +97,7 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
         </ul>
       </div>
     </div>
-
+<hr>
 <?php if (isset($_SESSION['DuplaUserTipo']) && ($_SESSION['DuplaUserTipo'] === 'gestor' || $_SESSION['DuplaUserTipo'] === 'super')): ?>
     <!-- Menu Dropdown Quadras -->
     <div class="collapse collapse-arrow">
