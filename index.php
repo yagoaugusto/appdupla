@@ -204,7 +204,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     // Função para lidar com a resposta do Google
     function handleCredentialResponse(response) {
       // Envia o token para o seu backend
-      fetch('social-login-controller.php', {
+      fetch('system-autenticacao/social-login-controller.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
