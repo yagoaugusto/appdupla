@@ -66,8 +66,20 @@ require_once '#_global.php';
                         <!-- Apelido -->
                         <div>
                             <label for="apelido" class="label"><span class="label-text">Apelido</span></label>
-                            <input type="text" id="apelido" name="apelido" placeholder="Seu apelido é gerado em eventos" class="input input-bordered w-full bg-gray-200 force-white-bg" value="<?= htmlspecialchars($usuario['apelido'] ?? '') ?>" readonly />
-                            <div class="label"><span class="label-text-alt">Seu apelido é conquistado em eventos e não pode ser editado.</span></div>
+                            <div class="flex gap-2">
+                                <input type="text" id="apelido" name="apelido"
+                                       placeholder="Escolha um apelido"
+                                       class="input input-bordered w-full force-white-bg cursor-not-allowed bg-gray-100"
+                                       value="<?= htmlspecialchars($usuario['apelido'] ?? '') ?>"
+                                       maxlength="20" required readonly />
+                                <button type="button" id="gerarApelido"
+                                    class="btn btn-outline btn-info whitespace-nowrap">
+                                    🎲 Aleatório
+                                </button>
+                            </div>
+                            <div class="label">
+                                <span class="label-text-alt">Use o botão para gerar um apelido divertido.</span>
+                            </div>
                         </div>
 
                         <!-- E-mail -->
@@ -81,7 +93,7 @@ require_once '#_global.php';
                             <label for="telefone" class="label"><span class="label-text">Telefone (com DDD)</span></label>
                             <input type="tel" id="telefone" name="telefone" placeholder="(99) 99999-9999" class="input input-bordered w-full force-white-bg" value="<?= htmlspecialchars($telefone_exibicao) ?>" pattern="\(\d{2}\) \d{5}-\d{4}" title="O telefone deve estar no formato (99) 99999-9999." />
                         </div>
-                        
+
                         <!-- CPF -->
                         <div>
                             <label for="cpf" class="label"><span class="label-text">CPF</span></label>
@@ -102,6 +114,15 @@ require_once '#_global.php';
                             <select id="empunhadura" name="empunhadura" class="select select-bordered w-full force-white-bg">
                                 <option value="destro" <?= ($usuario['empunhadura'] ?? '') === 'destro' ? 'selected' : '' ?>>Destro</option>
                                 <option value="canhoto" <?= ($usuario['empunhadura'] ?? '') === 'canhoto' ? 'selected' : '' ?>>Canhoto</option>
+                            </select>
+                        </div>
+
+                        <!-- Sexo -->
+                        <div>
+                            <label for="sexo" class="label"><span class="label-text">Sexo</span></label>
+                            <select id="sexo" name="sexo" class="select select-bordered w-full force-white-bg">
+                                <option value="M" <?= ($usuario['sexo'] ?? '') === 'masculino' ? 'selected' : '' ?>>Masculino</option>
+                                <option value="F" <?= ($usuario['sexo'] ?? '') === 'feminino' ? 'selected' : '' ?>>Feminino</option>
                             </select>
                         </div>
                     </div>
@@ -125,7 +146,9 @@ require_once '#_global.php';
         $(document).ready(function() {
             // Aplica máscaras para os campos de telefone e CPF para guiar o usuário
             $('#telefone').mask('(00) 00000-0000');
-            $('#cpf').mask('000.000.000-00', {reverse: true});
+            $('#cpf').mask('000.000.000-00', {
+                reverse: true
+            });
 
             // Lógica para buscar cidades do IBGE e popular o datalist
             $('#cidade').on('input', function() {
@@ -144,7 +167,52 @@ require_once '#_global.php';
                         });
                 }
             });
+
+            // Apelidos pré-definidos
+            const apelidos = [
+                'ReiDaAreia 🌀', 'RainhaDoSol 🌀', 'BrisaNordestina 🎾', 'VentoLitoral 🌴', 'SombraEPraia 💥', 'Salitre 🌀', 'Maresia 🔥',
+                'OndaChegando 😎', 'ChapéuDePalha 🏆', 'SolArretado 🌀', 'SaqueCerteiro 😎', 'DuplaFatal 🌊', 'BackhandVeloz 🌀',
+                'AceNaVeia 🌀', 'AreiaNaRaquete 🔥', 'PegaNaRede 💥', 'MatchDoSol 🎾', 'VoleioNordestino 😎', 'SmashPraiano 🎾',
+                'AreiaNoOlho 🏖️', 'CactoDoBeach 🏖️', 'SolDeFortal 🔥', 'CabraDaPeste 🎾', 'ArretadoNaRede 🎾', 'MandacaruVeloz 💥',
+                'RaqueteDeLampião 🐚', 'AreiaQuente 🔥', 'NordestinoNaRede 💥', 'CearáTopSpin 💥', 'JagunçoDoSaque 🏖️',
+                'CampeãoDasDunas 🌀', 'MedalhaSalina 🌀', 'FinalistaDoLitoral 🏆', 'RaqueteDeOuro 🌴', 'GameSetNordeste 🔥',
+                'RankingArretado 🏖️', 'TopDaPraia 🏖️', 'DuplaDaVez 😎', 'InvencívelNaAreia 🌴', 'TroféuDoSol 🌊',
+                'CaranguejoAtacante 🐚', 'BarraqueiroTático 😎', 'CocoNaRede 🌊', 'SolEReserva 🌴', 'SereiaDoVento 🌴',
+                'TubarãoDaRede 🌊', 'LagostaLob 🏖️', 'CoralDoTopSpin 🌊', 'EstrelaDoMarrom 🌴', 'OuriçoSaqueador 🐚',
+                'AreiaDoCastelo 🏆', 'SolDoRally 🐚', 'SombraDeQuadra 🔥', 'PipaTopSpin 🐚', 'LitoralNaVeia 🌊',
+                'NordesteNoGame 🌊', 'BeachRei 🏆', 'DamaDaDuna 💥', 'LobDeLambada 🌊', 'PasseioNaRede 🐚',
+                'BichoSolto 🏖️', 'MassaDemais 🌀', 'TopZera 🌴', 'ÉoSaque 🏆', 'DoidoDemais 💥',
+                'ArrastadoNoVento 🏖️', 'DaqueleJeito 🌊', 'AveMariaVolley 🔥', 'SolNaCara 🎾', 'ÉNóisNaAreia 🐚',
+                'VidaPraiana 🌴', 'RitmoDoMar 🏖️', 'AreiaNaVeia 💥', 'BiquíniEDupla 🏆', 'VentoNosCabelos 🌊',
+                'SorrisoDoSol 🎾', 'QuadraLivre 🐚', 'CheiroDeMar 🔥', 'DiaDeFinal 🏆', 'DomingãoNaRede 🌀',
+                'ZéDaAreia 🌴', 'TonhoDoSaque 🔥', 'Raqueteira 🐚', 'NegaDaQuadra 🌊', 'SeuLob 🏖️',
+                'TiaDoRanking 🐚', 'DonaSmash 🔥', 'BarracaVip 🏖️', 'ReizinhoDoTorneio 🏆', 'DoutorGame 🌊',
+                'SombraNordestino 🎾', 'RaqueteNordestino 🔥', 'SolNordestino 💥', 'AreiaNordestino 🐚', 'CactoNordestino 🌊',
+                'MandacaruNordestino 🏖️', 'RedeNordestino 🌀', 'LobNordestino 🌴', 'SaqueNordestino 🏆', 'GameNordestino 🏖️',
+                'SombraVeloz 🌊', 'RaqueteVeloz 🎾', 'SolVeloz 🏖️', 'AreiaVeloz 🔥', 'CactoVeloz 🌴',
+                'MandacaruVeloz 🐚', 'RedeVeloz 💥', 'LobVeloz 🌀', 'SaqueVeloz 🏆', 'GameVeloz 🐚',
+                'SombraCabuloso 🌊', 'RaqueteCabuloso 🔥', 'SolCabuloso 🏖️', 'AreiaCabuloso 🌴', 'CactoCabuloso 🎾',
+                'MandacaruCabuloso 🐚', 'RedeCabuloso 🌀', 'LobCabuloso 💥', 'SaqueCabuloso 🏆', 'GameCabuloso 🌊',
+                'SombraArretado 🐚', 'RaqueteArretado 🔥', 'SolArretado 🏖️', 'AreiaArretado 🌴', 'CactoArretado 💥',
+                'MandacaruArretado 🌊', 'RedeArretado 🎾', 'LobArretado 🏆', 'SaqueArretado 🐚', 'GameArretado 🌀',
+                'SombraDaVez 🌴', 'RaqueteDaVez 🌊', 'SolDaVez 🏖️', 'AreiaDaVez 🔥', 'CactoDaVez 🎾',
+                'MandacaruDaVez 💥', 'RedeDaVez 🐚', 'LobDaVez 🏆', 'SaqueDaVez 🏖️', 'GameDaVez 🌊',
+                'SombraNaVeia 💥', 'RaqueteNaVeia 🌊', 'SolNaVeia 🎾', 'AreiaNaVeia 🔥', 'CactoNaVeia 🏖️',
+                'MandacaruNaVeia 🐚', 'RedeNaVeia 🏆', 'LobNaVeia 🌴', 'SaqueNaVeia 💥', 'GameNaVeia 🌊',
+                'SombraDoSol 🏖️', 'RaqueteDoSol 🌴', 'SolDoSol 🌊', 'AreiaDoSol 🎾', 'CactoDoSol 🔥',
+                'MandacaruDoSol 🐚', 'RedeDoSol 🏆', 'LobDoSol 💥', 'SaqueDoSol 🌀', 'GameDoSol 🏖️',
+                'SombraVip 🐚', 'RaqueteVip 🌊', 'SolVip 🎾', 'AreiaVip 💥', 'CactoVip 🔥',
+                'MandacaruVip 🏖️', 'RedeVip 🏆', 'LobVip 🌴', 'SaqueVip 🌀', 'GameVip 🌊',
+                'SombraDoTorneio 🏖️', 'RaqueteDoTorneio 🎾', 'SolDoTorneio 🌴', 'AreiaDoTorneio 🌊', 'CactoDoTorneio 🏆',
+                'MandacaruDoTorneio 🐚', 'RedeDoTorneio 🔥', 'LobDoTorneio 🌀', 'SaqueDoTorneio 💥', 'GameDoTorneio 🌴'
+            ];
+
+            $('#gerarApelido').on('click', function() {
+                const aleatorio = apelidos[Math.floor(Math.random() * apelidos.length)];
+                $('#apelido').val(aleatorio);
+            });
         });
     </script>
 </body>
+
 </html>

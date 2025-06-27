@@ -5,6 +5,24 @@ require_once '#_global.php';
 <html lang="pt-br">
 <?php require_once '_head.php';
 
+// --- VERIFICAÇÃO DE PERFIL COMPLETO ---
+// Garante que o usuário tenha preenchido os dados essenciais antes de usar o sistema.
+$usuario_id_check = $_SESSION['DuplaUserId'];
+$usuario_info_completo = Usuario::getUsuarioInfoById($usuario_id_check);
+
+if (
+    !$usuario_info_completo || // Garante que o usuário foi encontrado
+    empty($usuario_info_completo['telefone']) ||
+    empty($usuario_info_completo['cidade']) ||
+    empty($usuario_info_completo['sexo']) ||
+    empty($usuario_info_completo['empunhadura'])
+) {
+    // A mensagem de erro em perfil.php usa 'alert-error'
+    $_SESSION['mensagem'] = ['error', 'Complete seu cadastro para seguir usando o Dupla.'];
+    header("Location: perfil.php");
+    exit;
+}
+
 $usuario_id = $_SESSION['DuplaUserId'];
 $usuario = Usuario::posicao_usuario($usuario_id);
 

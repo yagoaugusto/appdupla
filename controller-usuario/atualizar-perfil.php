@@ -17,12 +17,14 @@ if (!$usuario_id) {
 
 // 2. Coleta e Sanitização dos Dados do Formulário
 $dados_perfil = [
-    'nome' => filter_input(INPUT_POST, 'nome', FILTER_SANITIZE_STRING),
-    'sobrenome' => filter_input(INPUT_POST, 'sobrenome', FILTER_SANITIZE_STRING),
-    'email' => filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL),
-    'telefone' => '55' . preg_replace('/\D/', '', filter_input(INPUT_POST, 'telefone', FILTER_SANITIZE_STRING)), // Adiciona '55' e remove não-dígitos
-    'cpf' => preg_replace('/\D/', '', filter_input(INPUT_POST, 'cpf', FILTER_SANITIZE_STRING)), // Remove não-dígitos
-    'cidade' => filter_input(INPUT_POST, 'cidade', FILTER_SANITIZE_STRING),
+    'nome'        => filter_input(INPUT_POST, 'nome', FILTER_SANITIZE_STRING),
+    'sobrenome'   => filter_input(INPUT_POST, 'sobrenome', FILTER_SANITIZE_STRING),
+    'apelido'     => filter_input(INPUT_POST, 'apelido', FILTER_SANITIZE_STRING),
+    'sexo'        => filter_input(INPUT_POST, 'sexo', FILTER_SANITIZE_STRING),
+    'email'       => filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL),
+    'telefone'    => '55' . preg_replace('/\D/', '', filter_input(INPUT_POST, 'telefone', FILTER_SANITIZE_STRING)),
+    'cpf'         => preg_replace('/\D/', '', filter_input(INPUT_POST, 'cpf', FILTER_SANITIZE_STRING)),
+    'cidade'      => filter_input(INPUT_POST, 'cidade', FILTER_SANITIZE_STRING),
     'empunhadura' => filter_input(INPUT_POST, 'empunhadura', FILTER_SANITIZE_STRING)
 ];
 
@@ -39,6 +41,19 @@ if ($dados_perfil['email'] === false) {
     exit;
 }
 
+// Validação do apelido
+if (empty($dados_perfil['apelido'])) {
+    $_SESSION['mensagem'] = ['error', 'O apelido é obrigatório.'];
+    header("Location: ../perfil.php");
+    exit;
+}
+
+// Validação do sexo
+$sexos_permitidos = ['M','F'];
+if (!in_array($dados_perfil['sexo'], $sexos_permitidos)) {
+    $dados_perfil['sexo'] = 'M';
+}
+
 if (!empty($dados_perfil['cpf']) && strlen($dados_perfil['cpf']) !== 11) {
     $_SESSION['mensagem'] = ['error', 'O CPF, se preenchido, deve conter 11 dígitos.'];
     header("Location: ../perfil.php");
@@ -47,6 +62,34 @@ if (!empty($dados_perfil['cpf']) && strlen($dados_perfil['cpf']) !== 11) {
 
 if (!in_array($dados_perfil['empunhadura'], ['destro', 'canhoto'])) {
     $dados_perfil['empunhadura'] = 'destro'; // Valor padrão se for inválido
+}
+
+// 3.1. Verifica se e-mail ou telefone já pertencem a OUTRO usuário
+try {
+    $conn = Conexao::pegarConexao();
+    $dup = $conn->prepare("
+        SELECT id
+          FROM usuario
+         WHERE (email = :email OR telefone = :telefone)
+           AND id <> :meu_id
+         LIMIT 1
+    ");
+    $dup->execute([
+        ':email'    => $dados_perfil['email'],
+        ':telefone' => $dados_perfil['telefone'],
+        ':meu_id'   => $usuario_id
+    ]);
+
+    if ($dup->rowCount() > 0) {
+        $_SESSION['mensagem'] = ['error', 'E-mail ou telefone já está em uso por outra conta.'];
+        header("Location: ../perfil.php");
+        exit;
+    }
+} catch (PDOException $e) {
+    error_log("Erro ao checar duplicidade (usuario {$usuario_id}): " . $e->getMessage());
+    $_SESSION['mensagem'] = ['error', 'Erro ao validar dados. Tente novamente.'];
+    header("Location: ../perfil.php");
+    exit;
 }
 
 try {
@@ -59,6 +102,8 @@ try {
         $_SESSION['DuplaUserTelefone'] = $dados_perfil['telefone'];
         $_SESSION['DuplaUserCidade'] = $dados_perfil['cidade'];
         $_SESSION['DuplaUserEmpunhadura'] = $dados_perfil['empunhadura'];
+        $_SESSION['DuplaUserApelido']  = $dados_perfil['apelido'];
+        $_SESSION['DuplaUserSexo']     = $dados_perfil['sexo'];
 
         $_SESSION['mensagem'] = ['success', 'Perfil atualizado com sucesso!'];
     } else {

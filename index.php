@@ -193,7 +193,6 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     </form>
     <div class="link-cadastro">
       <p>Não tem conta? <a href="cadastrar.php" class="btn-discreto btn-cadastro">Cadastre-se aqui</a></p>
-      <br><br>
       <p><a href="recuperar-senha.php" class="btn-discreto btn-esqueci-senha">Esqueci minha senha ):</a></p>
     </div>
   </div>

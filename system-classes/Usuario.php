@@ -12,9 +12,19 @@ class Usuario
      */
     public static function updateUsuarioInfo($usuario_id, $dados)
     {
-        // Lista de campos permitidos para atualização para evitar injeção de colunas
-        // 'apelido' foi removido pois não é editável pelo usuário.
-        $allowed_fields = ['nome', 'sobrenome', 'email', 'telefone', 'cpf', 'cidade', 'empunhadura'];
+        // Lista de campos permitidos para atualização.
+        // Agora o usuário pode alterar 'apelido' e 'sexo'.
+        $allowed_fields = [
+            'nome',
+            'sobrenome',
+            'apelido',
+            'sexo',
+            'email',
+            'telefone',
+            'cpf',
+            'cidade',
+            'empunhadura'
+        ];
         
         $set_parts = [];
         $params = [];
@@ -38,7 +48,9 @@ class Usuario
             $conn = Conexao::pegarConexao();
             $stmt = $conn->prepare($sql);
             $stmt->execute($params);
-            return $stmt->rowCount() > 0; // Retorna true se alguma linha foi afetada
+            // Considera sucesso se a query executou sem exceção,
+            // mesmo que nenhuma coluna tenha mudado (rowCount == 0).
+            return true;
         } catch (PDOException $e) {
             // Loga o erro para depuração, especialmente útil para erros de chave única (ex: e-mail duplicado)
             error_log("Erro ao atualizar informações do usuário (ID: $usuario_id): " . $e->getMessage());
@@ -948,8 +960,8 @@ WHERE u.id ={$id}";
     public static function getUsuarioInfoById($usuario_id)
     {
         try {
-            $conn = Conexao::pegarConexao(); // Certifique-se de que as colunas 'email', 'telefone' e 'cpf' existem na sua tabela 'usuario'
-            $stmt = $conn->prepare("SELECT id, nome, sobrenome, apelido, sexo, rating, email, telefone, cpf, cidade FROM usuario WHERE id = ?");
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("SELECT id, nome, sobrenome, apelido, sexo, rating, email, telefone, cpf, cidade, empunhadura FROM usuario WHERE id = ?");
             $stmt->execute([$usuario_id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
