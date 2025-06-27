@@ -3,7 +3,7 @@
 $paginas_torneio = ['criar-torneio.php', 'meus-torneios.php', 'encontrar-torneio.php', 'gerenciar-torneio.php'];
 $is_pagina_torneio_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_torneio);
 
-$paginas_central_dupla = ['dupla.php', 'hist-partidas.php', 'ranking-geral.php']; // Adicionado hist-partidas e ranking-geral
+$paginas_central_dupla = ['dupla.php', 'hist-partidas.php', 'ranking-geral.php', 'mvp.php']; // Adicionado hist-partidas e ranking-geral
 $is_pagina_central_dupla_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_central_dupla);
 
 // Novas páginas para o menu Quadras
@@ -44,6 +44,7 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
           <li><a href="hist-partidas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'hist-partidas.php' ? 'active' : '' ?>">Partidas</a></li>
           <li><a href="ranking-geral.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'ranking-geral.php' ? 'active' : '' ?>">Ranking</a></li>
           <li><a href="dupla.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'dupla.php' ? 'active' : '' ?>">Central DUPLA</a></li>
+          <li><a href="mvp.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'mpv.php' ? 'active' : '' ?>">MVP Player</a></li>
           <li><a href="#" class="text-gray-700 px-3 py-1.5">Conquistas</a></li>
         </ul>
       </div>
