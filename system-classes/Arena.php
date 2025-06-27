@@ -358,31 +358,46 @@ class Arena
      *
      * @return array Retorna uma lista de arenas com seus dados e a contagem de horários.
      */
-    public static function getArenasComHorariosParaMapa() {
+    public static function getArenasComHorariosParaMapa($data_selecionada, $hora_inicio, $hora_fim) {
         try {
             $conn = Conexao::pegarConexao();
 
-            // Mapeia os nomes dos dias da semana em inglês para as chaves usadas no banco de dados
+            // Mapeia o número do dia da semana (1=Segunda, 7=Domingo) para as chaves usadas no banco de dados
+            $data_obj = new DateTime($data_selecionada);
+            $dia_semana_num = $data_obj->format('N'); // 1 (Monday) through 7 (Sunday)
             $dias_semana_map = [
-                'Monday'    => 'segunda',
-                'Tuesday'   => 'terca',
-                'Wednesday' => 'quarta',
-                'Thursday'  => 'quinta',
-                'Friday'    => 'sexta',
-                'Saturday'  => 'sabado',
-                'Sunday'    => 'domingo'
+                1 => 'segunda',
+                2 => 'terca',
+                3 => 'quarta',
+                4 => 'quinta',
+                5 => 'sexta',
+                6 => 'sabado',
+                7 => 'domingo'
             ];
-            $dia_hoje_en = date('l'); // Obtém o nome do dia da semana em inglês (ex: 'Monday')
-            $dia_hoje_pt = $dias_semana_map[$dia_hoje_en];
+            $dia_semana_pt = $dias_semana_map[$dia_semana_num];
 
             $sql = "
                 SELECT
-                    a.id, a.titulo, a.bandeira, a.endereco, a.latitude, a.longitude,
-                    COUNT(qf.id) as horarios_disponiveis_hoje
+                    a.id,
+                    a.titulo,
+                    a.bandeira,
+                    a.endereco,
+                    a.latitude,
+                    a.longitude,
+                    COUNT(CASE WHEN aq.id IS NULL THEN qf.id ELSE NULL END) AS horarios_disponiveis_hoje
                 FROM
                     arenas a
-                LEFT JOIN quadras q ON a.id = q.arena_id
-                LEFT JOIN quadras_funcionamento qf ON q.id = qf.quadra_id AND qf.dia_semana = :dia_semana_hoje
+                JOIN
+                    quadras q ON a.id = q.arena_id
+                LEFT JOIN
+                    quadras_funcionamento qf ON q.id = qf.quadra_id
+                    AND qf.dia_semana = :dia_semana_pt
+                    AND qf.hora_inicio >= :hora_inicio
+                    AND qf.hora_inicio < :hora_fim -- Assumindo slots de 1 hora, hora_fim é exclusivo
+                LEFT JOIN
+                    agenda_quadras aq ON qf.quadra_id = aq.quadra_id
+                    AND qf.hora_inicio = aq.hora_inicio
+                    AND aq.data = :data_selecionada
                 WHERE
                     a.latitude IS NOT NULL AND a.latitude <> '' AND
                     a.longitude IS NOT NULL AND a.longitude <> ''
@@ -392,7 +407,10 @@ class Arena
             ";
 
             $stmt = $conn->prepare($sql);
-            $stmt->bindValue(':dia_semana_hoje', $dia_hoje_pt, PDO::PARAM_STR);
+            $stmt->bindValue(':dia_semana_pt', $dia_semana_pt, PDO::PARAM_STR);
+            $stmt->bindValue(':hora_inicio', $hora_inicio, PDO::PARAM_STR);
+            $stmt->bindValue(':hora_fim', $hora_fim, PDO::PARAM_STR);
+            $stmt->bindValue(':data_selecionada', $data_selecionada, PDO::PARAM_STR);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

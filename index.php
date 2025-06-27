@@ -180,6 +180,16 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       </label>
       </div><br>
       <button type="submit">Entrar</button>
+
+      <!-- Divisor "ou" -->
+      <div style="display: flex; align-items: center; text-align: center; color: #aaa; margin: 20px 0;">
+        <div style="flex-grow: 1; border-bottom: 1px solid #ddd;"></div>
+        <span style="padding: 0 10px; font-size: 14px;">ou</span>
+        <div style="flex-grow: 1; border-bottom: 1px solid #ddd;"></div>
+      </div>
+
+      <!-- Botão de Login do Google -->
+      <div id="google-signin-button" style="display: flex; justify-content: center;"></div>
     </form>
     <div class="link-cadastro">
       <p>Não tem conta? <a href="cadastrar.php" class="btn-discreto btn-cadastro">Cadastre-se aqui</a></p>
@@ -187,5 +197,47 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       <p><a href="recuperar-senha.php" class="btn-discreto btn-esqueci-senha">Esqueci minha senha ):</a></p>
     </div>
   </div>
+
+  <!-- Scripts para Login Social -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+    // Função para lidar com a resposta do Google
+    function handleCredentialResponse(response) {
+      // Envia o token para o seu backend
+      fetch('social-login-controller.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: response.credential, provider: 'google' }),
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // Redireciona para a página principal em caso de sucesso
+          window.location.href = 'principal.php';
+        } else {
+          // Exibe uma mensagem de erro
+          alert('Erro no login com Google: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Erro na comunicação com o backend:', error);
+        alert('Não foi possível conectar ao servidor. Tente novamente.');
+      });
+    }
+
+    // Inicialização do Google Sign-In
+    window.onload = function () {
+      google.accounts.id.initialize({
+        client_id: "718722463767-kadfm0scdru0blvhkfd61mdij55rgo6b.apps.googleusercontent.com", // 🚨 SUBSTITUA PELO SEU CLIENT ID DO GOOGLE
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.renderButton(
+        document.getElementById("google-signin-button"),
+        { theme: "outline", size: "large", width: "338" } // Personalize a aparência do botão
+      );
+    };
+  </script>
 </body>
 </html>
