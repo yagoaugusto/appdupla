@@ -295,15 +295,24 @@ class InscricaoTorneio
      * @param int $inscricao_id O ID da inscrição.
      * @param int $usuario_id O ID do usuário cujo pagamento será atualizado.
      * @param string $novo_status O novo status de pagamento ('pendente', 'pago', 'cancelado').
+     * @param string|null $mp_payment_id O ID do pagamento do Mercado Pago (opcional).
      * @return bool True se a atualização foi bem-sucedida, false caso contrário.
      */
-    public static function updatePagamentoStatus($inscricao_id, $usuario_id, $novo_status)
+    public static function updatePagamentoStatus($inscricao_id, $usuario_id, $novo_status, $mp_payment_id = null)
     {
         try {
             $conn = Conexao::pegarConexao();
-            $stmt = $conn->prepare("UPDATE torneio_pagamentos SET status_pagamento = ?, data_pagamento = NOW() WHERE inscricao_id = ? AND usuario_id = ?");
-            $stmt->execute([$novo_status, $inscricao_id, $usuario_id]);
-            return $stmt->rowCount() > 0;
+            $sql = "UPDATE torneio_pagamentos SET status_pagamento = ?, data_pagamento = NOW()";
+            $params = [$novo_status];
+            if ($mp_payment_id !== null) {
+                $sql .= ", mp_payment_id = ?";
+                $params[] = $mp_payment_id;
+            }
+            $sql .= " WHERE inscricao_id = ? AND usuario_id = ?";
+            $params[] = $inscricao_id;
+            $params[] = $usuario_id;
+            $stmt = $conn->prepare($sql);
+            return $stmt->execute($params);
         } catch (PDOException $e) {
             error_log("Erro ao atualizar status de pagamento: " . $e->getMessage());
             return false;

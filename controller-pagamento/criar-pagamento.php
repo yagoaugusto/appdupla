@@ -133,9 +133,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ],
             "auto_return" => "approved",
             "payment_methods" => [
-                "excluded_payment_types" => [
-                    ["id" => ($metodo_pagamento === 'pix' ? "credit_card" : "ticket")] // Exclui o outro método
-                ],
+                // Lógica de exclusão aprimorada para mostrar apenas o método selecionado
+                "excluded_payment_types" => ($metodo_pagamento === 'pix')
+                    ? [ // Se for PIX, exclui cartão e boleto
+                        ["id" => "credit_card"],
+                        ["id" => "ticket"]
+                      ]
+                    : [ // Se for Cartão, exclui pix e boleto
+                        ["id" => "pix"],
+                        ["id" => "ticket"]
+                      ],
                 "installments" => 1 // Apenas 1 parcela para Pix/Cartão à vista
             ]
         ];

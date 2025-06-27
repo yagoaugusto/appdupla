@@ -11,80 +11,74 @@ $arenas = Quadras::getArenasDoGestor($usuario_id);
 
 // Filtros e Navegação
 $arena_id_selecionada = filter_input(INPUT_GET, 'arena_id', FILTER_VALIDATE_INT);
-$quadra_id_selecionada = filter_input(INPUT_GET, 'quadra_id', FILTER_VALIDATE_INT);
-$offset_semana = filter_input(INPUT_GET, 'semana', FILTER_VALIDATE_INT) ?? 0;
+$data_selecionada_str = filter_input(INPUT_GET, 'data', FILTER_SANITIZE_STRING);
 
-// Popula o dropdown de quadras se uma arena foi selecionada
-$quadras = [];
+$data_selecionada = new DateTime($data_selecionada_str ?? 'now', new DateTimeZone('America/Sao_Paulo'));
+
+// --- BUSCA DE DADOS ---
+$quadras_da_arena = [];
+$grade_horarios_diaria = [];
 if ($arena_id_selecionada) {
-  $quadras = Quadras::getQuadrasPorArena($arena_id_selecionada);
-}
+    $quadras_da_arena = Quadras::getQuadrasPorArena($arena_id_selecionada);
 
-// --- CÁLCULO DA SEMANA ATUAL ---
-$hoje = new DateTime('now', new DateTimeZone('America/Sao_Paulo'));
-if ($offset_semana !== 0) {
-  $hoje->modify(($offset_semana > 0 ? '+' : '') . ($offset_semana * 7) . ' days');
-}
-$dia_da_semana_num = $hoje->format('N'); // 1 (Segunda) a 7 (Domingo)
-$inicio_semana = clone $hoje;
-$inicio_semana->modify('-' . ($dia_da_semana_num - 1) . ' days');
+    if (!empty($quadras_da_arena)) {
+        $ids_quadras = array_column($quadras_da_arena, 'id');
 
-$dias_da_semana_obj = [];
-for ($i = 0; $i < 7; $i++) {
-  $dia = clone $inicio_semana;
-  $dia->modify("+$i days");
-  $dias_da_semana_obj[] = $dia;
-}
+        // Determina o dia da semana para a consulta de funcionamento
+        $mapa_dias_semana = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
+        $dia_semana_num = $data_selecionada->format('N') - 1; // 0 para Segunda, 6 para Domingo
+        $dia_semana_key = $mapa_dias_semana[$dia_semana_num];
 
-// --- BUSCA DE DADOS (COM DADOS MOCK PARA EXEMPLO) ---
-$grade_horarios = [];
-if ($quadra_id_selecionada) {
-  // 1. Buscar horários de funcionamento da quadra
-  $horarios_funcionamento = Quadras::getFuncionamentoQuadra($quadra_id_selecionada);
+        // Busca os horários de funcionamento de todas as quadras para o dia selecionado
+        $horarios_funcionamento = Quadras::getFuncionamentoMultiplasQuadrasPorDia($ids_quadras, $dia_semana_key);
+        $horarios_funcionamento_map = [];
+        foreach ($horarios_funcionamento as $hf) {
+            $horarios_funcionamento_map[$hf['quadra_id']][substr($hf['hora_inicio'], 0, 5)] = true;
+        }
 
-  // 2. Buscar agendamentos existentes para a semana
-  $agendamentos = Agendamento::getAgendamentosPorQuadraNoPeriodo(
-    $quadra_id_selecionada,
-    $dias_da_semana_obj[0]->format('Y-m-d'),
-    $dias_da_semana_obj[6]->format('Y-m-d')
-  );
+        $ids_quadras = array_column($quadras_da_arena, 'id');
+        $placeholders = implode(',', array_fill(0, count($ids_quadras), '?'));
 
-  // Monta a grade final para a view
-  $mapa_dias_semana = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
-  for ($h = 6; $h < 23; $h++) {
-    $hora_str = sprintf("%02d:00", $h);
-    foreach ($mapa_dias_semana as $dia_key) {
-      $grade_horarios[$hora_str][$dia_key] = ['status' => 'fechado']; // Default para fechado
+        // Busca todos os agendamentos de todas as quadras da arena para o dia selecionado
+        $conn = Conexao::pegarConexao();
+        $stmt = $conn->prepare("SELECT * FROM agenda_quadras WHERE quadra_id IN ($placeholders) AND data = ?");
+        $params = array_merge($ids_quadras, [$data_selecionada->format('Y-m-d')]);
+        $stmt->execute($params);
+        $agendamentos_do_dia = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Organiza os agendamentos por quadra e hora
+        $agendamentos_map = [];
+        foreach ($agendamentos_do_dia as $ag) {
+            $hora_key = substr($ag['hora_inicio'], 0, 5);
+            $agendamentos_map[$ag['quadra_id']][$hora_key] = $ag;
+        }
+
+        // Monta a grade final
+        for ($h = 6; $h < 23; $h++) {
+            $hora_str = sprintf("%02d:00", $h);
+            foreach ($quadras_da_arena as $quadra) {
+                $quadra_id = $quadra['id'];
+                if (isset($agendamentos_map[$quadra_id][$hora_str])) {
+                    $ag = $agendamentos_map[$quadra_id][$hora_str];
+                    $grade_horarios_diaria[$hora_str][$quadra_id] = ['status' => 'agendado', 'tipo' => $ag['status'], 'details' => $ag];
+                } else {
+                    if (isset($horarios_funcionamento_map[$quadra_id][$hora_str])) {
+                        $grade_horarios_diaria[$hora_str][$quadra_id] = ['status' => 'disponivel'];
+                    } else {
+                        $grade_horarios_diaria[$hora_str][$quadra_id] = ['status' => 'fechado'];
+                    }
+                }
+            }
+        }
     }
-  }
-  foreach ($horarios_funcionamento as $hf) {
-    $hora = substr($hf['hora_inicio'], 0, 5);
-    $dia = $hf['dia_semana'];
-    if (isset($grade_horarios[$hora][$dia])) {
-      $grade_horarios[$hora][$dia] = ['status' => 'disponivel'];
-    }
-  }
-  foreach ($agendamentos as $ag) {
-    $hora = substr($ag['hora_inicio'], 0, 5);
-    $data_ag = new DateTime($ag['data']);
-    // Ajusta o dia da semana para o índice do array (0=segunda, 6=domingo)
-    // DateTime::format('N') retorna 1 para segunda, 7 para domingo.
-    // Subtraímos 1 para alinhar com o array $mapa_dias_semana.
-    $dia_semana_num = ($data_ag->format('N') == 7) ? 6 : ($data_ag->format('N') - 1);
-    $dia_key = $mapa_dias_semana[$dia_semana_num];
-    if (isset($grade_horarios[$hora][$dia_key])) {
-      $grade_horarios[$hora][$dia_key] = ['status' => 'agendado', 'tipo' => $ag['status'], 'details' => $ag];
-    }
-  }
 }
 
 // Mapeamento de tipos de agendamento para estilos CSS
 $estilos_tipo = [
-  'reservado' => 'bg-blue-200 border-blue-400 text-blue-800',
-  'bloqueado' => 'bg-gray-300 border-gray-500 text-gray-800',
-  'aula' => 'bg-yellow-200 border-yellow-400 text-yellow-800',
-  'dayuse' => 'bg-purple-200 border-purple-400 text-purple-800',
-  'manutencao' => 'bg-red-200 border-red-400 text-red-800',
+    'reservado' => 'bg-blue-200 border-blue-400 text-blue-800',
+    'bloqueado' => 'bg-gray-300 border-gray-500 text-gray-800',
+    'aula' => 'bg-yellow-200 border-yellow-400 text-yellow-800',
+    'dayuse' => 'bg-purple-200 border-purple-400 text-purple-800',
 ];
 ?>
 
@@ -100,10 +94,10 @@ $estilos_tipo = [
     <!-- Conteúdo principal -->
     <main class="flex-1 p-4 sm:p-6">
       <section class="max-w-7xl mx-auto w-full">
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight mb-6">Agenda de Quadras</h1>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight mb-6">Agenda Diária por Arena</h1>
 
         <!-- Filtros -->
-        <form method="GET" action="agendamento-quadra.php" class="bg-white p-4 rounded-xl shadow-md border border-gray-200 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+        <form method="GET" action="agenda-diaria.php" class="bg-white p-4 rounded-xl shadow-md border border-gray-200 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
           <div class="form-control">
             <label class="label"><span class="label-text">Arena</span></label>
             <select name="arena_id" class="select select-bordered" onchange="this.form.submit()">
@@ -114,32 +108,20 @@ $estilos_tipo = [
             </select>
           </div>
           <div class="form-control">
-            <label class="label"><span class="label-text">Quadra</span></label>
-            <select name="quadra_id" class="select select-bordered" onchange="this.form.submit()" <?= !$arena_id_selecionada ? 'disabled' : '' ?>>
-              <option value="">Selecione uma Quadra</option>
-              <?php foreach ($quadras as $quadra): ?>
-                <option value="<?= $quadra['id'] ?>" <?= ($quadra_id_selecionada == $quadra['id']) ? 'selected' : '' ?>><?= htmlspecialchars($quadra['nome']) ?></option>
-              <?php endforeach; ?>
-            </select>
+            <label class="label"><span class="label-text">Data</span></label>
+            <input type="date" name="data" class="input input-bordered" value="<?= $data_selecionada->format('Y-m-d') ?>" onchange="this.form.submit()">
           </div>
         </form>
 
-        <?php if ($quadra_id_selecionada): ?>
-          <!-- Navegação da Semana e Legenda -->
+        <?php if ($arena_id_selecionada): ?>
+          <!-- Navegação do Dia e Legenda -->
           <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
             <div class="flex items-center gap-2">
-              <a href="?arena_id=<?= $arena_id_selecionada ?>&quadra_id=<?= $quadra_id_selecionada ?>&semana=<?= $offset_semana - 1 ?>" class="btn btn-outline btn-sm">&larr; Anterior</a>
-              <a href="?arena_id=<?= $arena_id_selecionada ?>&quadra_id=<?= $quadra_id_selecionada ?>&semana=0" class="btn btn-outline btn-sm">Hoje</a>
-              <a href="?arena_id=<?= $arena_id_selecionada ?>&quadra_id=<?= $quadra_id_selecionada ?>&semana=<?= $offset_semana + 1 ?>" class="btn btn-outline btn-sm">Próxima &rarr;</a>
+              <a href="?arena_id=<?= $arena_id_selecionada ?>&data=<?= (clone $data_selecionada)->modify('-1 day')->format('Y-m-d') ?>" class="btn btn-outline btn-sm">&larr; Anterior</a>
+              <a href="?arena_id=<?= $arena_id_selecionada ?>&data=<?= (new DateTime())->format('Y-m-d') ?>" class="btn btn-outline btn-sm">Hoje</a>
+              <a href="?arena_id=<?= $arena_id_selecionada ?>&data=<?= (clone $data_selecionada)->modify('+1 day')->format('Y-m-d') ?>" class="btn btn-outline btn-sm">Próximo &rarr;</a>
             </div>
-            <a href="agenda-diaria.php?arena_id=<?= $arena_id_selecionada ?>" class="btn btn-sm btn-outline">
-              Ver Visão Diária &rarr;
-            </a>
-            <div class="flex flex-wrap gap-2 text-xs">
-              <?php foreach ($estilos_tipo as $tipo => $estilo): ?>
-                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full <?= explode(' ', $estilo)[0] ?>"></span><?= ucfirst($tipo) ?></div>
-              <?php endforeach; ?>
-            </div>
+            <a href="agendamento-quadra.php?arena_id=<?= $arena_id_selecionada ?>" class="btn btn-sm btn-outline">Ver Visão Semanal &rarr;</a>
           </div>
 
           <!-- Grade de Horários -->
@@ -148,11 +130,8 @@ $estilos_tipo = [
               <thead class="text-sm">
                 <tr>
                   <th class="w-24">Horário</th>
-                  <?php foreach ($dias_da_semana_obj as $dia): ?>
-                    <th>
-                      <?= ucfirst(strftime('%a', $dia->getTimestamp())) ?><br>
-                      <span class="font-normal text-gray-500"><?= $dia->format('d/m') ?></span>
-                    </th>
+                  <?php foreach ($quadras_da_arena as $quadra): ?>
+                    <th><?= htmlspecialchars($quadra['nome']) ?></th>
                   <?php endforeach; ?>
                 </tr>
               </thead>
@@ -162,27 +141,27 @@ $estilos_tipo = [
                 ?>
                   <tr>
                     <th class="text-xs sm:text-sm"><?= $hora_atual ?></th>
-                    <?php foreach ($mapa_dias_semana as $i => $dia_key):
-                      $slot = $grade_horarios[$hora_atual][$dia_key] ?? ['status' => 'fechado'];
-                      $data_slot = $dias_da_semana_obj[$i]->format('Y-m-d');
+                    <?php foreach ($quadras_da_arena as $quadra):
+                      $quadra_id = $quadra['id'];
+                      $slot = $grade_horarios_diaria[$hora_atual][$quadra_id] ?? ['status' => 'fechado'];
                       $classes_slot = 'p-1 sm:p-2 border-t border-x text-xs h-20';
                       $conteudo_slot = '';
 
                       if ($slot['status'] === 'disponivel') {
-                        $classes_slot .= ' bg-green-50 hover:bg-green-200 cursor-pointer transition-colors slot-disponivel select-none';
-                        $conteudo_slot = '<span class="text-green-600 font-semibold">Disponível</span>';
+                          $classes_slot .= ' bg-green-50 hover:bg-green-200 cursor-pointer transition-colors slot-disponivel select-none';
+                          $conteudo_slot = '<span class="text-green-600 font-semibold">Disponível</span>';
                       } elseif ($slot['status'] === 'agendado') {
-                        $tipo = $slot['tipo'];
-                        $estilo = $estilos_tipo[$tipo] ?? 'bg-gray-200';
-                        $classes_slot .= ' ' . $estilo . ' slot-agendado cursor-pointer';
-                        $conteudo_slot = '<div class="font-bold">' . ucfirst($tipo) . '</div>';
-                        $conteudo_slot .= '<div class="truncate text-xs">' . htmlspecialchars($slot['details']['cliente_nome'] ?? $slot['details']['observacoes'] ?? '') . '</div>';
+                          $tipo = $slot['tipo'];
+                          $estilo = $estilos_tipo[$tipo] ?? 'bg-gray-200';
+                          $classes_slot .= ' ' . $estilo . ' slot-agendado cursor-pointer';
+                          $conteudo_slot = '<div class="font-bold">' . ucfirst($tipo) . '</div>';
+                          $conteudo_slot .= '<div class="truncate text-xs">' . htmlspecialchars($slot['details']['cliente_nome'] ?? $slot['details']['observacoes'] ?? '') . '</div>';
                       } else { // Fechado
-                        $classes_slot .= ' bg-gray-100';
+                          $classes_slot .= ' bg-gray-100';
                       }
                     ?>
-                      <td class="<?= $classes_slot ?>" data-quadra-id="<?= $quadra_id_selecionada ?>" data-data="<?= $data_slot ?>" data-hora="<?= $hora_atual ?>"
-                        data-agendamento-id="<?= $slot['details']['id'] ?? '' ?>">
+                      <td class="<?= $classes_slot ?>" data-quadra-id="<?= $quadra_id ?>" data-data="<?= $data_selecionada->format('Y-m-d') ?>" data-hora="<?= $hora_atual ?>"
+                          data-agendamento-id="<?= $slot['details']['id'] ?? '' ?>">
                         <?= $conteudo_slot ?>
                       </td>
                     <?php endforeach; ?>
@@ -193,11 +172,9 @@ $estilos_tipo = [
           </div>
         <?php else: ?>
           <div class="text-center bg-white p-8 rounded-xl shadow-md border border-gray-200">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">Selecione uma arena e quadra</h3>
-            <p class="mt-1 text-sm text-gray-500">Escolha uma arena e uma quadra nos filtros acima para visualizar a agenda.</p>
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Selecione uma arena</h3>
+            <p class="mt-1 text-sm text-gray-500">Escolha uma arena no filtro acima para visualizar a agenda diária.</p>
           </div>
         <?php endif; ?>
       </section>
@@ -219,7 +196,8 @@ $estilos_tipo = [
       <h3 id="modalTitle" class="font-bold text-lg">Novo Agendamento</h3>
       <form id="formAgendamento" method="POST" action="controller-agendamento/salvar-agendamento.php" class="py-4 space-y-4">
         <input type="hidden" name="arena_id" value="<?= htmlspecialchars($arena_id_selecionada) ?>">
-        <input type="hidden" name="quadra_id_selecionada" value="<?= htmlspecialchars($quadra_id_selecionada) ?>">
+        <!-- O quadra_id_selecionada será definido dinamicamente no JS para cada slot -->
+        <input type="hidden" name="quadra_id_selecionada" id="modalQuadraIdInput">
         <input type="hidden" name="selected_slots" id="selectedSlotsInput">
 
         <div class="form-control">
@@ -236,7 +214,6 @@ $estilos_tipo = [
           <input type="text" id="searchUsuarioInput" placeholder="Busque por nome, apelido ou CPF" class="input input-bordered w-full">
           <input type="hidden" name="usuario_id" id="selectedUsuarioId">
           <div id="selectedUserNameDisplay" class="text-sm text-gray-600 mt-1"></div>
-          <!-- Container para os resultados da busca, posicionado em relação a este div -->
           <div id="usuarioSearchResults" class="absolute top-full left-0 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-48 overflow-y-auto hidden z-30">
             <!-- Resultados da busca serão inseridos aqui via JS -->
           </div>
@@ -268,6 +245,7 @@ $estilos_tipo = [
     </div>
     <form method="dialog" class="modal-backdrop"><button>close</button></form>
   </dialog>
+
   <!-- Modal de Confirmação de Cancelamento -->
   <dialog id="modalConfirmacaoCancelamento" class="modal">
     <div class="modal-box">
@@ -284,16 +262,10 @@ $estilos_tipo = [
   <script>
     // Função global para lidar com o clique no botão de cancelar.
     function handleCancelClick(buttonElement) {
-      let agendamentoId = buttonElement.dataset.agendamentoId;
-
-      if (!agendamentoId || agendamentoId === 'undefined' || agendamentoId === '-') {
-        const modal = document.getElementById('modalVerAgendamento');
-        agendamentoId = modal.querySelector('[data-agendamento-id]')?.dataset.agendamentoId;
-
-        if (!agendamentoId || agendamentoId === 'undefined' || agendamentoId === '-') {
-          alert('Erro: Não foi possível identificar o agendamento para cancelamento.');
-          return;
-        }
+      const agendamentoId = buttonElement.dataset.agendamentoId;
+      if (!agendamentoId) {
+        alert('Erro: Não foi possível identificar o agendamento para cancelamento.');
+        return;
       }
 
       const modalConfirm = document.getElementById('modalConfirmacaoCancelamento');
@@ -316,6 +288,11 @@ $estilos_tipo = [
             body: JSON.stringify({ agendamento_id: agendamentoId })
           });
 
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`O servidor respondeu com um erro: ${response.status}. Detalhes: ${errorText}`);
+          }
+
           const result = await response.json();
 
           if (result.success) {
@@ -328,9 +305,10 @@ $estilos_tipo = [
           }
         } catch (error) {
           console.error('Erro ao cancelar agendamento:', error);
-          alert('Erro ao cancelar agendamento. Verifique o console para mais detalhes.');
+          alert('Ocorreu um erro de comunicação ao tentar cancelar. Verifique o console para mais detalhes.');
         }
       });
+
       const agendaTableBody = document.querySelector('table tbody');
       const floatingBar = document.getElementById('floatingActionBar');
       const selectedCountSpan = document.getElementById('selectedCount');
@@ -340,9 +318,10 @@ $estilos_tipo = [
       const selectedSlotsInput = document.getElementById('selectedSlotsInput');
       const modalVerAgendamento = document.getElementById('modalVerAgendamento');
       const viewAgendamentoContent = document.getElementById('viewAgendamentoContent');
-      const btnCancelarAgendamento = document.getElementById('btnCancelarAgendamento'); // A variável ainda é necessária para atribuir o data-agendamento-id
+      const btnCancelarAgendamento = document.getElementById('btnCancelarAgendamento');
+      const modalQuadraIdInput = document.getElementById('modalQuadraIdInput'); // Novo input para quadra_id no modal
 
-      let selectedSlots = new Set();
+      let selectedSlots = new Set(); // Armazena identificadores únicos: "quadraId_data_hora"
 
       function updateFloatingBar() {
         const count = selectedSlots.size;
@@ -366,8 +345,13 @@ $estilos_tipo = [
         const td = event.target.closest('td');
         if (!td) return;
 
+        const quadraId = td.dataset.quadraId;
+        const data = td.dataset.data;
+        const hora = td.dataset.hora;
+        const agendamentoId = td.dataset.agendamentoId;
+
         if (td.classList.contains('slot-disponivel')) {
-          const slotIdentifier = `${td.dataset.data}_${td.dataset.hora}`;
+          const slotIdentifier = `${quadraId}_${data}_${hora}`;
           if (selectedSlots.has(slotIdentifier)) {
             selectedSlots.delete(slotIdentifier);
             td.classList.remove('slot-selecionado', 'bg-yellow-300', 'border-yellow-500');
@@ -377,24 +361,18 @@ $estilos_tipo = [
           }
           updateFloatingBar();
         } else if (td.classList.contains('slot-agendado')) {
-          const agendamentoId = td.dataset.agendamentoId;
           if (agendamentoId) {
-            // Mostrar o modal com um estado de carregamento
             viewAgendamentoContent.innerHTML = `<div class="text-center"><span class="loading loading-spinner loading-lg"></span><p class="mt-2">Carregando detalhes...</p></div>`;
             modalVerAgendamento.showModal();
 
-            // Armazena o ID do agendamento no botão de cancelar para uso posterior
-            // Certifique-se que btnCancelarAgendamento está correto e visível no escopo
             btnCancelarAgendamento.dataset.agendamentoId = agendamentoId;
 
-            // Fazer a chamada AJAX para buscar os detalhes
             fetch(`controller-agendamento/get-agendamento-details.php?id=${agendamentoId}`)
               .then(response => response.json())
               .then(result => {
                 if (result.success) {
                   const agendamento = result.data;
-                  
-                  // Formatar dados para exibição
+
                   const dataFormatada = new Date(agendamento.data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
                   const horaInicio = agendamento.hora_inicio.substring(0, 5);
                   const horaFim = agendamento.hora_fim.substring(0, 5);
@@ -408,8 +386,8 @@ $estilos_tipo = [
                     }
                   }
 
-                  const observacoesInfo = agendamento.observacoes 
-                    ? `<div class="pt-2 mt-2 border-t"><strong>Observações:</strong><p class="text-gray-600 bg-gray-50 p-2 rounded-md mt-1">${agendamento.observacoes.replace(/\n/g, '<br>')}</p></div>` 
+                  const observacoesInfo = agendamento.observacoes
+                    ? `<div class="pt-2 mt-2 border-t"><strong>Observações:</strong><p class="text-gray-600 bg-gray-50 p-2 rounded-md mt-1">${agendamento.observacoes.replace(/\n/g, '<br>')}</p></div>`
                     : '';
 
                   viewAgendamentoContent.innerHTML = `
@@ -442,17 +420,21 @@ $estilos_tipo = [
           return;
         }
         const slotsData = Array.from(selectedSlots).map(id => {
-          const [data, hora] = id.split('_');
-          return {
-            data,
-            hora
-          };
+          const [quadraId, data, hora] = id.split('_');
+          return { quadraId, data, hora };
         });
-        selectedSlotsInput.value = JSON.stringify(slotsData);
+
+        // Para o modal de agendamento, precisamos de um quadra_id para o formulário.
+        // Como estamos agendando múltiplos slots, o controller vai iterar sobre eles.
+        // O quadra_id_selecionada no formulário será o ID da primeira quadra selecionada.
+        // O controller `salvar-agendamento.php` já está preparado para receber `quadra_id_selecionada`
+        // e `selected_slots` (que contém o quadraId para cada slot).
+        modalQuadraIdInput.value = slotsData[0].quadraId;
+        selectedSlotsInput.value = JSON.stringify(slotsData.map(s => ({ data: s.data, hora: s.hora, quadra_id: s.quadraId })));
         modalAgendamento.showModal();
       });
 
-     // --- Lógica de Busca de Usuários no Modal de Agendamento ---
+      // --- Lógica de Busca de Usuários no Modal de Agendamento ---
       const searchUsuarioInput = document.getElementById('searchUsuarioInput');
       const selectedUsuarioIdInput = document.getElementById('selectedUsuarioId');
       const selectedUserNameDisplay = document.getElementById('selectedUserNameDisplay');
@@ -466,8 +448,8 @@ $estilos_tipo = [
         if (searchTerm.length < 3) {
           usuarioSearchResults.classList.add('hidden');
           usuarioSearchResults.innerHTML = '';
-          selectedUsuarioIdInput.value = ''; // Limpa o ID selecionado se a busca for apagada
-          selectedUserNameDisplay.textContent = ''; // Limpa o nome exibido
+          selectedUsuarioIdInput.value = '';
+          selectedUserNameDisplay.textContent = '';
           return;
         }
 
@@ -476,7 +458,7 @@ $estilos_tipo = [
             const response = await fetch(`controller-agendamento/buscar-usuarios.php?search_term=${encodeURIComponent(searchTerm)}`);
             const data = await response.json();
 
-            usuarioSearchResults.innerHTML = ''; // Limpa resultados anteriores
+            usuarioSearchResults.innerHTML = '';
             if (data.success && data.users.length > 0) {
               data.users.forEach(user => {
                 const userDiv = document.createElement('div');
@@ -495,11 +477,11 @@ $estilos_tipo = [
 
                 userDiv.dataset.userId = user.id;
                 userDiv.dataset.userName = `${user.nome} ${user.apelido ? `(${user.apelido})` : ''}`;
-                
+
                 userDiv.addEventListener('click', () => {
                   selectedUsuarioIdInput.value = userDiv.dataset.userId;
                   selectedUserNameDisplay.textContent = `Usuário selecionado: ${userDiv.dataset.userName}`;
-                  searchUsuarioInput.value = userDiv.dataset.userName; // Preenche o campo de busca com o nome selecionado
+                  searchUsuarioInput.value = userDiv.dataset.userName;
                   usuarioSearchResults.classList.add('hidden');
                 });
                 usuarioSearchResults.appendChild(userDiv);
@@ -514,16 +496,13 @@ $estilos_tipo = [
             usuarioSearchResults.innerHTML = '<div class="p-2 text-red-500">Erro ao buscar usuários.</div>';
             usuarioSearchResults.classList.remove('hidden');
           }
-        }, 300); // Debounce de 300ms
+        }, 300);
       });
 
-      // Esconde os resultados da busca quando o modal é fechado
       modalAgendamento.addEventListener('close', () => {
         usuarioSearchResults.classList.add('hidden');
-      });  
-      
+      });
     });
   </script>
 </body>
-
 </html>

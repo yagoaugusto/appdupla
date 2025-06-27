@@ -204,4 +204,29 @@ class Quadras {
             return 0.0;
         }
     }
+
+    /**
+     * Busca os horários de funcionamento para múltiplas quadras em um dia específico.
+     *
+     * @param array $quadra_ids Array com os IDs das quadras.
+     * @param string $dia_semana O dia da semana (ex: 'segunda').
+     * @return array Lista de horários de funcionamento.
+     */
+    public static function getFuncionamentoMultiplasQuadrasPorDia(array $quadra_ids, string $dia_semana) {
+        if (empty($quadra_ids)) {
+            return [];
+        }
+        try {
+            $conn = Conexao::pegarConexao();
+            $placeholders = implode(',', array_fill(0, count($quadra_ids), '?'));
+            $sql = "SELECT quadra_id, hora_inicio FROM quadras_funcionamento WHERE quadra_id IN ($placeholders) AND dia_semana = ?";
+            $params = array_merge($quadra_ids, [$dia_semana]);
+            $stmt = $conn->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar funcionamento de múltiplas quadras: " . $e->getMessage());
+            return [];
+        }
+    }
 }

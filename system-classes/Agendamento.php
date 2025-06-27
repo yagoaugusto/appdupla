@@ -75,4 +75,22 @@ class Agendamento {
             return false;
         }
     }
+
+    /**
+     * Cancela (exclui) um agendamento específico pelo seu ID.
+     *
+     * @param int $agendamento_id O ID do agendamento a ser cancelado.
+     * @return bool True se a exclusão foi bem-sucedida, false caso contrário.
+     */
+    public static function cancelarAgendamento($agendamento_id) {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare("DELETE FROM agenda_quadras WHERE id = ?");
+            $stmt->execute([$agendamento_id]);
+            return $stmt->rowCount() > 0; // Retorna true se uma linha foi afetada
+        } catch (PDOException $e) {
+            error_log("Erro ao cancelar agendamento: " . $e->getMessage());
+            return false;
+        }
+    }
 }

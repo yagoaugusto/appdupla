@@ -47,8 +47,8 @@ if ($event['type'] === 'payment') {
             $new_status = 'cancelado';
         }
 
-        // Atualiza o status do pagamento no seu banco de dados
-        if (InscricaoTorneio::updatePagamentoStatus($inscricao_id, $usuario_id, $new_status)) {
+        // Atualiza o status do pagamento e o ID do Mercado Pago no seu banco de dados
+        if (InscricaoTorneio::updatePagamentoStatus($inscricao_id, $usuario_id, $new_status, $payment_id)) {
             file_put_contents('webhook_log.txt', date('Y-m-d H:i:s') . " - Pagamento ID: $payment_id, Status: $status, Nova Status DB: $new_status, Inscricao: $inscricao_id, Usuario: $usuario_id\n", FILE_APPEND);
 
             // Se o pagamento foi aprovado, verifica se a inscrição da dupla pode ser confirmada
