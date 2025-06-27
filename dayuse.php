@@ -17,7 +17,7 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encontre Quadras - DUPLA</title>
+    <title>DayUse - DUPLA</title>
     <meta name="description" content="Encontre as melhores quadras de Beach Tennis perto de você. Veja a disponibilidade e reserve seu horário.">
     
     <!-- DaisyUI and Tailwind CSS -->
@@ -88,7 +88,7 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
                         <li><a href="teste.php">Promoção</a></li>
                         <li><a href="comofunciona.php">Sobre Nós</a></li>
                         <li>
-                            <a href="dayuse.php" class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 hover:scale-110 transition-transform">DAYUSE 🔥</a>
+                            <a href="encontre-quadra.php" class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 hover:scale-110 transition-transform">ENCONTRE QUADRA 🔥</a>
                         </li>
                     </ul>
                 </div>
@@ -99,12 +99,12 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
                     <li><a href="teste.php" class="font-semibold">Promoção</a></li>
                     <li><a href="comofunciona.php" class="font-semibold">Sobre Nós</a></li>
                     <li>
-                        <a href="dayuse.php" class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 hover:scale-110 transition-transform">DAYUSE 🔥</a>
+                        <a href="encontre-quadra.php" class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 hover:scale-110 transition-transform">ENCONTRE QUADRA 🔥</a>
                     </li>
                 </ul>
             </div>
             <div class="navbar-end gap-2">
-                <a href="index.php" class="btn btn-primary">Acessar Dupla</a>
+                <a href="cadastrar.php" class="btn bg-pink-500 hover:bg-pink-600 text-white border-none">Acessar Dupla</a>
             </div>
         </div>
     </header>
@@ -115,10 +115,10 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
             <!-- Hero Section -->
             <div class="text-center mb-12">
                 <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
-                    Quadras para você jogar <span class="text-primary">qualquer hora</span>
+                    DayUse <span class="text-pink-500">para você se divertir</span>
                 </h1>
                 <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
-                    Explore as arenas parceiras, encontre a quadra perfeita e veja a disponibilidade em tempo real.
+                    Encontre Day Use para jogar com amigos ou se conectar a novas pessoas.
                 </p>
             </div>
 
@@ -126,7 +126,7 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 relative">
                 <div id="map-card" class="map-container"></div>
                 <div class="absolute top-4 right-4 z-10">
-                    <button id="open-fullscreen-map" class="btn btn-primary shadow-lg">
+                    <button id="open-fullscreen-map" class="btn bg-pink-500 hover:bg-pink-600 text-white border-none shadow-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5" /></svg>
                         Ver Mapa
                     </button>
@@ -147,7 +147,7 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
 
     <!-- Floating Filter Button -->
     <div class="fixed bottom-6 right-6 z-40">
-        <button class="btn btn-primary btn-circle shadow-lg animate-pulse" onclick="filter_modal.showModal()">
+        <button class="btn bg-pink-500 hover:bg-pink-600 text-white border-none btn-circle shadow-lg animate-pulse" onclick="filter_modal.showModal()">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -158,14 +158,14 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
     <dialog id="filter_modal" class="modal modal-bottom sm:modal-middle">
         <div class="modal-box">
             <h3 class="font-bold text-lg">Filtrar Horários Disponíveis</h3>
-            <form method="GET" action="encontre-quadra.php" class="py-4 space-y-4">
+            <form method="GET" action="dayuse.php" class="py-4 space-y-4">
                 <div class="form-control">
                     <label for="data_modal" class="label-text font-semibold pb-1 text-sm">Data</label>
-                    <input type="date" id="data_modal" name="data" value="<?= htmlspecialchars($data_selecionada) ?>" class="input input-bordered input-primary w-full">
+                    <input type="date" id="data_modal" name="data" value="<?= htmlspecialchars($data_selecionada) ?>" class="input input-bordered focus:border-pink-500 focus:ring-pink-500 w-full">
                 </div>
                 <div class="form-control">
                     <label for="hora_inicio_modal" class="label-text font-semibold pb-1 text-sm">Das</label>
-                    <select id="hora_inicio_modal" name="hora_inicio" class="select select-bordered select-primary w-full">
+                    <select id="hora_inicio_modal" name="hora_inicio" class="select select-bordered focus:border-pink-500 focus:ring-pink-500 w-full">
                         <option value="<?= $hi ?>"> <?= $hi ?></option>
                         <?php for ($h = 6; $h <= 22; $h++): $time = sprintf('%02d:00', $h); ?>
                             <option value="<?= $time ?>" <?= ($hora_inicio == $time) ? 'selected' : '' ?>><?= $time ?></option>
@@ -174,7 +174,7 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
                 </div>
                 <div class="form-control">
                     <label for="hora_fim_modal" class="label-text font-semibold pb-1 text-sm">Até</label>
-                    <select id="hora_fim_modal" name="hora_fim" class="select select-bordered select-primary w-full">
+                    <select id="hora_fim_modal" name="hora_fim" class="select select-bordered focus:border-pink-500 focus:ring-pink-500 w-full">
                         <?php for ($h = 7; $h <= 23; $h++): $time = sprintf('%02d:00', $h); ?>
                             <option value="<?= $time ?>" <?= ($hora_fim == $time) ? 'selected' : '' ?>><?= $time ?></option>
                         <?php endfor; ?>
@@ -182,7 +182,7 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
                 </div>
                 <div class="modal-action mt-6">
                     <form method="dialog"><button class="btn">Fechar</button></form>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn bg-pink-500 hover:bg-pink-600 text-white border-none">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         Aplicar Filtro
                     </button>
