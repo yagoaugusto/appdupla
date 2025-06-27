@@ -12,6 +12,7 @@ class Conexao
         );
         
         $conexao->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $conexao->exec("SET time_zone = '-03:00'");
         return $conexao;
     }
 }
