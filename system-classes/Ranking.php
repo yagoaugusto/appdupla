@@ -3,52 +3,45 @@
 class Ranking
 {
     /**
-     * Busca o ranking de MVP (Most Valuable Player) baseado na média de rating ganho por partida.
+     * Busca o ranking de MVP (Most Valuable Player) com base na média de rating ganho por partida.
      *
-     * @param string $period O período do filtro ('hoje', 'semana', 'mes', 'sempre').
+     * @param string|null $data_inicio A data de início do período (formato YYYY-MM-DD).
+     * @param string|null $data_fim A data de fim do período (formato YYYY-MM-DD).
      * @param int|null $arena_id O ID da arena para filtrar, ou null para todas.
      * @param int $page A página atual para paginação.
      * @param int $limit O número de registros por página.
      * @return array Um array contendo 'data' com os resultados e 'total' com o número total de registros.
      */
-    public static function getMvpRanking($period, $arena_id = null, $page = 1, $limit = 50)
+    public static function getMvpRanking($data_inicio = null, $data_fim = null, $arena_id = null, $page = 1, $limit = 50)
     {
         $conn = Conexao::pegarConexao();
         $offset = ($page - 1) * $limit;
-
-        // NOTA: Esta query assume que a tabela `historico_rating` possui uma coluna `partida_id`
-        // e que a tabela `partidas` possui uma coluna `quadra_id` que se relaciona com a tabela `quadras`.
-        // Se a estrutura for diferente, o JOIN para o filtro de arena precisará ser ajustado.
 
         $base_sql = "
             FROM historico_rating hr
             JOIN usuario u ON hr.jogador_id = u.id
         ";
-        $join_sql = "";
-        $where_clauses = [];
+        $join_sql  = "";            // será adicionado se filtrar arena
         $params = [];
+        $where_clauses = [];
 
-        // Filtro de Arena
+        // Filtro de Arena – acrescenta JOIN em partidas apenas quando necessário
         if ($arena_id) {
-            $join_sql = "
-                JOIN partidas p ON hr.partida_id = p.id
-                JOIN quadras q ON p.quadra_id = q.id
-            ";
-            $where_clauses[] = "q.arena_id = ?";
+            $where_clauses[] = "u.id in (SELECT usuario_id from arena_membros where arena_membros.situacao in ('fundador', 'membro') and arena_id = ?)";
             $params[] = $arena_id;
         }
 
         // Filtro de Período
-        switch ($period) {
-            case 'hoje':
-                $where_clauses[] = "DATE(hr.data) = CURDATE()";
-                break;
-            case 'semana':
-                $where_clauses[] = "hr.data >= CURDATE() - INTERVAL 6 DAY";
-                break;
-            case 'mes':
-                $where_clauses[] = "YEAR(hr.data) = YEAR(CURDATE()) AND MONTH(hr.data) = MONTH(CURDATE())";
-                break;
+        if (!empty($data_inicio) && !empty($data_fim)) {
+            $where_clauses[] = "DATE(hr.data) BETWEEN ? AND ?";
+            $params[] = $data_inicio;
+            $params[] = $data_fim;
+        } elseif (!empty($data_inicio)) {
+            $where_clauses[] = "DATE(hr.data) >= ?";
+            $params[] = $data_inicio;
+        } elseif (!empty($data_fim)) {
+            $where_clauses[] = "DATE(hr.data) <= ?";
+            $params[] = $data_fim;
         }
 
         $where_sql = "";
@@ -61,28 +54,29 @@ class Ranking
             SELECT
                 u.id as usuario_id, u.nome, u.apelido, u.rating,
                 COUNT(hr.id) as total_partidas,
-                SUM(hr.rating_ganho) as total_rating_ganho,
-                (SUM(hr.rating_ganho) / COUNT(hr.id)) as media_rating_por_partida
+                SUM(hr.rating_novo - hr.rating_anterior) as total_rating_ganho,
+                (SUM(hr.rating_novo - hr.rating_anterior) / COUNT(hr.id)) as media_rating_por_partida
             " . $base_sql . $join_sql . $where_sql . "
             GROUP BY u.id, u.nome, u.apelido, u.rating
-            HAVING total_partidas > 0
+            HAVING total_partidas > 0 AND total_rating_ganho IS NOT NULL
             ORDER BY media_rating_por_partida DESC, total_partidas DESC
-            LIMIT ? OFFSET ?
+            LIMIT " . intval($limit) . " OFFSET " . intval($offset) . "
         ";
-        $data_params = array_merge($params, [$limit, $offset]);
+        $data_params = $params;   // apenas arena_id e datas
 
         // Query para a contagem total de jogadores (para paginação)
         $count_sql = "
-            SELECT COUNT(DISTINCT hr.jogador_id)
-            " . $base_sql . $join_sql . $where_sql;
+            SELECT COUNT(*) FROM (
+                SELECT 1
+                " . $base_sql . $join_sql . $where_sql . "
+                GROUP BY hr.jogador_id
+                HAVING COUNT(hr.id) > 0 AND SUM(hr.rating_novo - hr.rating_anterior) IS NOT NULL
+            ) as subquery
+        ";
 
         try {
             $stmt_data = $conn->prepare($data_sql);
-            // PDO bindValue/bindParam starts at 1
-            for ($i = 0; $i < count($data_params); $i++) {
-                $stmt_data->bindValue($i + 1, $data_params[$i]);
-            }
-            $stmt_data->execute();
+            $stmt_data->execute($data_params);
             $results = $stmt_data->fetchAll(PDO::FETCH_ASSOC);
 
             $stmt_count = $conn->prepare($count_sql);

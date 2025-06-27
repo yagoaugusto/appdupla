@@ -44,7 +44,7 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
           <li><a href="hist-partidas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'hist-partidas.php' ? 'active' : '' ?>">Partidas</a></li>
           <li><a href="ranking-geral.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'ranking-geral.php' ? 'active' : '' ?>">Ranking</a></li>
           <li><a href="dupla.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'dupla.php' ? 'active' : '' ?>">Central DUPLA</a></li>
-          <li><a href="mvp.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'mpv.php' ? 'active' : '' ?>">MVP Player</a></li>
+          <li><a href="mvp.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'mvp.php' ? 'active' : '' ?>">MVP Player</a></li>
           <li><a href="#" class="text-gray-700 px-3 py-1.5">Conquistas</a></li>
         </ul>
       </div>

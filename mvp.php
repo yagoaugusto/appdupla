@@ -4,14 +4,19 @@ require_once '#_global.php';
 // --- LÓGICA DA PÁGINA ---
 
 // Filtros
-$periodo = $_GET['periodo'] ?? 'mes'; // 'hoje', 'semana', 'mes', 'sempre'
+// Define o período padrão como o mês atual
+$data_inicio_padrao = new DateTime('first day of this month');
+$data_fim_padrao = new DateTime('last day of this month');
+
+$data_inicio = $_GET['data_inicio'] ?? $data_inicio_padrao->format('Y-m-d');
+$data_fim = $_GET['data_fim'] ?? $data_fim_padrao->format('Y-m-d');
 $arena_id = filter_input(INPUT_GET, 'arena_id', FILTER_VALIDATE_INT);
 $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?? 1;
 $limit = 50;
 
 // Busca de dados
 $arenas = Arena::getArenas(); // Busca todas as arenas para o filtro
-$ranking_data = Ranking::getMvpRanking($periodo, $arena_id, $page, $limit);
+$ranking_data = Ranking::getMvpRanking($data_inicio, $data_fim, $arena_id, $page, $limit);
 $mvp_list = $ranking_data['data'];
 $total_players = $ranking_data['total'];
 $total_pages = ceil($total_players / $limit);
@@ -36,44 +41,51 @@ $icones_podio = ['🥇', '🥈', '🥉'];
                 <!-- Header -->
                 <div class="flex items-center gap-4 mb-6">
                     <span class="text-4xl">🔥</span>
-                    <div>
+                    <div class="flex-1">
                         <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight">MVP - Most Valuable Player</h1>
                         <p class="text-sm text-gray-500">Ranking de jogadores pela média de rating ganho por partida.</p>
                     </div>
                 </div>
 
                 <!-- Filters -->
-                <form method="GET" action="mvp.php" class="bg-white p-4 rounded-xl shadow-md border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <!-- Period Filter -->
-                    <div class="join">
-                        <input class="join-item btn btn-sm" type="radio" name="periodo" value="hoje" aria-label="Hoje" <?= $periodo === 'hoje' ? 'checked' : '' ?> onchange="this.form.submit()" />
-                        <input class="join-item btn btn-sm" type="radio" name="periodo" value="semana" aria-label="Semana" <?= $periodo === 'semana' ? 'checked' : '' ?> onchange="this.form.submit()" />
-                        <input class="join-item btn btn-sm" type="radio" name="periodo" value="mes" aria-label="Mês" <?= $periodo === 'mes' ? 'checked' : '' ?> onchange="this.form.submit()" />
-                        <input class="join-item btn btn-sm" type="radio" name="periodo" value="sempre" aria-label="Sempre" <?= $periodo === 'sempre' ? 'checked' : '' ?> onchange="this.form.submit()" />
+                <form method="GET" action="mvp.php" class="bg-white p-4 rounded-xl shadow-md border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 items-end justify-between">
+                    <!-- Date Range Filter - Adjusted for better mobile wrapping -->
+                    <div class="flex flex-col sm:flex-row gap-2 flex-wrap w-full md:w-auto">
+                        <div class="form-control">
+                            <label class="label-text text-xs pb-1 font-semibold">De:</label>
+                            <input type="date" name="data_inicio" value="<?= htmlspecialchars($data_inicio) ?>" class="input input-bordered input-sm w-full">
+                        </div>
+                        <div class="form-control">
+                            <label class="label-text text-xs pb-1 font-semibold">Até:</label>
+                            <input type="date" name="data_fim" value="<?= htmlspecialchars($data_fim) ?>" class="input input-bordered input-sm w-full">
+                        </div>
                     </div>
 
-                    <!-- Arena Filter -->
-                    <div class="form-control w-full md:w-auto">
-                        <select name="arena_id" class="select select-bordered select-sm" onchange="this.form.submit()">
-                            <option value="">Todas as Arenas</option>
-                            <?php foreach ($arenas as $arena) : ?>
-                                <option value="<?= $arena['id'] ?>" <?= $arena_id == $arena['id'] ? 'selected' : '' ?>><?= htmlspecialchars($arena['titulo']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                    <!-- Arena Filter and Submit Button -->
+                    <div class="flex flex-col sm:flex-row items-end gap-2 w-full md:w-auto">
+                        <div class="form-control w-full flex-grow">
+                            <label class="label-text text-xs pb-1 font-semibold">Arena:</label>
+                            <select name="arena_id" class="select select-bordered select-sm">
+                                <option value="">Todas as Arenas</option>
+                                <?php foreach ($arenas as $arena) : ?>
+                                    <option value="<?= $arena['id'] ?>" <?= $arena_id == $arena['id'] ? 'selected' : '' ?>><?= htmlspecialchars($arena['titulo']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">Filtrar</button>
                     </div>
                 </form>
-
                 <!-- Ranking Table -->
                 <div class="overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-200">
-                    <table class="table w-full">
+                    <table class="table w-full table-zebra">
                         <thead>
                             <tr class="text-sm">
-                                <th class="w-12 text-center">#</th>
-                                <th>Jogador</th>
-                                <th class="text-center">Partidas</th>
-                                <th class="text-center">Rating Ganho</th>
-                                <th class="text-center">Média / Partida</th>
-                                <th class="text-center">Rating Atual</th>
+                                <th class="w-12 text-center min-w-[50px]">#</th>
+                                <th class="min-w-[150px]">Jogador</th>
+                                <th class="text-center min-w-[80px]">Partidas</th>
+                                <th class="text-center min-w-[100px]">Rating Ganho</th>
+                                <th class="text-center min-w-[120px]">Média / Partida</th>
+                                <th class="text-center min-w-[80px]">Rating Atual</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -90,13 +102,13 @@ $icones_podio = ['🥇', '🥈', '🥉'];
                                     <tr class="<?= $row_class ?>">
                                         <th class="text-center">
                                             <?php if ($page == 1 && $posicao_atual <= 3) : ?>
-                                                <span class="text-2xl"><?= $icones_podio[$posicao_atual - 1] ?></span>
+                                                <span class="text-xl sm:text-2xl"><?= $icones_podio[$posicao_atual - 1] ?></span>
                                             <?php else : ?>
                                                 <?= $posicao_atual ?>º
                                             <?php endif; ?>
                                         </th>
                                         <td>
-                                            <div class="font-semibold"><?= htmlspecialchars($jogador['nome']) ?></div>
+                                            <div class="font-semibold text-gray-800"><?= htmlspecialchars($jogador['nome']) ?></div>
                                             <?php if (!empty($jogador['apelido'])) : ?>
                                                 <div class="text-xs opacity-70">(<?= htmlspecialchars($jogador['apelido']) ?>)</div>
                                             <?php endif; ?>
