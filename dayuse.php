@@ -96,8 +96,8 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
             </div>
             <div class="navbar-center hidden lg:flex">
                 <ul class="menu menu-horizontal px-1">
-                    <li><a href="teste.php" class="font-semibold">Promoção</a></li>
-                    <li><a href="comofunciona.php" class="font-semibold">Sobre Nós</a></li>
+                    <li><a href="https://promocao.appdupla.com" class="font-semibold">Promoção</a></li>
+                    <li><a href="https://site.appdupla.com" class="font-semibold">Sobre Nós</a></li>
                     <li>
                         <a href="encontre-quadra.php" class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 hover:scale-110 transition-transform">ENCONTRE QUADRA 🔥</a>
                     </li>

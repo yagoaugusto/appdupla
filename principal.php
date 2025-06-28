@@ -406,7 +406,8 @@ if ($variacao_valor > 0) {
   <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40"> <!-- Alterado z-index para z-40 -->
       <div class="flex items-center gap-2 bg-white/80 backdrop-blur-md border border-gray-200/80 rounded-full shadow-xl px-3 py-2">
           <!-- Botão Mapa -->
-          <a href="mapa-arenas.php" class="flex flex-col items-center justify-center text-gray-700 hover:text-green-600 transition-colors w-16 h-14 rounded-full hover:bg-green-50">
+          <!-- <a href="mapa-arenas.php" class="flex flex-col items-center justify-center text-gray-700 hover:text-green-600 transition-colors w-16 h-14 rounded-full hover:bg-green-50"> -->
+          <a href="encontre-quadra.php" class="flex flex-col items-center justify-center text-gray-700 hover:text-green-600 transition-colors w-16 h-14 rounded-full hover:bg-green-50">
               <span class="text-2xl">🗺️</span>
               <span class="text-xs font-semibold">Mapa</span>
           </a>

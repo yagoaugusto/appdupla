@@ -63,7 +63,7 @@ $partidas = Partida::partidas_pendente_jogador($jogador);
 
                         $data_formatada = date('d M Y', strtotime($p['data']));
                         ?>
-                        <div class="relative bg-white rounded-xl shadow p-4 border-l-8 <?= htmlspecialchars($card_border_class) ?> flex flex-col items-center transition hover:shadow-md">
+                        <div class="relative bg-white rounded-xl shadow p-4 border-l-4 <?= htmlspecialchars($card_border_class) ?> flex flex-col items-center transition hover:shadow-md">
                             <!-- Tarja de Resultado -->
                             <div class="absolute left-1/2 -top-3 -translate-x-1/2 px-3 py-1 rounded-full <?= htmlspecialchars($tag_bg_class) ?> text-white text-xs font-bold shadow z-10 border-2 border-white flex items-center gap-1">
                                 <?= htmlspecialchars($tag_icon) ?> <?= htmlspecialchars($tag_text) ?>
@@ -72,16 +72,16 @@ $partidas = Partida::partidas_pendente_jogador($jogador);
                             <!-- Times e Placar -->
                             <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 w-full mt-4">
                                 <!-- Time A -->
-                                <div class="flex flex-col items-end text-right space-y-1">
-                                    <div class="flex items-center gap-1">
-                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej1']) ?>
-                                            <?php if(!empty($p['apelidoj1'])): ?><span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($p['apelidoj1']) ?>)</span><?php endif; ?>
-                                        </span>
+                                <div class="flex flex-col items-end text-right space-y-2">
+                                    <!-- Jogador 1 -->
+                                    <div class="truncate w-full">
+                                        <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej1']) ?></span>
+                                        <?php if(!empty($p['sobrenomej1'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej1']) ?></span><?php endif; ?>
                                     </div>
-                                    <div class="flex items-center gap-1">
-                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej2']) ?>
-                                            <?php if(!empty($p['apelidoj2'])): ?><span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($p['apelidoj2']) ?>)</span><?php endif; ?>
-                                        </span>
+                                    <!-- Jogador 2 -->
+                                    <div class="truncate w-full">
+                                        <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej2']) ?></span>
+                                        <?php if(!empty($p['sobrenomej2'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej2']) ?></span><?php endif; ?>
                                     </div>
                                 </div>
 
@@ -93,22 +93,22 @@ $partidas = Partida::partidas_pendente_jogador($jogador);
                                 </div>
 
                                 <!-- Time B -->
-                                <div class="flex flex-col items-start text-left space-y-1">
-                                    <div class="flex items-center gap-1">
-                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej3']) ?>
-                                            <?php if(!empty($p['apelidoj3'])): ?><span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($p['apelidoj3']) ?>)</span><?php endif; ?>
-                                        </span>
+                                <div class="flex flex-col items-start text-left space-y-2">
+                                    <!-- Jogador 3 -->
+                                    <div class="truncate w-full">
+                                        <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej3']) ?></span>
+                                        <?php if(!empty($p['sobrenomej3'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej3']) ?></span><?php endif; ?>
                                     </div>
-                                    <div class="flex items-center gap-1">
-                                        <span class="font-semibold text-sm text-gray-800 truncate"><?= htmlspecialchars($p['nomej4']) ?>
-                                            <?php if(!empty($p['apelidoj4'])): ?><span class="text-xs font-normal text-gray-500">(<?= htmlspecialchars($p['apelidoj4']) ?>)</span><?php endif; ?>
-                                        </span>
+                                    <!-- Jogador 4 -->
+                                    <div class="truncate w-full">
+                                        <span class="font-semibold text-sm text-gray-800 block"><?= htmlspecialchars($p['nomej4']) ?></span>
+                                        <?php if(!empty($p['sobrenomej4'])): ?><span class="text-xs text-gray-500 block -mt-1"><?= htmlspecialchars($p['sobrenomej4']) ?></span><?php endif; ?>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Data e ID -->
-                            <div class="flex items-center justify-between w-full mt-4 pt-3 border-t border-gray-200/80">
+                            <div class="flex flex-col sm:flex-row items-center justify-between w-full mt-4 pt-3 border-t border-gray-200/80 gap-3 sm:gap-2">
                                 <div class="text-xs text-gray-500 flex items-center gap-1">
                                     <span><?= htmlspecialchars($data_formatada) ?></span>
                                     <span class="mx-0.5">•</span>
