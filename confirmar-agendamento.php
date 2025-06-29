@@ -58,7 +58,7 @@ if ($usuario_id) {
                     <p class="text-base text-gray-600">Falta pouco para o seu próximo jogaço! Confira os dados e garanta sua quadra.</p>
                 </div>
 
-                <form id="formPagamento" action="controller-pagamento/processar-pagamento.php" method="POST" class="w-full grid grid-cols-1 lg:grid-cols-3 lg:gap-12">
+                <form id="formPagamento" action="controller-pagamento/pagamento-reserva.php" method="POST" class="w-full grid grid-cols-1 lg:grid-cols-3 lg:gap-12">
                     <!-- Passa os slots selecionados para a próxima etapa -->
                     <input type="hidden" name="slots" value="<?= htmlspecialchars($slots_json) ?>">
 
@@ -142,7 +142,7 @@ if ($usuario_id) {
                             <div class="pt-6">
                                 <button type="submit" id="btnSubmit" class="btn btn-success w-full text-lg">
                                     <span class="loading loading-spinner hidden"></span>
-                                    Confirmar e Pagar
+                                    Confirmar Agendamento
                                 </button>
                             </div>
                         </div>
@@ -212,9 +212,31 @@ if ($usuario_id) {
         }
 
         form.addEventListener('submit', function(e) {
+            e.preventDefault();
             submitButton.classList.add('btn-disabled');
             submitButtonSpinner.classList.remove('hidden');
-            // O formulário continuará o envio normalmente após isso.
+
+            const formData = new FormData(form);
+            fetch('controller-pagamento/pagamento-reserva.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert('Erro ao iniciar pagamento.');
+                    submitButton.classList.remove('btn-disabled');
+                    submitButtonSpinner.classList.add('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro inesperado.');
+                submitButton.classList.remove('btn-disabled');
+                submitButtonSpinner.classList.add('hidden');
+            });
         });
     });
     </script>

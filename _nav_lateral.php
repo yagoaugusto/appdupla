@@ -19,7 +19,7 @@ $paginas_yago = ['usuarios-yago.php', 'arenas-yago.php'];
 $is_pagina_yago_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_yago);
 
 
-$paginas_arena = ['criar-arena.php', 'arenas.php', 'arena-page.php'];
+$paginas_arena = ['criar-arena.php', 'arenas.php', 'arena-page.php', 'minhas-reservas.php'];
 $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena);
 ?>
 <!-- Sidebar Backdrop (for mobile) -->
@@ -79,6 +79,7 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
         <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
           <li><a href="criar-arena.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'criar-arena.php' ? 'active' : '' ?>">Criar Arena</a></li>
           <li><a href="arenas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'arenas.php' ? 'active' : '' ?>">Visitar Arenas</a></li>
+          <li><a href="minhas-reservas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'minhas-reservas.php' ? 'active' : '' ?>">Minhas Reservas</a></li>
         </ul>
       </div>
     </div>
