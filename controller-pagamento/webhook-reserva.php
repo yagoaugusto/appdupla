@@ -1,5 +1,5 @@
 <?php
-require_once 'conexao.php';
+require_once '#_global.php';
 require_once '../vendor/autoload.php';
 
 // Configura o Access Token do Mercado Pago

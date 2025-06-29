@@ -10,7 +10,7 @@
 
 // Inclui o autoloader do Composer e as configurações globais (conexão, constantes, etc.)
 require_once '../vendor/autoload.php';
-require_once 'conexao.php'; // Usa a conexão local que já inclui o #_global
+require_once '#_global.php'; // Usa a conexão local que já inclui o #_global
 
 session_start();
 
