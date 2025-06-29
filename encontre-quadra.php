@@ -267,9 +267,9 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
                             </p>
                         </div>
                         <div class="mt-3">
-                            <a href="reserva-arena.php?data=${dataSelecionada}&arena=${arena.id}" class="btn btn-sm btn-primary w-full">
+                            <a href="reserva-arena.php?data=${dataSelecionada}&arena=${arena.id}" style="color:white;" class="btn btn-sm w-full text-white font-bold border-none bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg transform hover:scale-105 transition-all duration-300 no-underline">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                Ver Quadras e Agendar
+                                <span>Ver Quadras e Agendar</span>
                             </a>
                         </div>
                     </div>
