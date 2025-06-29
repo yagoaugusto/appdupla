@@ -1,7 +1,7 @@
 <?php
 
 // Inclui o autoloader e a configuração global
-require_once dirname(__DIR__) . '/#_global.php';
+require_once dirname(__DIR__) . '#_global.php';
 
 try {
     $conn = Conexao::pegarConexao();
