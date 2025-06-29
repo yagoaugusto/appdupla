@@ -149,11 +149,11 @@ if ($quadras) {
                         <?php foreach ($quadras_info as $quadra): ?>
                             <div class="collapse collapse-arrow bg-gray-50 rounded-lg border border-gray-200">
                                 <input type="checkbox" class="peer" />
-                                <div class="collapse-title text-lg font-semibold text-gray-800 flex items-center justify-between">
-                                    <span><?= htmlspecialchars($quadra['nome']) ?></span>
-                                    <div class="flex items-center gap-2 text-sm">
-                                        <span class="badge badge-success badge-outline"><?= $quadra['disponiveis'] ?> disponíveis</span>
-                                        <span class="badge badge-error badge-outline"><?= count($quadra['reservados']) ?> reservados</span>
+                                <div class="collapse-title text-lg font-semibold text-gray-800">
+                                    <div><?= htmlspecialchars($quadra['nome']) ?></div>
+                                    <div class="flex items-center gap-2 text-xs mt-1">
+                                        <span class="badge badge-success badge-outline badge-sm"><?= $quadra['disponiveis'] ?> disponíveis</span>
+                                        <span class="badge badge-error badge-outline badge-sm"><?= count($quadra['reservados']) ?> reservados</span>
                                     </div>
                                 </div>
                                 <div class="collapse-content bg-white">
@@ -168,7 +168,7 @@ if ($quadras) {
                                             $is_reservado = in_array($horario, $quadra['reservados']);
                                             $button_classes = $is_reservado
                                                 ? 'bg-gray-200 text-gray-400 line-through cursor-not-allowed'
-                                                : 'slot-disponivel bg-green-100 text-green-800 hover:bg-green-200 cursor-pointer';
+                                                : 'slot-disponivel bg-green-100 text-green-800 cursor-pointer';
                                             $diaSemanaIngles = date('l', strtotime($data));
                                             $dias_semana_map = [
                                                 'Monday' => 'segunda',
