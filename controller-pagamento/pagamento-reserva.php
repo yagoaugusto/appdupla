@@ -10,7 +10,7 @@
 
 // Inclui o autoloader do Composer e as configurações globais (conexão, constantes, etc.)
 require_once '../vendor/autoload.php';
-require_once '#_global.php'; // Usa a conexão local que já inclui o #_global
+require_once 'conexao.php'; // Usa a conexão local que já inclui o #_global
 
 session_start();
 
@@ -55,6 +55,44 @@ try {
         throw new Exception('Ocorreu um erro ao registrar sua reserva. Tente novamente.');
     }
 
+    // --- 4.5. Obter e preparar dados do pagador ---
+    $usuario_info = Usuario::getUsuarioInfoById($usuario_id);
+    if (!$usuario_info) {
+        throw new Exception('Informações do usuário pagador não encontradas.');
+    }
+
+    // Preparar dados do pagador
+    $payer_name = $usuario_info['nome'] ?? '';
+    $payer_surname = $usuario_info['sobrenome'] ?? '';
+    $payer_email = $usuario_info['email'] ?? '';
+    $payer_phone_raw = $usuario_info['telefone'] ?? '';
+    $payer_cpf = preg_replace('/\D/', '', $usuario_info['cpf'] ?? ''); // Remove caracteres não numéricos
+
+    // Validações mínimas para o Mercado Pago
+    if (empty($payer_email) || !filter_var($payer_email, FILTER_VALIDATE_EMAIL)) {
+        throw new Exception('O e-mail do pagador é inválido.');
+    }
+    if (empty($payer_cpf) || strlen($payer_cpf) !== 11) {
+        throw new Exception('O CPF do pagador é inválido ou não foi informado. É necessário para o pagamento.');
+    }
+
+    // --- Tratamento do Telefone ---
+    // O telefone no banco está salvo com DDI (ex: 5598...).
+    // A API do Mercado Pago espera o DDD e o número separadamente.
+    // Esta lógica limpa e formata o número corretamente.
+    $clean_phone = preg_replace('/\D/', '', $payer_phone_raw);
+
+    // Se o número começar com o DDI 55 e for um número de celular (13 dígitos) ou fixo (12 dígitos),
+    // removemos o DDI para ficar apenas com DDD + número.
+    if (strlen($clean_phone) > 11 && strpos($clean_phone, '55') === 0) {
+        $clean_phone = substr($clean_phone, 2);
+    }
+
+    // Agora, com o número limpo (formato DDD + número), separamos o código de área.
+    // Ex: 98991668283 -> area_code: 98, number: 991668283
+    $phone_data = ["area_code" => substr($clean_phone, 0, 2), "number" => substr($clean_phone, 2)];
+
+
     // --- 5. Criação da Preferência de Pagamento no Mercado Pago ---
     $preference = new MercadoPago\Preference();
     $items = [];
@@ -80,6 +118,19 @@ try {
     }
 
     $preference->items = $items;
+
+    // Adiciona os dados do pagador à preferência
+    $payer = new MercadoPago\Payer();
+    $payer->name = $payer_name;
+    $payer->surname = $payer_surname;
+    $payer->email = $payer_email;
+    $payer->phone = [
+        "area_code" => $phone_data['area_code'],
+        "number" => $phone_data['number']
+    ];
+    $payer->identification = ["type" => "CPF", "number" => $payer_cpf];
+
+    $preference->payer = $payer;
 
     // --- 6. Configuração de URLs e Referências ---
     // A constante APP_BASE_URL deve ser definida no seu arquivo de configuração.
