@@ -142,7 +142,7 @@ if ($usuario_id) {
                             <div class="pt-6">
                                 <button type="submit" id="btnSubmit" class="btn btn-success w-full text-lg">
                                     <span class="loading loading-spinner hidden"></span>
-                                    Confirmar Agendamento
+                                    Confirmar e Pagar
                                 </button>
                             </div>
                         </div>
@@ -217,23 +217,35 @@ if ($usuario_id) {
             submitButtonSpinner.classList.remove('hidden');
 
             const formData = new FormData(form);
-            fetch('controller-pagamento/pagamento-reserva.php', {
+            fetch(form.action, {
                 method: 'POST',
                 body: formData
             })
-            .then(res => res.json())
+            .then(async res => { // Usamos async para poder usar await no corpo
+                // Se a resposta for bem-sucedida (status 2xx), processa o JSON.
+                if (res.ok) {
+                    return res.json();
+                }
+                // Se a resposta for um erro (status 4xx, 5xx), tenta ler o corpo como JSON para obter a mensagem de erro.
+                const errorData = await res.json().catch(() => null); // Lida com casos onde o corpo não é JSON
+                const errorMessage = errorData?.message || `Ocorreu um erro no servidor (Código: ${res.status}).`;
+                // Rejeita a promessa para acionar o bloco .catch() com a mensagem de erro específica.
+                return Promise.reject(new Error(errorMessage));
+            })
             .then(data => {
                 if (data.status === 'success' && data.redirect_url) {
                     window.location.href = data.redirect_url;
                 } else {
-                    alert('Erro ao iniciar pagamento.');
+                    // Caso o servidor retorne 200 OK mas com um erro lógico.
+                    alert('Erro ao iniciar pagamento: ' + (data.message || 'Resposta inválida do servidor.'));
                     submitButton.classList.remove('btn-disabled');
                     submitButtonSpinner.classList.add('hidden');
                 }
             })
             .catch(error => {
                 console.error('Erro:', error);
-                alert('Erro inesperado.');
+                // Exibe a mensagem de erro específica capturada no .then() ou um erro de rede.
+                alert('Erro: ' + error.message);
                 submitButton.classList.remove('btn-disabled');
                 submitButtonSpinner.classList.add('hidden');
             });

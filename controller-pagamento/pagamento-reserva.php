@@ -165,5 +165,6 @@ try {
     // Em caso de erro, loga a exceção e retorna uma mensagem de erro genérica
     error_log("Erro ao criar preferência de pagamento: " . $e->getMessage());
     http_response_code(500); // Internal Server Error
-    echo json_encode(['status' => 'error', 'message' => 'Não foi possível iniciar o pagamento. Por favor, tente novamente mais tarde.']);
+    // Retorna a mensagem da exceção para o frontend, para que o usuário saiba o que aconteceu.
+    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
