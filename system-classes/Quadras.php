@@ -229,4 +229,84 @@ class Quadras {
             return [];
         }
     }
+
+     /**
+     * Busca os slots de horários disponíveis para uma quadra em um dia específico.
+     *
+     * @param int $quadra_id O ID da quadra.
+     * @param string $data A data no formato YYYY-MM-DD.
+     * @return array Um array de slots de horários disponíveis (HH:mm).
+     */
+    public static function getSlotsDisponiveis($quadra_id, $data) {
+        try {
+            $conn = Conexao::pegarConexao();
+
+            // 1. Buscar horários de funcionamento da quadra para o dia da semana
+            $dia_semana = date('l', strtotime($data)); // Retorna o dia da semana em inglês (e.g., Monday)
+            $dias_semana_map = [
+                'Monday' => 'segunda',
+                'Tuesday' => 'terca',
+                'Wednesday' => 'quarta',
+                'Thursday' => 'quinta',
+                'Friday' => 'sexta',
+                'Saturday' => 'sabado',
+                'Sunday' => 'domingo'
+            ];
+            $dia_semana_pt = $dias_semana_map[$dia_semana] ?? null;
+
+            if (!$dia_semana_pt) {
+                return []; // Dia de semana inválido
+            }
+
+            $stmt_funcionamento = $conn->prepare("SELECT hora_inicio, hora_fim, intervalo FROM quadras_funcionamento WHERE quadra_id = ? AND dia_semana = ?");
+            $stmt_funcionamento->execute([$quadra_id, $dia_semana_pt]);
+            $funcionamento = $stmt_funcionamento->fetchAll(PDO::FETCH_ASSOC);
+
+            if (empty($funcionamento)) {
+                return []; // Quadra sem horários de funcionamento para este dia
+            }
+
+            // 2. Gerar todos os slots possíveis com base no funcionamento
+            $slots_possiveis = [];
+            foreach ($funcionamento as $f) {
+                $hora_inicio = strtotime($f['hora_inicio']);
+                $hora_fim = strtotime($f['hora_fim']);
+                $intervalo = $f['intervalo'];
+
+                while ($hora_inicio < $hora_fim) {
+                    $slot_inicio = date('H:i', $hora_inicio);
+                    $slots_possiveis[] = $slot_inicio;
+                    $hora_inicio = strtotime("+" . $intervalo . " minutes", $hora_inicio);
+                }
+            }
+
+            // 3. Buscar reservas existentes para a quadra na data
+            $stmt_reservas = $conn->prepare("SELECT hora_inicio FROM agenda_quadras WHERE quadra_id = ? AND data = ?");
+            $stmt_reservas->execute([$quadra_id, $data]);
+            $reservas = $stmt_reservas->fetchAll(PDO::FETCH_COLUMN); // Apenas as horas de início reservadas
+
+            // 4. Determinar slots disponíveis (removendo reservas dos slots possíveis)
+            $slots_disponiveis = array_diff($slots_possiveis, $reservas);
+
+            return $slots_disponiveis;
+
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar slots disponíveis: " . $e->getMessage());
+            return [];
+        }
+    }
+
+public static function getSlotsReservados($quadra_id, $data) {
+    try {
+        $conn = Conexao::pegarConexao();
+        $stmt = $conn->prepare("SELECT hora_inicio FROM agenda_quadras WHERE quadra_id = ? AND data = ?");
+        $stmt->execute([$quadra_id, $data]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN); // Apenas horas reservadas
+    } catch (PDOException $e) {
+        error_log("Erro ao buscar slots reservados: " . $e->getMessage());
+        return [];
+    }
+}
+
+
 }

@@ -220,6 +220,8 @@ $estilos_tipo = [
       <form id="formAgendamento" method="POST" action="controller-agendamento/salvar-agendamento.php" class="py-4 space-y-4">
         <input type="hidden" name="arena_id" value="<?= htmlspecialchars($arena_id_selecionada) ?>">
         <input type="hidden" name="quadra_id_selecionada" value="<?= htmlspecialchars($quadra_id_selecionada) ?>">
+        <input type="hidden" name="offset_semana" value="<?= htmlspecialchars($offset_semana) ?>">
+
         <input type="hidden" name="selected_slots" id="selectedSlotsInput">
 
         <div class="form-control">
@@ -245,6 +247,11 @@ $estilos_tipo = [
           <label class="label"><span class="label-text">Observações</span></label>
           <textarea name="observacoes" class="textarea textarea-bordered" placeholder="Ex: Pagamento pendente, evento especial, nome do cliente (se não for usuário), etc."></textarea>
         </div>
+
+        <div id="valoresIndividuaisContainer">
+          <!-- Campos de valor por slot serão adicionados aqui via JS -->
+        </div>
+
         <div class="modal-action">
           <button type="button" class="btn" onclick="modalAgendamento.close()">Cancelar</button>
           <button type="submit" class="btn btn-primary">Salvar Agendamentos</button>
@@ -349,6 +356,7 @@ $estilos_tipo = [
         if (count > 0) {
           selectedCountSpan.textContent = `${count} horário${count > 1 ? 's' : ''} selecionado${count > 1 ? 's' : ''}`;
           floatingBar.classList.remove('hidden');
+          atualizarValorTotal();
         } else {
           floatingBar.classList.add('hidden');
         }
@@ -360,6 +368,7 @@ $estilos_tipo = [
         });
         selectedSlots.clear();
         updateFloatingBar();
+        document.getElementById('valorTotalSelecionado').textContent = 'R$ 0,00';
       }
 
       agendaTableBody.addEventListener('click', (event) => {
@@ -449,7 +458,33 @@ $estilos_tipo = [
           };
         });
         selectedSlotsInput.value = JSON.stringify(slotsData);
+        // Adiciona campos individuais de valor
+        const valoresContainer = document.getElementById('valoresIndividuaisContainer');
+        valoresContainer.innerHTML = ''; // Limpa antes de adicionar novos
+        slotsData.forEach((slot, index) => {
+          const wrapper = document.createElement('div');
+          wrapper.classList.add('form-control');
+
+          const label = document.createElement('label');
+          label.classList.add('label');
+
+          const dataObj = new Date(slot.data + 'T00:00:00');
+          const dataFormatada = dataObj.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+          label.innerHTML = `<span class="label-text">${slot.hora} - ${dataFormatada}</span>`;
+
+          const campo = document.createElement('input');
+          campo.type = 'text';
+          campo.name = `valores_individuais[${slot.data}_${slot.hora}]`;
+          campo.classList.add('input', 'input-bordered', 'moeda', 'w-full');
+          campo.setAttribute('data-slot', `${slot.data}_${slot.hora}`);
+          campo.placeholder = `Valor ${slot.data} ${slot.hora}`;
+
+          wrapper.appendChild(label);
+          wrapper.appendChild(campo);
+          valoresContainer.appendChild(wrapper);
+        });
         modalAgendamento.showModal();
+        preencherValoresIndividuais();
       });
 
      // --- Lógica de Busca de Usuários no Modal de Agendamento ---
@@ -522,6 +557,35 @@ $estilos_tipo = [
         usuarioSearchResults.classList.add('hidden');
       });  
       
+    // Função para preencher automaticamente os valores individuais dos slots selecionados
+    async function preencherValoresIndividuais() {
+      const quadraId = <?= json_encode($quadra_id_selecionada) ?>;
+      for (let slotId of selectedSlots) {
+        const [data, hora] = slotId.split('_');
+        try {
+          const response = await fetch(`controller-agendamento/get-valor-slot.php?quadra_id=${quadraId}&data=${encodeURIComponent(data)}&hora=${encodeURIComponent(hora)}`);
+          const json = await response.json();
+          if (json.success) {
+            const input = document.querySelector(`[name="valores_individuais[${data}_${hora}]"]`);
+            if (input) {
+              input.value = parseFloat(json.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+          }
+        } catch (err) {
+          console.warn('Erro ao preencher valor individual do slot:', err);
+        }
+      }
+    }
+    });
+    // Máscara para campo de moeda
+    document.addEventListener('input', function (e) {
+      if (e.target.classList.contains('moeda')) {
+        let v = e.target.value.replace(/\D/g, '');
+        v = (parseInt(v, 10) / 100).toFixed(2) + '';
+        v = v.replace('.', ',');
+        v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+        e.target.value = 'R$ ' + v;
+      }
     });
   </script>
 </body>
