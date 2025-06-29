@@ -18,9 +18,15 @@ require_once '_head.php';
         <!-- Conteúdo principal -->
         <main class="flex-1 p-4">
             <?php
-            // Verifica se o usuário está logado
+            // Verifica se o usuário está logado e tem permissão
             if (!isset($_SESSION['DuplaUserId'])) {
                 header("Location: index.php"); // Redireciona para a página de login se não estiver logado
+                exit;
+            }
+
+            if (!isset($_SESSION['DuplaUserTipo']) || !in_array($_SESSION['DuplaUserTipo'], ['gestor', 'super'])) {
+                $_SESSION['mensagem'] = ["danger", "Você não tem permissão para acessar esta página."];
+                header("Location: principal.php");
                 exit;
             }
 

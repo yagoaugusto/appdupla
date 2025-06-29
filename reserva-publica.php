@@ -48,9 +48,53 @@ if ($quadras) {
 <html lang="pt-br">
 
 <head>
-    <?php require_once '_head.php'; ?>
-    <!-- Adicione a folha de estilo do Flatpickr -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <!-- SEO Meta Tags -->
+  <title>DUPLA - Seu Ranking de Beach Tennis</title>
+  <meta name="description" content="Registre partidas, evolua no ranking, crie comunidades e compartilhe seus resultados com amigos. DUPLA é o app ideal para beach tennis.">
+  <meta name="keywords" content="beach tennis, dupla, ranking, partidas, esportes, app, comunidades, torneios, validação de partidas">
+  <meta name="author" content="DUPLA">
+
+  <!-- Open Graph (Facebook, WhatsApp) -->
+  <meta property="og:title" content="DUPLA - Seu Ranking de Beach Tennis">
+  <meta property="og:description" content="Registre partidas e acompanhe rankings personalizados.">
+  <meta property="og:image" content="https://beta.appdupla.com/img/og.png"> <!-- imagem com dimensões 1200x630 -->
+  <meta property="og:url" content="https://beta.appdupla.com/">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DUPLA - Ranking de Beach Tennis">
+  <meta name="twitter:description" content="Valide partidas, suba no ranking e jogue com amigos!">
+  <meta name="twitter:image" content="https://beta.appdupla.com/img/og.jpg">
+  <meta name="color-scheme" content="light">
+
+  <!-- Toastify CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<!-- Toastify JS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+
+  <?php $version = time(); // Use um timestamp para forçar o recarregamento durante o desenvolvimento. Em produção, use uma string de versão fixa. 
+  ?>
+
+  <!-- garante tema claro antes do carregamento DaisyUI -->
+  <script>
+    document.documentElement.setAttribute('data-theme', 'light');
+  </script>
+
+  <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css?v=<?php echo $version; ?>" rel="stylesheet" type="text/css" />
+  <style>
+    /* Adiciona margem à esquerda no conteúdo principal em telas grandes para acomodar a barra lateral */
+    @media (min-width: 1024px) { /* Ponto de quebra 'lg' do Tailwind */
+      main.flex-1 {
+        /* A sidebar tem w-64, que corresponde a 16rem (256px) */
+        margin-left: 16rem;
+      }
+    }
+  </style>
 </head>
 
 <body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
@@ -244,14 +288,13 @@ if ($quadras) {
         function toggleHorario(button) {
             const key = button.dataset.key;
             const preco = parseFloat(button.dataset.preco);
-            const quadraNome = button.dataset.quadraNome; // Captura o nome da quadra
 
             if (horariosSelecionados.has(key)) {
                 horariosSelecionados.delete(key);
                 button.classList.remove('slot-selecionado', 'bg-blue-600', 'text-white');
                 button.classList.add('slot-disponivel', 'bg-green-100', 'text-green-800');
             } else {
-                horariosSelecionados.set(key, { preco: preco, quadraNome: quadraNome }); // Armazena o preço e o nome da quadra
+                horariosSelecionados.set(key, { preco });
                 button.classList.remove('slot-disponivel', 'bg-green-100', 'text-green-800');
                 button.classList.add('slot-selecionado', 'bg-blue-600', 'text-white');
             }
@@ -295,34 +338,9 @@ if ($quadras) {
                 return;
             }
 
-            // Cria um formulário dinamicamente para enviar os dados
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'confirmar-agendamento.php';
-
-            // Cria um input para armazenar os dados dos slots selecionados
-            const slotsInput = document.createElement('input');
-            slotsInput.type = 'hidden';
-            slotsInput.name = 'slots';
-            
-            const slotsData = [];
-            horariosSelecionados.forEach((value, key) => {
-                const [quadraId, horario] = key.split('_');
-                slotsData.push({
-                    quadra_id: quadraId,
-                    quadra_nome: value.quadraNome, // Usa o nome da quadra armazenado
-                    data: '<?= $data ?>', // Pega a data da variável PHP
-                    horario: horario,
-                    preco: value.preco
-                });
-            });
-
-            slotsInput.value = JSON.stringify(slotsData);
-            form.appendChild(slotsInput);
-
-            // Adiciona o formulário ao corpo da página e o submete
-            document.body.appendChild(form);
-            form.submit();
+            const detalhes = Array.from(horariosSelecionados.keys()).join(', ');
+            alert("Reserva confirmada para: " + detalhes);
+            // Aqui você pode redirecionar ou enviar via AJAX para a API
         }
     </script>
     <footer class="w-full bg-white border-t border-gray-200 py-4 text-center fixed bottom-0 left-0 z-50">

@@ -59,7 +59,9 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
       </div>
       <div class="collapse-content !p-0"> 
         <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
-          <li><a href="criar-torneio.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'criar-torneio.php' ? 'active' : '' ?>">Criar Torneio</a></li>
+          <?php if (isset($_SESSION['DuplaUserTipo']) && in_array($_SESSION['DuplaUserTipo'], ['gestor', 'super'])): ?>
+            <li><a href="criar-torneio.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'criar-torneio.php' ? 'active' : '' ?>">Criar Torneio</a></li>
+          <?php endif; ?>
           <li><a href="meus-torneios.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'meus-torneios.php' ? 'active' : '' ?>">Meus Torneios</a></li>
           <li><a href="encontrar-torneio.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'encontrar-torneio.php' ? 'active' : '' ?>">Encontrar Torneios</a></li>
         </ul>
