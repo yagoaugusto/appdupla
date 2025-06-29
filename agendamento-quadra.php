@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <?php
+// Carrega o cabeçalho e variáveis iniciais
 require_once '_head.php';
 
 // --- LÓGICA DA PÁGINA ---
@@ -20,7 +21,7 @@ if ($arena_id_selecionada) {
   $quadras = Quadras::getQuadrasPorArena($arena_id_selecionada);
 }
 
-// --- CÁLCULO DA SEMANA ATUAL ---
+// Cálculo das datas da semana baseada no offset da URL
 $hoje = new DateTime('now', new DateTimeZone('America/Sao_Paulo'));
 if ($offset_semana !== 0) {
   $hoje->modify(($offset_semana > 0 ? '+' : '') . ($offset_semana * 7) . ' days');
@@ -36,7 +37,7 @@ for ($i = 0; $i < 7; $i++) {
   $dias_da_semana_obj[] = $dia;
 }
 
-// --- BUSCA DE DADOS (COM DADOS MOCK PARA EXEMPLO) ---
+// Geração da grade semanal de horários disponíveis da quadra
 $grade_horarios = [];
 if ($quadra_id_selecionada) {
   // 1. Buscar horários de funcionamento da quadra
@@ -89,6 +90,49 @@ $estilos_tipo = [
 ?>
 
 <body class="bg-gray-100 min-h-screen text-gray-800">
+  <!-- // Exibe toast de sucesso ou erro (usando DaisyUI e Toastify) -->
+  <?php if (isset($_SESSION['mensagem'])): ?>
+    <?php
+    [$tipo, $texto] = $_SESSION['mensagem'];
+    unset($_SESSION['mensagem']);
+
+    // Definir classes e ícone com base no tipo da mensagem, usando o padrão DaisyUI
+    if ($tipo === 'success') {
+      $alertClasses = 'alert alert-success shadow-lg text-white';
+      $iconSVG = '<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+    } else { // 'error' ou 'danger'
+      $alertClasses = 'alert alert-error shadow-lg text-white';
+      $iconSVG = '<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+    }
+    ?>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        // Cria o elemento HTML para o toast usando a estrutura do DaisyUI
+        const toastNode = document.createElement('div');
+        toastNode.className = '<?= $alertClasses ?>';
+        toastNode.innerHTML = `
+        <div class="flex items-center gap-3">
+          <?= $iconSVG ?>
+          <span class="font-semibold"><?= addslashes($texto) ?></span>
+        </div>
+      `;
+
+        Toastify({
+          node: toastNode,
+          duration: 4000,
+          close: true,
+          gravity: "bottom",
+          position: "center",
+          stopOnFocus: true,
+          style: {
+            background: "transparent",
+            boxShadow: "none",
+            padding: "0"
+          }
+        }).showToast();
+      });
+    </script>
+  <?php endif; ?>
 
   <!-- Navbar superior -->
   <?php require_once '_nav_superior.php' ?>
@@ -142,6 +186,7 @@ $estilos_tipo = [
             </div>
           </div>
 
+          <!-- Tabela de agendamento semanal com status por horário -->
           <!-- Grade de Horários -->
           <div class="overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-200">
             <table class="table table-fixed w-full text-center">
@@ -201,6 +246,7 @@ $estilos_tipo = [
           </div>
         <?php endif; ?>
       </section>
+      <br> <br> <br>
     </main>
   </div>
 
@@ -220,6 +266,7 @@ $estilos_tipo = [
       <form id="formAgendamento" method="POST" action="controller-agendamento/salvar-agendamento.php" class="py-4 space-y-4">
         <input type="hidden" name="arena_id" value="<?= htmlspecialchars($arena_id_selecionada) ?>">
         <input type="hidden" name="quadra_id_selecionada" value="<?= htmlspecialchars($quadra_id_selecionada) ?>">
+        <input type="hidden" name="origin" value="agendamento-quadra">
         <input type="hidden" name="offset_semana" value="<?= htmlspecialchars($offset_semana) ?>">
 
         <input type="hidden" name="selected_slots" id="selectedSlotsInput">
@@ -234,8 +281,8 @@ $estilos_tipo = [
           </select>
         </div>
         <div class="form-control relative">
-          <label class="label"><span class="label-text">Associar a um Usuário (Opcional)</span></label>
-          <input type="text" id="searchUsuarioInput" placeholder="Busque por nome, apelido ou CPF" class="input input-bordered w-full">
+          <label class="label"><span class="label-text">Associar a um Usuário</span></label>
+          <input type="text" id="searchUsuarioInput" placeholder="Busque por nome, apelido ou CPF" class="input input-bordered w-full" required>
           <input type="hidden" name="usuario_id" id="selectedUsuarioId">
           <div id="selectedUserNameDisplay" class="text-sm text-gray-600 mt-1"></div>
           <!-- Container para os resultados da busca, posicionado em relação a este div -->
@@ -245,7 +292,7 @@ $estilos_tipo = [
         </div>
         <div class="form-control">
           <label class="label"><span class="label-text">Observações</span></label>
-          <textarea name="observacoes" class="textarea textarea-bordered" placeholder="Ex: Pagamento pendente, evento especial, nome do cliente (se não for usuário), etc."></textarea>
+          <textarea name="observacoes" required class="textarea textarea-bordered" placeholder="Ex: Pagamento pendente, evento especial, nome do cliente (se não for usuário), etc."></textarea>
         </div>
 
         <div id="valoresIndividuaisContainer">
@@ -288,6 +335,7 @@ $estilos_tipo = [
     <form method="dialog" class="modal-backdrop"><button>close</button></form>
   </dialog>
 
+  <!-- Scripts de interação para agendamento, seleção e busca de usuários -->
   <script>
     // Função global para lidar com o clique no botão de cancelar.
     function handleCancelClick(buttonElement) {
@@ -312,15 +360,19 @@ $estilos_tipo = [
 
     document.addEventListener('DOMContentLoaded', () => {
       // Listener para confirmação de cancelamento
-      document.getElementById('btnConfirmarCancelamento').addEventListener('click', async function () {
+      document.getElementById('btnConfirmarCancelamento').addEventListener('click', async function() {
         const agendamentoId = this.dataset.agendamentoId;
         const modalConfirm = document.getElementById('modalConfirmacaoCancelamento');
 
         try {
           const response = await fetch('controller-agendamento/cancelar-agendamento.php', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ agendamento_id: agendamentoId })
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              agendamento_id: agendamentoId
+            })
           });
 
           const result = await response.json();
@@ -402,12 +454,19 @@ $estilos_tipo = [
               .then(result => {
                 if (result.success) {
                   const agendamento = result.data;
-                  
+
                   // Formatar dados para exibição
-                  const dataFormatada = new Date(agendamento.data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                  const dataFormatada = new Date(agendamento.data + 'T00:00:00').toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  });
                   const horaInicio = agendamento.hora_inicio.substring(0, 5);
                   const horaFim = agendamento.hora_fim.substring(0, 5);
-                  const precoFormatado = parseFloat(agendamento.preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                  const precoFormatado = parseFloat(agendamento.preco).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                  });
 
                   let clienteInfo = '';
                   if (agendamento.cliente_nome) {
@@ -417,9 +476,9 @@ $estilos_tipo = [
                     }
                   }
 
-                  const observacoesInfo = agendamento.observacoes 
-                    ? `<div class="pt-2 mt-2 border-t"><strong>Observações:</strong><p class="text-gray-600 bg-gray-50 p-2 rounded-md mt-1">${agendamento.observacoes.replace(/\n/g, '<br>')}</p></div>` 
-                    : '';
+                  const observacoesInfo = agendamento.observacoes ?
+                    `<div class="pt-2 mt-2 border-t"><strong>Observações:</strong><p class="text-gray-600 bg-gray-50 p-2 rounded-md mt-1">${agendamento.observacoes.replace(/\n/g, '<br>')}</p></div>` :
+                    '';
 
                   viewAgendamentoContent.innerHTML = `
                     <div class="space-y-1">
@@ -469,15 +528,19 @@ $estilos_tipo = [
           label.classList.add('label');
 
           const dataObj = new Date(slot.data + 'T00:00:00');
-          const dataFormatada = dataObj.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+          const dataFormatada = dataObj.toLocaleDateString('pt-BR', {
+            timeZone: 'America/Sao_Paulo'
+          });
           label.innerHTML = `<span class="label-text">${slot.hora} - ${dataFormatada}</span>`;
 
           const campo = document.createElement('input');
           campo.type = 'text';
-          campo.name = `valores_individuais[${slot.data}_${slot.hora}]`;
+          const quadraId = <?= json_encode($quadra_id_selecionada) ?>;
+          campo.name = `valores_individuais[${quadraId}_${slot.data}_${slot.hora}]`;
           campo.classList.add('input', 'input-bordered', 'moeda', 'w-full');
           campo.setAttribute('data-slot', `${slot.data}_${slot.hora}`);
           campo.placeholder = `Valor ${slot.data} ${slot.hora}`;
+          campo.required = true;
 
           wrapper.appendChild(label);
           wrapper.appendChild(campo);
@@ -487,7 +550,7 @@ $estilos_tipo = [
         preencherValoresIndividuais();
       });
 
-     // --- Lógica de Busca de Usuários no Modal de Agendamento ---
+      // --- Lógica de Busca de Usuários no Modal de Agendamento ---
       const searchUsuarioInput = document.getElementById('searchUsuarioInput');
       const selectedUsuarioIdInput = document.getElementById('selectedUsuarioId');
       const selectedUserNameDisplay = document.getElementById('selectedUserNameDisplay');
@@ -530,7 +593,7 @@ $estilos_tipo = [
 
                 userDiv.dataset.userId = user.id;
                 userDiv.dataset.userName = `${user.nome} ${user.apelido ? `(${user.apelido})` : ''}`;
-                
+
                 userDiv.addEventListener('click', () => {
                   selectedUsuarioIdInput.value = userDiv.dataset.userId;
                   selectedUserNameDisplay.textContent = `Usuário selecionado: ${userDiv.dataset.userName}`;
@@ -555,30 +618,33 @@ $estilos_tipo = [
       // Esconde os resultados da busca quando o modal é fechado
       modalAgendamento.addEventListener('close', () => {
         usuarioSearchResults.classList.add('hidden');
-      });  
-      
-    // Função para preencher automaticamente os valores individuais dos slots selecionados
-    async function preencherValoresIndividuais() {
-      const quadraId = <?= json_encode($quadra_id_selecionada) ?>;
-      for (let slotId of selectedSlots) {
-        const [data, hora] = slotId.split('_');
-        try {
-          const response = await fetch(`controller-agendamento/get-valor-slot.php?quadra_id=${quadraId}&data=${encodeURIComponent(data)}&hora=${encodeURIComponent(hora)}`);
-          const json = await response.json();
-          if (json.success) {
-            const input = document.querySelector(`[name="valores_individuais[${data}_${hora}]"]`);
-            if (input) {
-              input.value = parseFloat(json.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      });
+
+      // Função para preencher automaticamente os valores individuais dos slots selecionados
+      async function preencherValoresIndividuais() {
+        const quadraId = <?= json_encode($quadra_id_selecionada) ?>;
+        for (let slotId of selectedSlots) {
+          const [data, hora] = slotId.split('_');
+          try {
+            const response = await fetch(`controller-agendamento/get-valor-slot.php?quadra_id=${quadraId}&data=${encodeURIComponent(data)}&hora=${encodeURIComponent(hora)}`);
+            const json = await response.json();
+            if (json.success) {
+              const input = document.querySelector(`[name="valores_individuais[${quadraId}_${data}_${hora}]"]`);
+              if (input) {
+                input.value = parseFloat(json.total).toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
+              }
             }
+          } catch (err) {
+            console.warn('Erro ao preencher valor individual do slot:', err);
           }
-        } catch (err) {
-          console.warn('Erro ao preencher valor individual do slot:', err);
         }
       }
-    }
     });
     // Máscara para campo de moeda
-    document.addEventListener('input', function (e) {
+    document.addEventListener('input', function(e) {
       if (e.target.classList.contains('moeda')) {
         let v = e.target.value.replace(/\D/g, '');
         v = (parseInt(v, 10) / 100).toFixed(2) + '';
@@ -588,6 +654,9 @@ $estilos_tipo = [
       }
     });
   </script>
+  <!-- <footer class="w-full bg-white border-t border-gray-200 py-4 text-center fixed bottom-0 left-0 z-50">
+    DUPLA - Deu Game? Dá Ranking!
+  </footer> -->
 </body>
 
 </html>

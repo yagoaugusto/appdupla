@@ -198,6 +198,8 @@ $estilos_tipo = [
         <input type="hidden" name="arena_id" value="<?= htmlspecialchars($arena_id_selecionada) ?>">
         <!-- O quadra_id_selecionada será definido dinamicamente no JS para cada slot -->
         <input type="hidden" name="quadra_id_selecionada" id="modalQuadraIdInput">
+        <input type="hidden" name="origin" value="agenda-diaria">
+        <input type="hidden" name="data_selecionada" value="<?= $data_selecionada->format('Y-m-d') ?>">
         <input type="hidden" name="selected_slots" id="selectedSlotsInput">
 
         <div class="form-control">
@@ -211,7 +213,7 @@ $estilos_tipo = [
         </div>
         <div class="form-control relative">
           <label class="label"><span class="label-text">Associar a um Usuário (Opcional)</span></label>
-          <input type="text" id="searchUsuarioInput" placeholder="Busque por nome, apelido ou CPF" class="input input-bordered w-full">
+          <input type="text" id="searchUsuarioInput" placeholder="Busque por nome, apelido ou CPF" class="input input-bordered w-full" required>
           <input type="hidden" name="usuario_id" id="selectedUsuarioId">
           <div id="selectedUserNameDisplay" class="text-sm text-gray-600 mt-1"></div>
           <div id="usuarioSearchResults" class="absolute top-full left-0 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-48 overflow-y-auto hidden z-30">
@@ -220,7 +222,10 @@ $estilos_tipo = [
         </div>
         <div class="form-control">
           <label class="label"><span class="label-text">Observações</span></label>
-          <textarea name="observacoes" class="textarea textarea-bordered" placeholder="Ex: Pagamento pendente, evento especial, nome do cliente (se não for usuário), etc."></textarea>
+          <textarea name="observacoes" class="textarea textarea-bordered" placeholder="Ex: Pagamento pendente, evento especial, nome do cliente (se não for usuário), etc." required></textarea>
+        </div>
+        <div id="valoresIndividuaisContainer" class="max-h-48 overflow-y-auto space-y-2 border-t pt-4 mt-2">
+          <!-- Campos de valor por slot serão adicionados aqui via JS -->
         </div>
         <div class="modal-action">
           <button type="button" class="btn" onclick="modalAgendamento.close()">Cancelar</button>
@@ -424,15 +429,66 @@ $estilos_tipo = [
           return { quadraId, data, hora };
         });
 
-        // Para o modal de agendamento, precisamos de um quadra_id para o formulário.
-        // Como estamos agendando múltiplos slots, o controller vai iterar sobre eles.
-        // O quadra_id_selecionada no formulário será o ID da primeira quadra selecionada.
-        // O controller `salvar-agendamento.php` já está preparado para receber `quadra_id_selecionada`
-        // e `selected_slots` (que contém o quadraId para cada slot).
+        // O controller `salvar-agendamento.php` usa o `quadra_id_selecionada` como fallback.
         modalQuadraIdInput.value = slotsData[0].quadraId;
         selectedSlotsInput.value = JSON.stringify(slotsData.map(s => ({ data: s.data, hora: s.hora, quadra_id: s.quadraId })));
+
+        // Adiciona campos individuais de valor
+        const valoresContainer = document.getElementById('valoresIndividuaisContainer');
+        valoresContainer.innerHTML = ''; // Limpa antes de adicionar novos
+
+        const quadrasDaArena = <?= json_encode(array_column($quadras_da_arena, 'nome', 'id')) ?>;
+
+        slotsData.forEach((slot, index) => {
+          const wrapper = document.createElement('div');
+          wrapper.classList.add('form-control');
+
+          const label = document.createElement('label');
+          label.classList.add('label');
+
+          const quadraNome = quadrasDaArena[slot.quadraId] || `Quadra ID ${slot.quadraId}`;
+          label.innerHTML = `<span class="label-text">${quadraNome} - ${slot.hora}</span>`;
+
+          const campo = document.createElement('input');
+          campo.type = 'text';
+          // A chave deve ser única, combinando quadra, data e hora.
+          campo.name = `valores_individuais[${slot.quadraId}_${slot.data}_${slot.hora}]`;
+          campo.classList.add('input', 'input-bordered', 'moeda', 'w-full');
+          campo.setAttribute('data-slot', `${slot.quadraId}_${slot.data}_${slot.hora}`);
+          campo.placeholder = `Valor para ${slot.hora}`;
+          campo.required = true;
+
+          wrapper.appendChild(label);
+          wrapper.appendChild(campo);
+          valoresContainer.appendChild(wrapper);
+        });
+
         modalAgendamento.showModal();
+        preencherValoresIndividuaisDiaria();
       });
+
+      // Função para preencher automaticamente os valores individuais dos slots selecionados na visão diária
+      async function preencherValoresIndividuaisDiaria() {
+        for (let slotId of selectedSlots) {
+          const [quadraId, data, hora] = slotId.split('_');
+          try {
+            const response = await fetch(`controller-agendamento/get-valor-slot.php?quadra_id=${quadraId}&data=${encodeURIComponent(data)}&hora=${encodeURIComponent(hora)}`);
+            const json = await response.json();
+            if (json.success) {
+              // A chave do input é quadraId_data_hora
+              const input = document.querySelector(`[name="valores_individuais[${quadraId}_${data}_${hora}]"]`);
+              if (input) {
+                input.value = parseFloat(json.total).toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
+              }
+            }
+          } catch (err) {
+            console.warn('Erro ao preencher valor individual do slot:', err);
+          }
+        }
+      }
 
       // --- Lógica de Busca de Usuários no Modal de Agendamento ---
       const searchUsuarioInput = document.getElementById('searchUsuarioInput');
@@ -501,6 +557,17 @@ $estilos_tipo = [
 
       modalAgendamento.addEventListener('close', () => {
         usuarioSearchResults.classList.add('hidden');
+      });
+
+      // Máscara para campo de moeda
+      document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('moeda')) {
+          let v = e.target.value.replace(/\D/g, '');
+          v = (parseInt(v, 10) / 100).toFixed(2) + '';
+          v = v.replace('.', ',');
+          v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+          e.target.value = 'R$ ' + v;
+        }
       });
     });
   </script>

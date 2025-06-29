@@ -63,20 +63,21 @@ if ($quadras) {
         <!-- Menu lateral -->
         <?php require_once '_nav_lateral.php' ?>
 
-        <div id="horariosSelecionados" class="fixed top-16 left-1/2 transform -translate-x-1/2 bg-white border border-blue-200 rounded-xl shadow-lg p-3 text-sm text-center z-50 hidden">
-            <span class="font-semibold text-gray-800">Horários Selecionados:</span>
-            <div id="listaHorarios" class="mt-2 text-blue-600 font-mono"></div>
-            <div class="mt-3 flex justify-center gap-3">
-                <button onclick="limparHorarios()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-1 px-3 rounded">
-                    Limpar Seleção
-                </button>
-                <button onclick="confirmarReserva()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded">
-                    Confirmar Reserva
-                </button>
-            </div>
-        </div>
-
         <main class="flex-1 py-8 px-4 items-center">
+            <!-- Barra de Ações Fixa no Topo -->
+            <div id="floatingActionBar" class="sticky top-16 z-30 bg-gray-800 text-white shadow-lg p-3 mb-6 hidden rounded-lg border border-gray-700">
+                <div class="max-w-4xl mx-auto flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <span id="selectedCount" class="font-bold"></span>
+                        <span id="totalPrice" class="font-semibold text-green-400"></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="limparHorarios()" class="btn btn-ghost btn-sm hover:bg-gray-700">Limpar</button>
+                        <button onclick="confirmarReserva()" class="btn btn-success btn-sm">Agendar</button>
+                    </div>
+                </div>
+            </div>
+            
             <section class="max-w-4xl mx-auto w-full md:w-11/12 lg:w-4/5 bg-white/95 rounded-2xl shadow-xl border border-blue-200 mt-4 mb-6 px-4 py-6 flex flex-col backdrop-blur-md">
 
                 <!-- Título da Página -->
@@ -87,64 +88,87 @@ if ($quadras) {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
-                    <!-- Título Principal -->
-                    <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-pink-500 to-red-600 mb-2 tracking-tight drop-shadow-lg">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-pink-500 to-red-600 mb-2 tracking-tight drop-shadow-lg">
                         Reserve sua quadra na <?= htmlspecialchars($arena['titulo']) ?>
-                    </h1>
+                    </h2>
+                    <!-- Destaque da Data -->
+                    <p class="text-lg font-semibold text-blue-600 bg-blue-100 inline-block px-4 py-1 rounded-full mb-3">
+                        🗓️ <?= date('d/m/Y', strtotime($data)) ?>
+                    </p>
                     <!-- Subtítulo -->
                     <p class="text-sm sm:text-base text-gray-600 font-medium">
-                        Seu próximo play está mais perto do que você imagina. Escolha seu horário e garanta a diversão!
+                        Seu próximo play vai ser divertido!
                     </p>
                 </div>
 
-                <div class="bg-gray-50 p-4 rounded-md mb-6">
-                    <p class="text-gray-700">
-                        <span class="font-semibold text-lg"><?= htmlspecialchars($arena['titulo']) ?></span> -
-                        <span class="text-blue-500 font-medium"><?= date('d/m/Y', strtotime($data)) ?></span>
-                    </p>
-                </div>
-
-                <!-- Botão "Ver Horários" (agora abre o modal) -->
-                <button onclick="openModal()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-6">
-                    Verificar Horários
+                <!-- Novo seletor de data interativo -->
+                <button onclick="openModal()" class="w-full bg-white p-4 rounded-lg shadow-md border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-between text-left mb-6">
+                    <div>
+                        <span class="text-xs text-gray-500">Data selecionada</span>
+                        <p class="text-lg font-bold text-blue-600"><?= date('d/m/Y', strtotime($data)) ?></p>
+                    </div>
+                    <div class="flex items-center gap-2 text-blue-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span class="text-sm font-semibold">Alterar</span>
+                    </div>
                 </button>
 
-                <!-- Modal para selecionar a data -->
-                <?php include '_modal_selecionar_data.php'; ?>
-
-                <?php if (!empty($quadras_info)): ?>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Horários por Quadra</h2>
-                    <?php foreach ($quadras_info as $quadra): ?>
-                        <div class="collapse collapse-arrow bg-white rounded-lg shadow mb-4">
-                            <input type="checkbox" class="peer" />
-                            <div class="collapse-title text-xl font-medium text-gray-700 hover:bg-gray-50 p-4">
-                                <div class="mb-2">
-                                    <?= htmlspecialchars($quadra['nome']) ?>
-                                </div>
-                                <div class="flex flex-wrap gap-1">
-                                    <?php for ($i = 0; $i < $quadra['disponiveis']; $i++): ?>
-                                        <span class="h-4 w-4 rounded-full bg-green-400"></span>
-                                    <?php endfor; ?>
-                                    <?php for ($i = 0; $i < count($quadra['reservados']); $i++): ?>
-                                        <span class="h-4 w-4 rounded-full bg-red-400"></span>
-                                    <?php endfor; ?>
-                                </div>
-                                <div class="mt-1 text-sm text-gray-500">
-                                    (<?= $quadra['disponiveis'] ?> disponíveis, <?= count($quadra['reservados']) ?> reservados)
+                <!-- Modal de seleção de data (agora neste arquivo) -->
+                <div id="dateModal" class="fixed z-50 inset-0 overflow-y-auto hidden">
+                    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        <div class="fixed inset-0 transition-opacity" aria-hidden="true" onclick="closeModal()">
+                            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+                        </div>
+                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                <div class="sm:flex sm:items-start">
+                                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                                        <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Selecionar Nova Data</h3>
+                                        <div class="mt-2"><input type="date" id="modalDate" name="modalDate" class="input input-bordered w-full"></div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="collapse-content">
+                            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                <button type="button" onclick="selectDate()" class="btn btn-primary w-full sm:w-auto">Selecionar</button>
+                                <button type="button" onclick="closeModal()" class="btn btn-ghost mt-3 w-full sm:mt-0 sm:w-auto">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <?php if (!empty($quadras_info)): ?>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="text-3xl">🕒</span>
+                        Escolha sua Quadra e Horário
+                    </h2>
+                    <div class="space-y-4">
+                        <?php foreach ($quadras_info as $quadra): ?>
+                            <div class="collapse collapse-arrow bg-gray-50 rounded-lg border border-gray-200">
+                                <input type="checkbox" class="peer" />
+                                <div class="collapse-title text-lg font-semibold text-gray-800 flex items-center justify-between">
+                                    <span><?= htmlspecialchars($quadra['nome']) ?></span>
+                                    <div class="flex items-center gap-2 text-sm">
+                                        <span class="badge badge-success badge-outline"><?= $quadra['disponiveis'] ?> disponíveis</span>
+                                        <span class="badge badge-error badge-outline"><?= count($quadra['reservados']) ?> reservados</span>
+                                    </div>
+                                </div>
+                                <div class="collapse-content bg-white">
                                 <?php if (!empty($quadra['horarios'])): ?>
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4">
+                                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 p-4">
                                         <?php
                                         $todos_horarios = array_unique(array_merge($quadra['horarios'], $quadra['reservados']));
                                         sort($todos_horarios);
                                         ?>
                                         <?php foreach ($todos_horarios as $horario): ?>
                                             <?php
-                                            $isReservado = in_array($horario, $quadra['reservados']);
-                                            $bgColor = $isReservado ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-700';
-                                            $horaFim = date('H:i', strtotime($horario) + 3600);
+                                            $is_reservado = in_array($horario, $quadra['reservados']);
+                                            $button_classes = $is_reservado
+                                                ? 'bg-gray-200 text-gray-400 line-through cursor-not-allowed'
+                                                : 'slot-disponivel bg-green-100 text-green-800 hover:bg-green-200 cursor-pointer';
                                             $diaSemanaIngles = date('l', strtotime($data));
                                             $dias_semana_map = [
                                                 'Monday' => 'segunda',
@@ -160,24 +184,27 @@ if ($quadras) {
                                             $valorAdicional = Quadras::getValorAdicionalPorSlot($quadra['id'], $diaSemanaPt, $horario);
                                             $valorBase = floatval($quadra['preco'] ?? 0);
                                             $valorTotal = number_format($valorBase + $valorAdicional, 2, ',', '.');
+                                            $horaFim = date('H:i', strtotime($horario . ' +1 hour'));
                                             ?>
                                             <button
-                                                class="<?= $bgColor ?> text-white font-bold py-2 px-3 rounded text-sm <?= $isReservado ? 'cursor-not-allowed opacity-70' : '' ?>"
+                                                class="p-2 rounded-lg text-center font-semibold transition-all duration-200 flex flex-col items-center justify-center h-20 <?= $button_classes ?>"
                                                 data-key="<?= $quadra['id'] ?>_<?= $horario ?>"
                                                 data-quadra-nome="<?= htmlspecialchars($quadra['nome']) ?>"
                                                 data-preco="<?= $valorBase + $valorAdicional ?>"
-                                                onclick="<?= $isReservado ? 'event.preventDefault();' : "toggleHorario('{$quadra['id']}', '{$horario}')" ?>"
-                                                <?= $isReservado ? 'disabled' : '' ?>>
-                                                <?= $horario ?> às <?= $horaFim ?><br><span class="text-xs font-normal">R$ <?= $valorTotal ?></span>
+                                                onclick="<?= $is_reservado ? 'event.preventDefault();' : "toggleHorario(this)" ?>"
+                                                <?= $is_reservado ? 'disabled' : '' ?>>
+                                                <span class="text-sm font-bold"><?= $horario ?> - <?= $horaFim ?></span>
+                                                <span class="text-xs font-normal mt-1">R$ <?= $valorTotal ?></span>
                                             </button>
                                         <?php endforeach; ?>
                                     </div>
                                 <?php else: ?>
                                     <p class="text-gray-500 p-4">Nenhum horário disponível.</p>
                                 <?php endif; ?>
+                                </div>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    </div>
                 <?php else: ?>
                     <p class="text-gray-500">Nenhuma quadra encontrada para esta arena.</p>
                 <?php endif; ?>
@@ -212,77 +239,62 @@ if ($quadras) {
             }
         }
 
-        const horariosSelecionados = [];
+        const horariosSelecionados = new Map(); // Usando um Map para facilitar o acesso e a remoção
 
-        function toggleHorario(quadraId, horario) {
-            const button = document.querySelector(`button[data-key="${quadraId}_${horario}"]`);
-            const quadraNome = button.dataset.quadraNome;
+        function toggleHorario(button) {
+            const key = button.dataset.key;
             const preco = parseFloat(button.dataset.preco);
-            const key = `${quadraId}_${horario}`;
-            const displayKey = `${quadraNome}_${horario}`;
-            const index = horariosSelecionados.findIndex(h => h.key === displayKey);
 
-            if (index > -1) {
-                horariosSelecionados.splice(index, 1);
-                button?.classList.remove('bg-blue-700');
-                button?.classList.add('bg-green-500');
+            if (horariosSelecionados.has(key)) {
+                horariosSelecionados.delete(key);
+                button.classList.remove('slot-selecionado', 'bg-blue-600', 'text-white');
+                button.classList.add('slot-disponivel', 'bg-green-100', 'text-green-800');
             } else {
-                horariosSelecionados.push({
-                    key: displayKey,
-                    preco
-                });
-                button?.classList.remove('bg-green-500');
-                button?.classList.add('bg-blue-700');
+                horariosSelecionados.set(key, { preco });
+                button.classList.remove('slot-disponivel', 'bg-green-100', 'text-green-800');
+                button.classList.add('slot-selecionado', 'bg-blue-600', 'text-white');
             }
 
             updateResumoHorarios();
         }
 
         function updateResumoHorarios() {
-            const container = document.getElementById('horariosSelecionados');
-            const lista = document.getElementById('listaHorarios');
+            const bar = document.getElementById('floatingActionBar');
+            const countSpan = document.getElementById('selectedCount');
+            const priceSpan = document.getElementById('totalPrice');
+            const count = horariosSelecionados.size;
 
-            if (horariosSelecionados.length === 0) {
-                container.classList.add('hidden');
-                lista.innerHTML = '';
+            if (count === 0) {
+                bar.classList.add('hidden');
                 return;
             }
 
-            container.classList.remove('hidden');
-            const total = horariosSelecionados.reduce((sum, h) => sum + h.preco, 0);
-            const items = horariosSelecionados.map(h => h.key.replace('_', ' às ')).join(', ');
-            lista.innerHTML = `${items} <br><span class="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Total: R$ ${total.toFixed(2).replace('.', ',')}</span>`;
+            bar.classList.remove('hidden');
+            countSpan.textContent = `${count} horário${count > 1 ? 's' : ''} selecionado${count > 1 ? 's' : ''}`;
+
+            let total = 0;
+            for (let item of horariosSelecionados.values()) {
+                total += item.preco;
+            }
+            priceSpan.textContent = `Total: R$ ${total.toFixed(2).replace('.', ',')}`;
         }
 
         function limparHorarios() {
-            horariosSelecionados.forEach(horarioObj => {
-                const displayKey = horarioObj.key;
-                const parts = displayKey.split('_');
-                if (parts.length >= 2) {
-                    const quadraNome = parts[0];
-                    const horario = parts.slice(1).join('_');
-                    const buttons = document.querySelectorAll(`button[data-quadra-nome="${quadraNome}"]`);
-                    buttons.forEach(btn => {
-                        if (btn.textContent.includes(horario)) {
-                            if (!btn.disabled) {
-                                btn.classList.remove('bg-blue-700');
-                                btn.classList.add('bg-green-500');
-                            }
-                        }
-                    });
-                }
+            document.querySelectorAll('.slot-selecionado').forEach(button => {
+                button.classList.remove('slot-selecionado', 'bg-blue-600', 'text-white');
+                button.classList.add('slot-disponivel', 'bg-green-100', 'text-green-800');
             });
-            horariosSelecionados.length = 0;
+            horariosSelecionados.clear();
             updateResumoHorarios();
         }
 
         function confirmarReserva() {
-            if (horariosSelecionados.length === 0) {
+            if (horariosSelecionados.size === 0) {
                 alert("Nenhum horário selecionado.");
                 return;
             }
 
-            const detalhes = horariosSelecionados.map(h => h.key.replace('_', ' às ')).join(', ');
+            const detalhes = Array.from(horariosSelecionados.keys()).join(', ');
             alert("Reserva confirmada para: " + detalhes);
             // Aqui você pode redirecionar ou enviar via AJAX para a API
         }

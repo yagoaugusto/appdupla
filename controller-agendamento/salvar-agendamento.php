@@ -56,9 +56,8 @@ try {
 
         $valores_individuais = $_POST['valores_individuais'] ?? [];
 
-        // Construa a chave com o mesmo formato do name no input
-        $chave_valor = $slot['data'] . '_' . $slot['hora'];
-
+        // A chave deve ser única, combinando quadra, data e hora.
+        $chave_valor = $quadra_id_para_slot . '_' . $slot['data'] . '_' . $slot['hora'];
         // Valor vindo do formulário
         $preco_bruto = $valores_individuais[$chave_valor] ?? '0';
         $preco_sanitizado = preg_replace('/[^\d,\.]/', '', $preco_bruto); // Remove tudo exceto dígitos, vírgulas e pontos
@@ -94,19 +93,31 @@ try {
     $_SESSION['mensagem'] = ['error', 'Ocorreu um erro inesperado ao salvar o agendamento.'];
 }
 
-// Redireciona de volta para a página de agendamento, mantendo os filtros de arena e quadra
-$redirect_url = '../agendamento-quadra.php';
+// Redireciona de volta para a página de origem, mantendo os filtros
+$origin = filter_input(INPUT_POST, 'origin', FILTER_SANITIZE_STRING);
 $arena_id = filter_input(INPUT_POST, 'arena_id', FILTER_VALIDATE_INT);
-
 $params = [];
-if ($arena_id) $params['arena_id'] = $arena_id;
-if ($quadra_id_form) $params['quadra_id'] = $quadra_id_form;
-// Adiciona o offset da semana ao redirecionamento, se existir e for um valor válido
-if ($semana !== null && $semana !== false) {
-    $params['semana'] = $semana;
+
+if ($origin === 'agenda-diaria') {
+    $redirect_url = '../agenda-diaria.php';
+    $data_selecionada = filter_input(INPUT_POST, 'data_selecionada', FILTER_SANITIZE_STRING);
+
+    if ($arena_id) $params['arena_id'] = $arena_id;
+    if ($data_selecionada) $params['data'] = $data_selecionada;
+} else { // Padrão para agendamento-quadra.php
+    $redirect_url = '../agendamento-quadra.php';
+
+    if ($arena_id) $params['arena_id'] = $arena_id;
+    if ($quadra_id_form) $params['quadra_id'] = $quadra_id_form;
+    // Adiciona o offset da semana ao redirecionamento, se existir e for um valor válido
+    if ($semana !== null && $semana !== false) {
+        $params['semana'] = $semana;
+    }
 }
 
-$redirect_url .= '?' . http_build_query($params);
+if (!empty($params)) {
+    $redirect_url .= '?' . http_build_query($params);
+}
 
 header('Location: ' . $redirect_url);
 exit;
