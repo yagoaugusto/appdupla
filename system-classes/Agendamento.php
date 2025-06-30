@@ -78,4 +78,39 @@ class Agendamento
             return false;
         }
     }
+
+    /**
+     * Busca todas as reservas de um usuário.
+     * @param int $usuario_id
+     * @return array
+     */
+    public static function getReservasByUsuarioId($usuario_id)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+            $stmt = $conn->prepare(
+                "SELECT
+                    aq.*,
+                    q.nome as quadra_nome,
+                    a.titulo as arena_titulo,
+                    a.bandeira as arena_bandeira
+                FROM
+                    agenda_quadras aq
+                JOIN
+                    quadras q ON aq.quadra_id = q.id
+                JOIN
+                    arenas a ON q.arena_id = a.id
+                WHERE
+                    aq.usuario_id = ? AND aq.status = 'reservado'
+                ORDER BY
+                    aq.data DESC,
+                    aq.id DESC"
+            );
+            $stmt->execute([$usuario_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar reservas do usuário: " . $e->getMessage());
+            return [];
+        }
+    }
 }
