@@ -100,12 +100,12 @@ if ($quadras) {
 <body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
 
     <!-- Navbar superior -->
-    <?php require_once '_nav_superior.php' ?>
+    
 
     <div class="flex pt-16">
 
         <!-- Menu lateral -->
-        <?php require_once '_nav_lateral.php' ?>
+        
 
         <main class="flex-1 py-8 px-4 items-center">
             <!-- Barra de Ações Fixa no Topo -->

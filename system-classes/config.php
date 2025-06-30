@@ -14,7 +14,7 @@ define('DB_HOSTNAME', 'localhost');
 define('APP_BASE_URL', 'https://beta.appdupla.com');
 
 // Mercado Pago Credentials
-define('MP_ACCESS_TOKEN', 'APP_USR-6139135356728189-062109-38d659c2b6c61a8c060d3f56d5dd4ccc-141946278'); // Substitua pelo seu Access Token real
+define('MP_ACCESS_TOKEN', 'APP_USR-3719204345760693-063018-7cbb5662433929d5ace680fbe5b6cff7-2523463753'); // Substitua pelo seu Access Token real
 define('MP_NOTIFICATION_URL', APP_BASE_URL . '/controller-pagamento/webhook.php'); // URL do seu webhook
 
 define('DB_DATABASE', 'u580429014_app');

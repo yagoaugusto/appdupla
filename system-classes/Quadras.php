@@ -281,11 +281,13 @@ class Quadras {
             }
 
             // 3. Buscar reservas existentes para a quadra na data
-            $stmt_reservas = $conn->prepare("SELECT hora_inicio FROM agenda_quadras WHERE quadra_id = ? AND data = ?");
+            // MODIFICADO: Formata a hora para 'HH:MM' diretamente na consulta SQL
+            $stmt_reservas = $conn->prepare("SELECT DATE_FORMAT(hora_inicio, '%H:%i') as hora_inicio FROM agenda_quadras WHERE quadra_id = ? AND data = ?");
             $stmt_reservas->execute([$quadra_id, $data]);
             $reservas = $stmt_reservas->fetchAll(PDO::FETCH_COLUMN); // Apenas as horas de início reservadas
 
             // 4. Determinar slots disponíveis (removendo reservas dos slots possíveis)
+            // AGORA FUNCIONA: A comparação será entre strings no mesmo formato (ex: '08:00' vs '08:00')
             $slots_disponiveis = array_diff($slots_possiveis, $reservas);
 
             return $slots_disponiveis;
@@ -299,7 +301,8 @@ class Quadras {
 public static function getSlotsReservados($quadra_id, $data) {
     try {
         $conn = Conexao::pegarConexao();
-        $stmt = $conn->prepare("SELECT hora_inicio FROM agenda_quadras WHERE quadra_id = ? AND data = ?");
+        // MODIFICADO: Formata a hora para 'HH:MM' para consistência
+        $stmt = $conn->prepare("SELECT DATE_FORMAT(hora_inicio, '%H:%i') as hora_inicio FROM agenda_quadras WHERE quadra_id = ? AND data = ?");
         $stmt->execute([$quadra_id, $data]);
         return $stmt->fetchAll(PDO::FETCH_COLUMN); // Apenas horas reservadas
     } catch (PDOException $e) {
