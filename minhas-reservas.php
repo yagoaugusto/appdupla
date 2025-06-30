@@ -13,7 +13,7 @@
         <?php require_once '_nav_lateral.php'; ?>
 
         <!-- Conteúdo principal -->
-        <main class="flex-1 p-4 sm:p-6">
+        <main class="flex-1 min-h-[calc(100vh-4rem)] p-4 sm:p-6">
             <section class="max-w-4xl mx-auto w-full">
                 <div class="flex items-center gap-4 mb-6">
                     <span class="text-4xl">🎟️</span>
@@ -97,11 +97,10 @@
                     </div>
                 <?php endif; ?>
             </section>
-            <br><br><br>
         </main>
     </div>
 
     <?php require_once '_footer.php'; ?>
-
 </body>
+
 </html>
