@@ -269,7 +269,7 @@ if ($quadras) {
                 <?php endif; ?>
             </section> <br><br>
     </main>
-
+<?php exit; ?>
     <script>
         // Função para simular a reserva (substitua pela sua lógica real)
         function reservar(quadra_id, horario) {
