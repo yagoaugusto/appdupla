@@ -157,6 +157,12 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       background-color: transparent;
       font-size: 13px; /* Slightly smaller */
     }
+
+    /* Estilos para o <details> */
+    details > summary {
+      list-style: none; /* Remove a seta padrão */
+      transition: background-color 0.2s;
+    }
   </style>
 </head>
 <body>
@@ -170,27 +176,38 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
         ?>
       </div>
     <?php endif; ?>
-    <form action="system-autenticacao/valida.php" method="post">
-      <!-- Botão de Login do Google -->
-      <div id="google-signin-button" style="display: flex; justify-content: center;"></div>
 
-      <!-- Divisor "ou" -->
-      <div style="display: flex; align-items: center; text-align: center; color: #aaa; margin: 20px 0;">
-        <div style="flex-grow: 1; border-bottom: 1px solid #ddd;"></div>
-        <span style="padding: 0 10px; font-size: 14px;">ou</span>
-        <div style="flex-grow: 1; border-bottom: 1px solid #ddd;"></div>
-      </div>
-      <input type="tel" name="telefone" placeholder="Telefone" required>
-      <input type="password" name="senha" placeholder="Senha" required>
-      <div style="text-align:left; margin: 10px 0;">
-      <label style="display: flex; align-items: center; font-size: 15px; color: #555; cursor: pointer;">
-        <input checked type="checkbox" name="manter_logado" value="1" style="accent-color: #10ac84; width: 18px; height: 18px; margin-right: 8px;">
-        Manter logado
-      </label>
-      </div><br>
-      <button type="submit">Entrar</button>
-      
-    </form>
+    <!-- Destaque para Login com Google -->
+    <div style="background-color: #f0f7ff; padding: 16px; border-radius: 12px; border: 1px solid #d0e8ff; margin-bottom: 1.25rem; text-align: left; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+      <p style="font-size: 14px; font-weight: 600; color: #1e40af; margin-bottom: 12px;">✨ <span style="vertical-align: middle;">Acesso rápido com Google</span></p>
+      <div id="google-signin-button" style="display: flex; justify-content: center;"></div>
+    </div>
+
+    <!-- Divisor "ou" -->
+    <div style="display: flex; align-items: center; text-align: center; color: #aaa; margin: 20px 0;">
+      <div style="flex-grow: 1; border-bottom: 1px solid #ddd;"></div>
+      <span style="padding: 0 10px; font-size: 14px;">ou</span>
+      <div style="flex-grow: 1; border-bottom: 1px solid #ddd;"></div>
+    </div>
+
+    <!-- Login com Telefone (Secundário, colapsado) -->
+    <details>
+      <summary style="cursor: pointer; font-weight: 600; color: #555; padding: 10px; border: 1px solid #ddd; border-radius: 10px;" onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">
+        Entrar com Telefone e Senha
+      </summary>
+      <form action="system-autenticacao/valida.php" method="post" style="margin-top: 1rem;">
+        <input type="tel" name="telefone" placeholder="Telefone" required>
+        <input type="password" name="senha" placeholder="Senha" required>
+        <div style="text-align:left; margin: 10px 0;">
+          <label style="display: flex; align-items: center; font-size: 15px; color: #555; cursor: pointer;">
+            <input checked type="checkbox" name="manter_logado" value="1" style="accent-color: #10ac84; width: 18px; height: 18px; margin-right: 8px;">
+            Manter logado
+          </label>
+        </div>
+        <button type="submit" style="margin-top: 5px;">Entrar</button>
+      </form>
+    </details>
+    <br>
     <div class="link-cadastro">
       <p>Não tem conta? <a href="cadastrar.php" class="btn-discreto btn-cadastro">Cadastre-se aqui</a></p>
       <p><a href="recuperar-senha.php" class="btn-discreto btn-esqueci-senha">Esqueci minha senha ):</a></p>

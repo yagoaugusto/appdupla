@@ -128,7 +128,7 @@ if ($quadras) {
                                     </div>
                                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                                         <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Selecionar Nova Data</h3>
-                                        <div class="mt-2"><input type="date" id="modalDate" name="modalDate" class="input input-bordered w-full"></div>
+                                        <div class="mt-2"><input type="date" id="modalDate" name="modalDate" class="input input-bordered w-full" min="<?= date('Y-m-d') ?>"></div>
                                     </div>
                                 </div>
                             </div>
@@ -166,7 +166,14 @@ if ($quadras) {
                                         <?php foreach ($todos_horarios as $horario): ?>
                                             <?php
                                             $is_reservado = in_array($horario, $quadra['reservados']);
-                                            $button_classes = $is_reservado
+                                            // NOVO BLOCO: Verifica se o horário já passou
+                                            $is_passado = false;
+                                            $data_horario_str = $data . ' ' . $horario;
+                                            $data_horario_obj = DateTime::createFromFormat('Y-m-d H:i', $data_horario_str);
+                                            if ($data_horario_obj < new DateTime()) {
+                                                $is_passado = true;
+                                            }
+                                            $button_classes = ($is_reservado || $is_passado)
                                                 ? 'bg-gray-200 text-gray-400 line-through cursor-not-allowed'
                                                 : 'slot-disponivel bg-green-100 text-green-800 cursor-pointer';
                                             $diaSemanaIngles = date('l', strtotime($data));
@@ -191,8 +198,8 @@ if ($quadras) {
                                                 data-key="<?= $quadra['id'] ?>_<?= $horario ?>"
                                                 data-quadra-nome="<?= htmlspecialchars($quadra['nome']) ?>"
                                                 data-preco="<?= $valorBase + $valorAdicional ?>"
-                                                onclick="<?= $is_reservado ? 'event.preventDefault();' : "toggleHorario(this)" ?>"
-                                                <?= $is_reservado ? 'disabled' : '' ?>>
+                                                onclick="<?= ($is_reservado || $is_passado) ? 'event.preventDefault();' : "toggleHorario(this)" ?>"
+                                                <?= ($is_reservado || $is_passado) ? 'disabled' : '' ?>>
                                                 <span class="text-sm font-bold"><?= $horario ?> - <?= $horaFim ?></span>
                                                 <span class="text-xs font-normal mt-1">R$ <?= $valorTotal ?></span>
                                             </button>
