@@ -9,9 +9,16 @@ $arena_nome = isset($_GET['arena_nome']) ? $_GET['arena_nome'] : 'Arena';
 
 // Validação básica
 if (!$arena_id || !is_numeric($arena_id)) {
-    // Redirecionar ou mostrar uma mensagem de erro se o ID da arena for inválido
-    echo "<p class='text-red-500'>ID de arena inválido.</p>";
-    exit;
+    // SOLUÇÃO: Em vez de sair, mostra uma mensagem de erro amigável.
+    echo '<!DOCTYPE html><html lang="pt-br" data-theme="light"><head><title>Erro - Arena não encontrada</title><link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css" rel="stylesheet" type="text/css" /><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-gray-100 flex items-center justify-center h-screen">';
+    echo '<div class="text-center bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto">';
+    echo '<div class="text-5xl mb-4">🏟️</div>';
+    echo '<h1 class="text-2xl font-bold text-red-600 mb-4">Arena não especificada</h1>';
+    echo '<p class="text-gray-700 mb-6">Para reservar um horário, você precisa primeiro selecionar uma arena. Por favor, escolha uma das nossas arenas parceiras.</p>';
+    // Este link leva o usuário para a página onde ele pode encontrar e selecionar uma arena.
+    echo '<a href="encontre-quadra.php" class="btn btn-primary">Encontrar uma Arena</a>';
+    echo '</div></body></html>';
+    exit; // A saída ainda é necessária para não processar o resto do script.
 }
 
 // Recupera os dados da arena do banco de dados
