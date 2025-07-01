@@ -5,7 +5,6 @@ require_once '#_global.php';
 // Recebendo data e arena via GET
 $data = $_GET['data'] ?? date('Y-m-d');
 $arena_id = isset($_GET['arena']) ? $_GET['arena'] : null;
-$arena_nome = isset($_GET['arena_nome']) ? $_GET['arena_nome'] : 'Arena';
 
 // Validação básica
 if (!$arena_id || !is_numeric($arena_id)) {
@@ -290,7 +289,7 @@ if ($quadras) {
         function selectDate() {
             const selectedDate = document.getElementById('modalDate').value;
             if (selectedDate) {
-                window.location.href = `reserva-publica.php?data=${selectedDate}&arena=<?= $arena_id ?>&arena_nome=<?= urlencode($arena_nome) ?>`;
+                window.location.href = `reserva-publica.php?arena=<?= $arena_id ?>&data=${selectedDate}`;
             } else {
                 alert("Por favor, selecione uma data.");
             }
