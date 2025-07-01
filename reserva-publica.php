@@ -25,8 +25,16 @@ if (!$arena_id || !is_numeric($arena_id)) {
 $arena = Arena::getArenaById($arena_id);  // Assumindo que você tem um método estático 'getArena' na classe Arena
 
 if (!$arena) {
-    echo "<p class='text-red-500'>Arena não encontrada.</p>";
-    exit;
+    // SOLUÇÃO: Em vez de sair, mostra uma mensagem de erro amigável.
+    echo '<!DOCTYPE html><html lang="pt-br" data-theme="light"><head><title>Erro - Arena não encontrada</title><link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css" rel="stylesheet" type="text/css" /><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-gray-100 flex items-center justify-center h-screen">';
+    echo '<div class="text-center bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto">';
+    echo '<div class="text-5xl mb-4">🏟️</div>';
+    echo '<h1 class="text-2xl font-bold text-red-600 mb-4">Arena não especificada</h1>';
+    echo '<p class="text-gray-700 mb-6">Para reservar um horário, você precisa primeiro selecionar uma arena. Por favor, escolha uma das nossas arenas parceiras.</p>';
+    // Este link leva o usuário para a página onde ele pode encontrar e selecionar uma arena.
+    echo '<a href="encontre-quadra.php" class="btn btn-primary">Encontrar uma Arena</a>';
+    echo '</div></body></html>';
+    exit; // A saída ainda é necessária para não processar o resto do script.
 }
 
 //  Recuperar as quadras da arena
@@ -177,7 +185,7 @@ if ($quadras) {
                                 </div>
                             </div>
                             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                <button type="button" onclick="selectDate()" class="btn btn-primary w-full sm:w-auto">Selecionar</button>
+                                <button onclick="selectDate(event)" type="button" class="btn btn-primary w-full sm:w-auto">Selecionar</button>
                                 <button type="button" onclick="closeModal()" class="btn btn-ghost mt-3 w-full sm:mt-0 sm:w-auto">Cancelar</button>
                             </div>
                         </div>
@@ -280,7 +288,8 @@ if ($quadras) {
             document.getElementById('dateModal').classList.add('hidden');
         }
 
-        function selectDate() {
+        function selectDate(event) {
+            if (event) event.preventDefault();
             const selectedDate = document.getElementById('modalDate').value;
             if (selectedDate) {
                 window.location.href = `reserva-publica.php?data=${selectedDate}&arena=<?= $arena_id ?>&arena_nome=<?= urlencode($arena_nome) ?>`;
