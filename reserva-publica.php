@@ -134,7 +134,7 @@ if ($quadras) {
                         </svg>
                     </div>
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-pink-500 to-red-600 mb-2 tracking-tight drop-shadow-lg">
-                        Reserve sua quadra na <?= htmlspecialchars($arena['titulo']) ?>
+                        Reserve sua quadra na <?= htmlspecialchars($arena['titulo']) ?> 1231231232
                     </h2>
                     <!-- Destaque da Data -->
                     <p class="text-lg font-semibold text-blue-600 bg-blue-100 inline-block px-4 py-1 rounded-full mb-3">
