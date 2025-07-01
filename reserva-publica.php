@@ -4,7 +4,6 @@ require_once '#_global.php';
 
 // Recebendo data e arena via GET
 $data = $_GET['data'] ?? date('Y-m-d');
-$arena_id = filter_input(INPUT_GET, 'arena', FILTER_VALIDATE_INT);
 
 // Validação básica
 if (!$arena_id) {
@@ -282,7 +281,7 @@ if ($quadras) {
         function selectDate() {
             const selectedDate = document.getElementById('modalDate').value;
             if (selectedDate) {
-                window.location.href = `reserva-publica.php?data=${selectedDate}&arena=<?= $arena_id ?>&arena_nome=<?= urlencode($arena['titulo']) ?>`;
+                window.location.href = `reserva-publica.php?data=${selectedDate}&arena=<?= $arena_id ?>`;
             } else {
                 alert("Por favor, selecione uma data.");
             }
@@ -363,7 +362,7 @@ if ($quadras) {
             const estaLogado = <?= isset($_SESSION['DuplaUserId']) ? 'true' : 'false' ?>;
             if (!estaLogado) {
                 // Salva temporariamente no localStorage e redireciona para o login
-                localStorage.setItem('agendamento_pendente', JSON.stringify(slotsData));
+                localStorage.setItem('agendamento_pendente', JSON.stringify(slotsData)); // Ação correta
                 window.location.href = 'index.php?redirect=confirmar-agendamento';
             } else {
                 // Envia direto se estiver logado
