@@ -4,9 +4,11 @@ require_once '#_global.php';
 
 // Recebendo data e arena via GET
 $data = $_GET['data'] ?? date('Y-m-d');
+$arena_id = isset($_GET['arena']) ? $_GET['arena'] : null;
+$arena_nome = isset($_GET['arena_nome']) ? $_GET['arena_nome'] : 'Arena';
 
 // Validação básica
-if (!$arena_id) {
+if (!$arena_id || !is_numeric($arena_id)) {
     // SOLUÇÃO: Em vez de sair, mostra uma mensagem de erro amigável.
     echo '<!DOCTYPE html><html lang="pt-br" data-theme="light"><head><title>Erro - Arena não encontrada</title><link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css" rel="stylesheet" type="text/css" /><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-gray-100 flex items-center justify-center h-screen">';
     echo '<div class="text-center bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto">';
@@ -281,7 +283,7 @@ if ($quadras) {
         function selectDate() {
             const selectedDate = document.getElementById('modalDate').value;
             if (selectedDate) {
-                window.location.href = `reserva-publica.php?data=${selectedDate}&arena=<?= $arena_id ?>`;
+                window.location.href = `reserva-publica.php?data=${selectedDate}&arena=<?= $arena_id ?>&arena_nome=<?= urlencode($arena_nome) ?>`;
             } else {
                 alert("Por favor, selecione uma data.");
             }
@@ -362,7 +364,7 @@ if ($quadras) {
             const estaLogado = <?= isset($_SESSION['DuplaUserId']) ? 'true' : 'false' ?>;
             if (!estaLogado) {
                 // Salva temporariamente no localStorage e redireciona para o login
-                localStorage.setItem('agendamento_pendente', JSON.stringify(slotsData)); // Ação correta
+                localStorage.setItem('agendamento_pendente', JSON.stringify(slotsData));
                 window.location.href = 'index.php?redirect=confirmar-agendamento';
             } else {
                 // Envia direto se estiver logado
