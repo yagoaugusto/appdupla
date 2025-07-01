@@ -45,8 +45,13 @@ if ((isset($_POST['telefone'])) && (isset($_POST['senha']))) {
 			// mantém login (cookie) se marcado
 			if (isset($_POST['manter_logado'])) {
 				$token = bin2hex(random_bytes(32));
-				mysqli_query($conn, "UPDATE usuario SET token_login = '{$token}' WHERE id = {$resultado['id']}");
-				setcookie('DuplaLoginToken', $token, time() + (86400 * 30), "/");
+				$hashed_token = hash('sha256', $token); // Cria um hash do token para o DB
+
+				// Usa prepared statement para segurança
+				$stmt_token = mysqli_prepare($conn, "UPDATE usuario SET token_login = ? WHERE id = ?");
+				mysqli_stmt_bind_param($stmt_token, "si", $hashed_token, $resultado['id']);
+				mysqli_stmt_execute($stmt_token);
+				setcookie('DuplaLoginToken', $token, time() + (86400 * 30), "/"); // Envia o token original para o cookie
 			}
 			header("Location: ../principal.php");
 			exit;

@@ -619,6 +619,36 @@ if ($variacao_valor > 0) {
     }
   </style>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Verifica se há uma reserva pendente no localStorage após o login
+    const pendingReservation = localStorage.getItem('agendamento_pendente');
+
+    if (pendingReservation) {
+        // Temos uma reserva pendente, vamos prosseguir para a confirmação.
+        
+        // 1. Limpa o item do localStorage para evitar reativação
+        localStorage.removeItem('agendamento_pendente');
+
+        // 2. Cria um formulário para enviar os dados para a página de confirmação
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'confirmar-agendamento.php';
+        form.style.display = 'none'; // O formulário fica oculto
+
+        const slotsInput = document.createElement('input');
+        slotsInput.type = 'hidden';
+        slotsInput.name = 'slots';
+        slotsInput.value = pendingReservation; // Os dados já estão em formato JSON string
+
+        form.appendChild(slotsInput);
+        document.body.appendChild(form);
+
+        // 3. Envia o formulário para redirecionar o usuário
+        form.submit();
+    }
+});
+</script>
 </body>
 
 </html>

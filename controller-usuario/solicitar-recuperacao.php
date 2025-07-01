@@ -56,10 +56,11 @@ try {
 
     // Gera um token único e com validade (ex: 1 hora)
     $token = bin2hex(random_bytes(32)); // 64 caracteres hexadecimais
+    $hashed_token = hash('sha256', $token); // Hash do token para o DB
     $expiracao = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-    // Salva o token no banco de dados
-    Usuario::setRecoveryToken($usuario_id, $token, $expiracao);
+    // Salva o HASH do token no banco de dados
+    Usuario::setRecoveryToken($usuario_id, $hashed_token, $expiracao);
 
     // Monta o link de recuperação
     $recovery_link = APP_BASE_URL . "/resetar-senha.php?token=" . $token;

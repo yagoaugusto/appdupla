@@ -33,7 +33,8 @@ if (strlen($nova_senha) < 6) {
 }
 
 try {
-    $usuario_info = Usuario::getUsuarioByRecoveryToken($token);
+    $hashed_token = hash('sha256', $token);
+    $usuario_info = Usuario::getUsuarioByRecoveryToken($hashed_token);
 
     if (!$usuario_info) {
         $_SESSION['DuplaLogin'] = "Token de recuperação inválido ou expirado. Por favor, solicite uma nova recuperação de senha.";

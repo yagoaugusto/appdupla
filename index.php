@@ -11,10 +11,17 @@ if (isset($_SESSION['DuplaUserId'])) {
 if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   include_once("system-autenticacao/conexao.php");
   $token = $_COOKIE['DuplaLoginToken'];
+  $hashed_token = hash('sha256', $token); // Faz o hash do token recebido do cookie
 
-  $query = "SELECT * FROM usuario WHERE token_login = '{$token}' LIMIT 1";
-  $resultado = mysqli_query($conn, $query);
-  $usuario = mysqli_fetch_assoc($resultado);
+  // SOLUÇÃO: Usa Prepared Statements e busca pelo HASH do token
+  $stmt = mysqli_prepare($conn, "SELECT * FROM usuario WHERE token_login = ? LIMIT 1");
+  if ($stmt) {
+    mysqli_stmt_bind_param($stmt, "s", $hashed_token);
+    mysqli_stmt_execute($stmt);
+    $resultado = mysqli_stmt_get_result($stmt);
+    $usuario = mysqli_fetch_assoc($resultado);
+    mysqli_stmt_close($stmt);
+  }
 
   if ($usuario) {
     $_SESSION['DuplaUserId'] = $usuario['id'];
@@ -168,6 +175,19 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
 <body>
   <div class="container">
     <img src="img/dupla.png" alt="Logo Dupla" class="logo">
+
+    <?php if (!empty($_GET['redirect']) && $_GET['redirect'] === 'confirmar-agendamento') : ?>
+      <div id="mensagem-reserva" style="background: #e3fcef; color: #207d4c; padding: 12px; border-radius: 10px; font-size: 15px; margin-bottom: 18px; border: 1px solid #c7eacc;">
+        🎾 Está quase lá! <strong>Faça login ou cadastre-se</strong> para confirmar sua reserva.
+      </div>
+      <script>
+        setTimeout(() => {
+          const el = document.getElementById('mensagem-reserva');
+          if (el) el.style.display = 'none';
+        }, 5000);
+      </script>
+    <?php endif; ?>
+
     <?php if (!empty($_SESSION['DuplaLogin'])): ?>
       <div style="background:#ffeef0;border:1px solid #ffbdbd;color:#c0392b;padding:10px;border-radius:8px;margin-bottom:18px;font-size:14px;">
         <?php
