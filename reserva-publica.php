@@ -9,32 +9,17 @@ $arena_nome = isset($_GET['arena_nome']) ? $_GET['arena_nome'] : 'Arena';
 
 // Validação básica
 if (!$arena_id || !is_numeric($arena_id)) {
-    // SOLUÇÃO: Em vez de sair, mostra uma mensagem de erro amigável.
-    echo '<!DOCTYPE html><html lang="pt-br" data-theme="light"><head><title>Erro - Arena não encontrada</title><link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css" rel="stylesheet" type="text/css" /><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-gray-100 flex items-center justify-center h-screen">';
-    echo '<div class="text-center bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto">';
-    echo '<div class="text-5xl mb-4">🏟️</div>';
-    echo '<h1 class="text-2xl font-bold text-red-600 mb-4">Arena não especificada</h1>';
-    echo '<p class="text-gray-700 mb-6">Para reservar um horário, você precisa primeiro selecionar uma arena. Por favor, escolha uma das nossas arenas parceiras.</p>';
-    // Este link leva o usuário para a página onde ele pode encontrar e selecionar uma arena.
-    echo '<a href="encontre-quadra.php" class="btn btn-primary">Encontrar uma Arena</a>';
-    echo '</div></body></html>';
-    exit; // A saída ainda é necessária para não processar o resto do script.
+    // Redirecionar ou mostrar uma mensagem de erro se o ID da arena for inválido
+    echo "<p class='text-red-500'>ID de arena inválido.</p>";
+    exit;
 }
 
 // Recupera os dados da arena do banco de dados
 $arena = Arena::getArenaById($arena_id);  // Assumindo que você tem um método estático 'getArena' na classe Arena
 
 if (!$arena) {
-    // SOLUÇÃO: Em vez de sair, mostra uma mensagem de erro amigável.
-    echo '<!DOCTYPE html><html lang="pt-br" data-theme="light"><head><title>Erro - Arena não encontrada</title><link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css" rel="stylesheet" type="text/css" /><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-gray-100 flex items-center justify-center h-screen">';
-    echo '<div class="text-center bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto">';
-    echo '<div class="text-5xl mb-4">🏟️</div>';
-    echo '<h1 class="text-2xl font-bold text-red-600 mb-4">Arena não especificada</h1>';
-    echo '<p class="text-gray-700 mb-6">Para reservar um horário, você precisa primeiro selecionar uma arena. Por favor, escolha uma das nossas arenas parceiras.</p>';
-    // Este link leva o usuário para a página onde ele pode encontrar e selecionar uma arena.
-    echo '<a href="encontre-quadra.php" class="btn btn-primary">Encontrar uma Arena</a>';
-    echo '</div></body></html>';
-    exit; // A saída ainda é necessária para não processar o resto do script.
+    echo "<p class='text-red-500'>Arena não encontrada.</p>";
+    exit;
 }
 
 //  Recuperar as quadras da arena
@@ -62,6 +47,7 @@ if ($quadras) {
 <!DOCTYPE html>
 <html lang="pt-br">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
@@ -85,12 +71,16 @@ if ($quadras) {
     <meta name="twitter:image" content="https://beta.appdupla.com/img/og.jpg">
     <meta name="color-scheme" content="light">
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <!-- Toastify CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <!-- Toastify JS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <?php $version = time(); // Use um timestamp para forçar o recarregamento durante o desenvolvimento. Em produção, use uma string de versão fixa. 
+    ?>
 
     <!-- garante tema claro antes do carregamento DaisyUI -->
     <script>
@@ -100,18 +90,26 @@ if ($quadras) {
     <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css?v=<?php echo $version; ?>" rel="stylesheet" type="text/css" />
     <style>
+        /* Adiciona margem à esquerda no conteúdo principal em telas grandes para acomodar a barra lateral */
+        @media (min-width: 1024px) {
+
+            /* Ponto de quebra 'lg' do Tailwind */
+            main.flex-1 {
+                /* A sidebar tem w-64, que corresponde a 16rem (256px) */
+                margin-left: 16rem;
+            }
+        }
     </style>
-</head> <!-- Adicione a folha de estilo do Flatpickr -->
 
-
+</head>
 
 <body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
 
-    <!-- Navbar superior -->
 
-    <!-- Menu lateral -->
+    <div class="flex pt-16">
 
-    <main class="max-w-4xl mx-auto py-8 px-4">
+
+        <main class="flex-1 py-8 px-4 items-center">
             <!-- Barra de Ações Fixa no Topo -->
             <div id="floatingActionBar" class="sticky top-16 z-30 bg-gray-800 text-white shadow-lg p-3 mb-6 hidden rounded-lg border border-gray-700">
                 <div class="max-w-4xl mx-auto flex justify-between items-center">
@@ -185,7 +183,7 @@ if ($quadras) {
                                 </div>
                             </div>
                             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                <button onclick="selectDate(event)" type="button" class="btn btn-primary w-full sm:w-auto">Selecionar</button>
+                                <button type="button" onclick="selectDate()" class="btn btn-primary w-full sm:w-auto">Selecionar</button>
                                 <button type="button" onclick="closeModal()" class="btn btn-ghost mt-3 w-full sm:mt-0 sm:w-auto">Cancelar</button>
                             </div>
                         </div>
@@ -268,7 +266,8 @@ if ($quadras) {
                     <p class="text-gray-500">Nenhuma quadra encontrada para esta arena.</p>
                 <?php endif; ?>
             </section> <br><br>
-    </main>
+        </main>
+    </div>
 
     <script>
         // Função para simular a reserva (substitua pela sua lógica real)
@@ -288,8 +287,7 @@ if ($quadras) {
             document.getElementById('dateModal').classList.add('hidden');
         }
 
-        function selectDate(event) {
-            if (event) event.preventDefault();
+        function selectDate() {
             const selectedDate = document.getElementById('modalDate').value;
             if (selectedDate) {
                 window.location.href = `reserva-publica.php?data=${selectedDate}&arena=<?= $arena_id ?>&arena_nome=<?= urlencode($arena_nome) ?>`;
@@ -357,40 +355,34 @@ if ($quadras) {
                 return;
             }
 
+            // Cria um formulário dinamicamente para enviar os dados
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'confirmar-agendamento.php';
+
+            // Cria um input para armazenar os dados dos slots selecionados
+            const slotsInput = document.createElement('input');
+            slotsInput.type = 'hidden';
+            slotsInput.name = 'slots';
+
             const slotsData = [];
             horariosSelecionados.forEach((value, key) => {
                 const [quadraId, horario] = key.split('_');
                 slotsData.push({
                     quadra_id: quadraId,
-                    quadra_nome: value.quadraNome,
-                    data: '<?= $data ?>',
+                    quadra_nome: value.quadraNome, // Usa o nome da quadra armazenado
+                    data: '<?= $data ?>', // Pega a data da variável PHP
                     horario: horario,
                     preco: value.preco
                 });
             });
 
-            // Verifica se está logado
-            const estaLogado = <?= (isset($_SESSION['DuplaUserId']) && is_numeric($_SESSION['DuplaUserId'])) ? 'true' : 'false' ?>;
+            slotsInput.value = JSON.stringify(slotsData);
+            form.appendChild(slotsInput);
 
-            if (!estaLogado) {
-                // Salva temporariamente no localStorage e redireciona para o login
-                localStorage.setItem('agendamento_pendente', JSON.stringify(slotsData));
-                //window.location.href = 'login.php?redirect=confirmar-agendamento';
-            } else {
-                // Envia direto se estiver logado
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = 'confirmar-agendamento.php';
-
-                const slotsInput = document.createElement('input');
-                slotsInput.type = 'hidden';
-                slotsInput.name = 'slots';
-                slotsInput.value = JSON.stringify(slotsData);
-
-                form.appendChild(slotsInput);
-                document.body.appendChild(form);
-                form.submit();
-            }
+            // Adiciona o formulário ao corpo da página e o submete
+            document.body.appendChild(form);
+            form.submit();
         }
     </script>
     <footer class="w-full bg-white border-t border-gray-200 py-4 text-center fixed bottom-0 left-0 z-50">
