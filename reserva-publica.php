@@ -370,11 +370,12 @@ if ($quadras) {
             });
 
             // Verifica se está logado
-            const estaLogado = <?= isset($_SESSION['DuplaUserId']) ? 'true' : 'false' ?>;
+            const estaLogado = <?= (isset($_SESSION['DuplaUserId']) && is_numeric($_SESSION['DuplaUserId'])) ? 'true' : 'false' ?>;
+
             if (!estaLogado) {
                 // Salva temporariamente no localStorage e redireciona para o login
                 localStorage.setItem('agendamento_pendente', JSON.stringify(slotsData));
-                window.location.href = 'index.php?redirect=confirmar-agendamento';
+                window.location.href = 'login.php?redirect=confirmar-agendamento';
             } else {
                 // Envia direto se estiver logado
                 const form = document.createElement('form');
