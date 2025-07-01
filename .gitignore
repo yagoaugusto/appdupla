@@ -1,0 +1,31 @@
+# Ignora a pasta de dependências do Composer
+/vendor/
+
+# Ignora arquivos de cache e logs comuns
+*.log
+*.cache
+
+# Ignora arquivos de configuração locais
+.env
+.env.local
+*.local.php
+
+# Ignora arquivos do sistema/macOS
+.DS_Store
+
+# Ignora pastas de IDEs e editores
+/.idea/
+/.vscode/
+
+# Ignora arquivos temporários
+*.swp
+*.bak
+*.tmp
+
+# Ignora arquivos de implantação ou build (se tiver)
+/node_modules/
+/dist/
+/build/
+
+# Ignora arquivos do XAMPP ou temporários locais
+xamppfiles/
