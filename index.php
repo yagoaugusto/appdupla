@@ -198,10 +198,9 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     <?php endif; ?>
 
     <!-- Destaque para Login com Google -->
-    <div style="background-color: #f0f7ff; padding: 16px; border-radius: 12px; border: 1px solid #d0e8ff; margin-bottom: 1.25rem; text-align: left; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
-      <p style="font-size: 14px; font-weight: 600; color: #1e40af; margin-bottom: 12px;">✨ <span style="vertical-align: middle;">Acesso rápido com Google</span></p>
-      <div id="google-signin-button" style="display: flex; justify-content: center;"></div>
-    </div>
+          <br><br>
+          <div id="google-signin-button" class="flex justify-center"></div>
+          <br>
 
     <!-- Divisor "ou" -->
     <div style="display: flex; align-items: center; text-align: center; color: #aaa; margin: 20px 0;">
