@@ -269,7 +269,7 @@ if ($quadras) {
                 <?php endif; ?>
             </section> <br><br>
     </main>
-<?php exit; ?>
+
     <script>
         // Função para simular a reserva (substitua pela sua lógica real)
         function reservar(quadra_id, horario) {
@@ -375,7 +375,7 @@ if ($quadras) {
             if (!estaLogado) {
                 // Salva temporariamente no localStorage e redireciona para o login
                 localStorage.setItem('agendamento_pendente', JSON.stringify(slotsData));
-                window.location.href = 'login.php?redirect=confirmar-agendamento';
+                //window.location.href = 'login.php?redirect=confirmar-agendamento';
             } else {
                 // Envia direto se estiver logado
                 const form = document.createElement('form');
