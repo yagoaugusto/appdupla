@@ -1,104 +1,88 @@
 <?php
 session_start();
-require_once '#_global.php';
-
-// Para o Google, é recomendado usar a biblioteca oficial. Instale com: composer require google/apiclient:^2.0
-// require_once 'vendor/autoload.php';
+require_once 'conexao.php'; // Arquivo de conexão mysqli
+require_once '../vendor/autoload.php'; // Autoload do Composer para a biblioteca do Google
 
 header('Content-Type: application/json');
 
 $input = json_decode(file_get_contents('php://input'), true);
+$token = $input['token'] ?? null;
 
-if (!$input || !isset($input['token']) || !isset($input['provider'])) {
-    echo json_encode(['success' => false, 'message' => 'Dados inválidos.']);
+if (!$token) {
+    echo json_encode(['success' => false, 'message' => 'Token não fornecido.']);
     exit;
 }
 
-$token = $input['token'];
-$provider = $input['provider'];
+// --- Verificação do Token do Google ---
+// 🚨 SUBSTITUA PELO SEU CLIENT ID DO GOOGLE, O MESMO USADO NO FRONTEND
+$google_client_id = "718722463767-kadfm0scdru0blvhkfd61mdij55rgo6b.apps.googleusercontent.com";
+$client = new Google_Client(['client_id' => $google_client_id]);
+$payload = $client->verifyIdToken($token);
 
-try {
-    $payload = null;
-    $user_info = [];
+if ($payload) {
+    $email = $payload['email'];
+    $nome = $payload['given_name'] ?? 'Jogador';
+    $sobrenome = $payload['family_name'] ?? 'Dupla';
+    $google_id = $payload['sub'];
 
-    if ($provider === 'google') {
-        // --- VERIFICAÇÃO DO TOKEN DO GOOGLE ---
-        // Em um ambiente de produção, use a biblioteca oficial do Google para mais segurança.
-        // Por simplicidade, aqui decodificamos o token (NÃO FAÇA ISSO EM PRODUÇÃO SEM VERIFICAR A ASSINATURA)
-        // A forma correta é usar:
-        // $client = new Google_Client(['client_id' => 'SEU_CLIENT_ID.apps.googleusercontent.com']);
-        // $payload = $client->verifyIdToken($token);
+    // --- Lógica de Usuário: Encontrar ou Criar ---
+    $email_esc = mysqli_real_escape_string($conn, $email);
+    $query = "SELECT * FROM usuario WHERE email = '{$email_esc}' LIMIT 1";
+    $result = mysqli_query($conn, $query);
+    $usuario = mysqli_fetch_assoc($result);
 
-        // Decodificação simplificada para exemplo (requer verificação de assinatura em produção)
-        $parts = explode('.', $token);
-        if (count($parts) !== 3) throw new Exception("Token do Google inválido.");
-        $payload = json_decode(base64_decode(str_replace(['-','_'], ['+','/'], $parts[1])), true);
+    if (!$usuario) {
+        // Usuário não existe, vamos criar um novo
+        $nome_esc = mysqli_real_escape_string($conn, $nome);
+        $sobrenome_esc = mysqli_real_escape_string($conn, $sobrenome);
+        // Para um novo usuário, o apelido pode ser o primeiro nome
+        $apelido_esc = mysqli_real_escape_string($conn, $nome);
 
-        if (!$payload || !isset($payload['sub']) || !isset($payload['email'])) {
-            throw new Exception("Payload do Google inválido.");
+        $insert_query = "INSERT INTO usuario (nome, sobrenome, email, apelido, google_id, data_cadastro) VALUES ('{$nome_esc}', '{$sobrenome_esc}', '{$email_esc}', '{$apelido_esc}', '{$google_id}', NOW())";
+
+        if (mysqli_query($conn, $insert_query)) {
+            $user_id = mysqli_insert_id($conn);
+            $query = "SELECT * FROM usuario WHERE id = {$user_id} LIMIT 1";
+            $result = mysqli_query($conn, $query);
+            $usuario = mysqli_fetch_assoc($result);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erro ao criar novo usuário.']);
+            exit;
         }
+    }
 
-        $user_info = [
-            'social_id' => $payload['sub'],
-            'email' => $payload['email'],
-            'nome' => $payload['given_name'] ?? '',
-            'sobrenome' => $payload['family_name'] ?? '',
-        ];
-    } elseif ($provider === 'apple') {
-        // A verificação da Apple é mais complexa e envolve chaves públicas.
-        // Aqui seria o local para implementar a lógica de verificação do token da Apple.
-        throw new Exception("Login com a Apple ainda não implementado no backend.");
+    // --- Login bem-sucedido ---
+    if ($usuario) {
+        // 1. Definir as variáveis de sessão
+        $_SESSION['DuplaUserId'] = $usuario['id'];
+        $_SESSION['DuplaUserNome'] = $usuario['nome'];
+        $_SESSION['DuplaUserApelido'] = $usuario['apelido'];
+        $_SESSION['DuplaUserTelefone'] = $usuario['telefone'];
+        $_SESSION['DuplaUserCidade'] = $usuario['cidade'];
+        $_SESSION['DuplaUserEmpunhadura'] = $usuario['empunhadura'];
+        $_SESSION['DuplaUserTipo'] = $usuario['tipo'];
+
+        // 2. Criar e salvar o token de "manter logado" (SEMPRE para login social)
+        $login_token = bin2hex(random_bytes(32));
+        $update_token_query = "UPDATE usuario SET token_login = '{$login_token}' WHERE id = {$usuario['id']}";
+        mysqli_query($conn, $update_token_query);
+
+        // 3. Definir o cookie no navegador do usuário
+        // O cookie expira em 30 dias (86400 segundos * 30)
+        setcookie('DuplaLoginToken', $login_token, time() + (86400 * 30), "/");
+
+        // 4. Retornar sucesso para o frontend
+        echo json_encode(['success' => true]);
+        exit;
     } else {
-        throw new Exception("Provedor de login desconhecido.");
+        echo json_encode(['success' => false, 'message' => 'Não foi possível encontrar ou criar o usuário.']);
+        exit;
     }
 
-    // --- LÓGICA DE USUÁRIO ---
-    $conn = Conexao::pegarConexao();
-
-    // 1. Tenta encontrar o usuário pelo ID social
-    $stmt = $conn->prepare("SELECT * FROM usuario WHERE {$provider}_id = ?");
-    $stmt->execute([$user_info['social_id']]);
-    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // 2. Se não encontrou, tenta encontrar pelo e-mail (para vincular contas existentes)
-    if (!$usuario) {
-        $stmt = $conn->prepare("SELECT * FROM usuario WHERE email = ?");
-        $stmt->execute([$user_info['email']]);
-        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Se encontrou por e-mail, atualiza o ID social para vincular a conta
-        if ($usuario) {
-            $stmt_update = $conn->prepare("UPDATE usuario SET {$provider}_id = ? WHERE id = ?");
-            $stmt_update->execute([$user_info['social_id'], $usuario['id']]);
-        }
-    }
-
-    // 3. Se ainda não encontrou, cria um novo usuário
-    if (!$usuario) {
-        $stmt_insert = $conn->prepare(
-            "INSERT INTO usuario (nome, sobrenome, email, {$provider}_id, data_cadastro, rating) VALUES (?, ?, ?, ?, NOW(), 1500)"
-        );
-        $stmt_insert->execute([$user_info['nome'], $user_info['sobrenome'], $user_info['email'], $user_info['social_id']]);
-        $new_user_id = $conn->lastInsertId();
-
-        // Busca o usuário recém-criado para obter todos os dados
-        $stmt = $conn->prepare("SELECT * FROM usuario WHERE id = ?");
-        $stmt->execute([$new_user_id]);
-        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    // --- CRIA A SESSÃO DE LOGIN ---
-    $_SESSION['DuplaUserId'] = $usuario['id'];
-    $_SESSION['DuplaUserNome'] = $usuario['nome'];
-    $_SESSION['DuplaUserApelido'] = $usuario['apelido'];
-    $_SESSION['DuplaUserTelefone'] = $usuario['telefone'];
-    $_SESSION['DuplaUserCidade'] = $usuario['cidade'];
-    $_SESSION['DuplaUserTipo'] = $usuario['tipo'];
-
-    echo json_encode(['success' => true]);
-
-} catch (Exception $e) {
-    error_log("Erro no login social: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+} else {
+    // Token inválido
+    echo json_encode(['success' => false, 'message' => 'Token do Google inválido.']);
+    exit;
 }
+
 ?>
