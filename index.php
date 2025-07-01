@@ -171,6 +171,15 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       </div>
     <?php endif; ?>
     <form action="system-autenticacao/valida.php" method="post">
+      <!-- Botão de Login do Google -->
+      <div id="google-signin-button" style="display: flex; justify-content: center;"></div>
+
+      <!-- Divisor "ou" -->
+      <div style="display: flex; align-items: center; text-align: center; color: #aaa; margin: 20px 0;">
+        <div style="flex-grow: 1; border-bottom: 1px solid #ddd;"></div>
+        <span style="padding: 0 10px; font-size: 14px;">ou</span>
+        <div style="flex-grow: 1; border-bottom: 1px solid #ddd;"></div>
+      </div>
       <input type="tel" name="telefone" placeholder="Telefone" required>
       <input type="password" name="senha" placeholder="Senha" required>
       <div style="text-align:left; margin: 10px 0;">
@@ -180,16 +189,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       </label>
       </div><br>
       <button type="submit">Entrar</button>
-
-      <!-- Divisor "ou" -->
-      <div style="display: flex; align-items: center; text-align: center; color: #aaa; margin: 20px 0;">
-        <div style="flex-grow: 1; border-bottom: 1px solid #ddd;"></div>
-        <span style="padding: 0 10px; font-size: 14px;">ou</span>
-        <div style="flex-grow: 1; border-bottom: 1px solid #ddd;"></div>
-      </div>
-
-      <!-- Botão de Login do Google -->
-      <div id="google-signin-button" style="display: flex; justify-content: center;"></div>
+      
     </form>
     <div class="link-cadastro">
       <p>Não tem conta? <a href="cadastrar.php" class="btn-discreto btn-cadastro">Cadastre-se aqui</a></p>

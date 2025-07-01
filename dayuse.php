@@ -104,7 +104,7 @@ $arenas_mapa = Arena::getArenasComHorariosParaMapa($data_selecionada, $hora_inic
                 </ul>
             </div>
             <div class="navbar-end gap-2">
-                <a href="cadastrar.php" class="btn bg-pink-500 hover:bg-pink-600 text-white border-none">Acessar Dupla</a>
+                <a href="index.php" class="btn bg-pink-500 hover:bg-pink-600 text-white border-none">Acessar Dupla</a>
             </div>
         </div>
     </header>

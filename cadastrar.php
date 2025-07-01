@@ -120,7 +120,8 @@
       </select>
 
       <label for="cpf">CPF</label>
-      <input type="text" id="cpf" name="cpf" required>
+      <input type="text" id="cpf" name="cpf">
+      <div style="font-size: 13px; color: #666; font-style: italic; margin-top: 5px;">Opcional — usado para pagamentos e nota fiscal</div>
 
       <label for="cidade">Cidade</label>
       <input list="lista-cidades" id="cidade" name="cidade" required>

@@ -48,159 +48,148 @@ if ($quadras) {
 <html lang="pt-br">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-  <!-- SEO Meta Tags -->
-  <title>DUPLA - Seu Ranking de Beach Tennis</title>
-  <meta name="description" content="Registre partidas, evolua no ranking, crie comunidades e compartilhe seus resultados com amigos. DUPLA é o app ideal para beach tennis.">
-  <meta name="keywords" content="beach tennis, dupla, ranking, partidas, esportes, app, comunidades, torneios, validação de partidas">
-  <meta name="author" content="DUPLA">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <!-- SEO Meta Tags -->
+    <title>DUPLA - Seu Ranking de Beach Tennis</title>
+    <meta name="description" content="Registre partidas, evolua no ranking, crie comunidades e compartilhe seus resultados com amigos. DUPLA é o app ideal para beach tennis.">
+    <meta name="keywords" content="beach tennis, dupla, ranking, partidas, esportes, app, comunidades, torneios, validação de partidas">
+    <meta name="author" content="DUPLA">
 
-  <!-- Open Graph (Facebook, WhatsApp) -->
-  <meta property="og:title" content="DUPLA - Seu Ranking de Beach Tennis">
-  <meta property="og:description" content="Registre partidas e acompanhe rankings personalizados.">
-  <meta property="og:image" content="https://beta.appdupla.com/img/og.png"> <!-- imagem com dimensões 1200x630 -->
-  <meta property="og:url" content="https://beta.appdupla.com/">
-  <meta property="og:type" content="website">
+    <!-- Open Graph (Facebook, WhatsApp) -->
+    <meta property="og:title" content="DUPLA - Seu Ranking de Beach Tennis">
+    <meta property="og:description" content="Registre partidas e acompanhe rankings personalizados.">
+    <meta property="og:image" content="https://beta.appdupla.com/img/og.png"> <!-- imagem com dimensões 1200x630 -->
+    <meta property="og:url" content="https://beta.appdupla.com/">
+    <meta property="og:type" content="website">
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="DUPLA - Ranking de Beach Tennis">
-  <meta name="twitter:description" content="Valide partidas, suba no ranking e jogue com amigos!">
-  <meta name="twitter:image" content="https://beta.appdupla.com/img/og.jpg">
-  <meta name="color-scheme" content="light">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DUPLA - Ranking de Beach Tennis">
+    <meta name="twitter:description" content="Valide partidas, suba no ranking e jogue com amigos!">
+    <meta name="twitter:image" content="https://beta.appdupla.com/img/og.jpg">
+    <meta name="color-scheme" content="light">
 
-  <!-- Toastify CSS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-<!-- Toastify JS -->
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <!-- Toastify CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <!-- Toastify JS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 
-  <?php $version = time(); // Use um timestamp para forçar o recarregamento durante o desenvolvimento. Em produção, use uma string de versão fixa. 
-  ?>
+    <?php $version = time(); // Use um timestamp para forçar o recarregamento durante o desenvolvimento. Em produção, use uma string de versão fixa. 
+    ?>
 
-  <!-- garante tema claro antes do carregamento DaisyUI -->
-  <script>
-    document.documentElement.setAttribute('data-theme', 'light');
-  </script>
+    <!-- garante tema claro antes do carregamento DaisyUI -->
+    <script>
+        document.documentElement.setAttribute('data-theme', 'light');
+    </script>
 
-  <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css?v=<?php echo $version; ?>" rel="stylesheet" type="text/css" />
-  <style>
-    /* Adiciona margem à esquerda no conteúdo principal em telas grandes para acomodar a barra lateral */
-    @media (min-width: 1024px) { /* Ponto de quebra 'lg' do Tailwind */
-      main.flex-1 {
-        /* A sidebar tem w-64, que corresponde a 16rem (256px) */
-        margin-left: 16rem;
-      }
-    }
-  </style>
+    <script src="https://cdn.tailwindcss.com?v=<?php echo $version; ?>"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.20/dist/full.css?v=<?php echo $version; ?>" rel="stylesheet" type="text/css" />
 </head>
 
 <body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
 
-    <!-- Navbar superior -->
-    
+    <!-- Como esta é uma página pública, não há barras de navegação superior ou lateral. -->
+    <!-- O conteúdo começa diretamente no body. -->
+    <main class="py-8 px-4">
+        <!-- Barra de Ações Fixa no Topo -->
+        <div id="floatingActionBar" class="sticky top-4 z-30 bg-gray-800 text-white shadow-lg p-3 mb-6 hidden rounded-lg border border-gray-700">
+            <div class="max-w-4xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <span id="selectedCount" class="font-bold"></span>
+                    <span id="totalPrice" class="font-semibold text-green-400"></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="limparHorarios()" class="btn btn-ghost btn-sm hover:bg-gray-700">Limpar</button>
+                    <button onclick="confirmarReserva()" class="btn btn-success btn-sm">Agendar</button>
+                </div>
+            </div>
+        </div>
 
-    <div class="flex pt-16">
+        <section class="max-w-4xl mx-auto w-full md:w-11/12 lg:w-4/5 bg-white/95 rounded-2xl shadow-xl border border-blue-200 mb-6 px-4 py-6 flex flex-col backdrop-blur-md">
 
-        <!-- Menu lateral -->
-        
+            <!-- Título da Página -->
+            <div class="w-full text-center mb-8">
+                <!-- Ícone -->
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-pink-100 mb-4 shadow-md">
+                    <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-pink-500 to-red-600 mb-2 tracking-tight drop-shadow-lg">
+                    Reserve sua quadra na <?= htmlspecialchars($arena['titulo']) ?>
+                </h2>
+                <!-- Destaque da Data -->
+                <p class="text-lg font-semibold text-blue-600 bg-blue-100 inline-block px-4 py-1 rounded-full mb-3">
+                    🗓️ <?= date('d/m/Y', strtotime($data)) ?>
+                </p>
+                <!-- Subtítulo -->
+                <p class="text-sm sm:text-base text-gray-600 font-medium">
+                    Seu próximo play vai ser divertido!
+                </p>
+            </div>
 
-        <main class="flex-1 py-8 px-4 items-center">
-            <!-- Barra de Ações Fixa no Topo -->
-            <div id="floatingActionBar" class="sticky top-16 z-30 bg-gray-800 text-white shadow-lg p-3 mb-6 hidden rounded-lg border border-gray-700">
-                <div class="max-w-4xl mx-auto flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <span id="selectedCount" class="font-bold"></span>
-                        <span id="totalPrice" class="font-semibold text-green-400"></span>
+            <!-- Novo seletor de data interativo -->
+            <button onclick="openModal()" class="w-full bg-white p-4 rounded-lg shadow-md border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-between text-left mb-6">
+                <div>
+                    <span class="text-xs text-gray-500">Data selecionada</span>
+                    <p class="text-lg font-bold text-blue-600"><?= date('d/m/Y', strtotime($data)) ?></p>
+                </div>
+                <div class="flex items-center gap-2 text-blue-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span class="text-sm font-semibold">Alterar</span>
+                </div>
+            </button>
+
+            <!-- Modal de seleção de data (agora neste arquivo) -->
+            <div id="dateModal" class="fixed z-50 inset-0 overflow-y-auto hidden">
+                <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 transition-opacity" aria-hidden="true" onclick="closeModal()">
+                        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="limparHorarios()" class="btn btn-ghost btn-sm hover:bg-gray-700">Limpar</button>
-                        <button onclick="confirmarReserva()" class="btn btn-success btn-sm">Agendar</button>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <div class="sm:flex sm:items-start">
+                                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Selecionar Nova Data</h3>
+                                    <div class="mt-2"><input type="date" id="modalDate" name="modalDate" class="input input-bordered w-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button" onclick="selectDate()" class="btn btn-primary w-full sm:w-auto">Selecionar</button>
+                            <button type="button" onclick="closeModal()" class="btn btn-ghost mt-3 w-full sm:mt-0 sm:w-auto">Cancelar</button>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <section class="max-w-4xl mx-auto w-full md:w-11/12 lg:w-4/5 bg-white/95 rounded-2xl shadow-xl border border-blue-200 mt-4 mb-6 px-4 py-6 flex flex-col backdrop-blur-md">
 
-                <!-- Título da Página -->
-                <div class="w-full text-center mb-8">
-                    <!-- Ícone -->
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-pink-100 mb-4 shadow-md">
-                        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-pink-500 to-red-600 mb-2 tracking-tight drop-shadow-lg">
-                        Reserve sua quadra na <?= htmlspecialchars($arena['titulo']) ?>
-                    </h2>
-                    <!-- Destaque da Data -->
-                    <p class="text-lg font-semibold text-blue-600 bg-blue-100 inline-block px-4 py-1 rounded-full mb-3">
-                        🗓️ <?= date('d/m/Y', strtotime($data)) ?>
-                    </p>
-                    <!-- Subtítulo -->
-                    <p class="text-sm sm:text-base text-gray-600 font-medium">
-                        Seu próximo play vai ser divertido!
-                    </p>
-                </div>
-
-                <!-- Novo seletor de data interativo -->
-                <button onclick="openModal()" class="w-full bg-white p-4 rounded-lg shadow-md border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-between text-left mb-6">
-                    <div>
-                        <span class="text-xs text-gray-500">Data selecionada</span>
-                        <p class="text-lg font-bold text-blue-600"><?= date('d/m/Y', strtotime($data)) ?></p>
-                    </div>
-                    <div class="flex items-center gap-2 text-blue-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        <span class="text-sm font-semibold">Alterar</span>
-                    </div>
-                </button>
-
-                <!-- Modal de seleção de data (agora neste arquivo) -->
-                <div id="dateModal" class="fixed z-50 inset-0 overflow-y-auto hidden">
-                    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                        <div class="fixed inset-0 transition-opacity" aria-hidden="true" onclick="closeModal()">
-                            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-                        </div>
-                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                <div class="sm:flex sm:items-start">
-                                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
-                                        <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    </div>
-                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Selecionar Nova Data</h3>
-                                        <div class="mt-2"><input type="date" id="modalDate" name="modalDate" class="input input-bordered w-full"></div>
-                                    </div>
+            <?php if (!empty($quadras_info)): ?>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <span class="text-3xl">🕒</span>
+                    Escolha sua Quadra e Horário
+                </h2>
+                <div class="space-y-4">
+                    <?php foreach ($quadras_info as $quadra): ?>
+                        <div class="collapse collapse-arrow bg-gray-50 rounded-lg border border-gray-200">
+                            <input type="checkbox" class="peer" />
+                            <div class="collapse-title text-lg font-semibold text-gray-800">
+                                <div><?= htmlspecialchars($quadra['nome']) ?></div>
+                                <div class="flex items-center gap-2 text-xs mt-1">
+                                    <span class="badge badge-success badge-outline badge-sm"><?= $quadra['disponiveis'] ?> disponíveis</span>
+                                    <span class="badge badge-error badge-outline badge-sm"><?= count($quadra['reservados']) ?> reservados</span>
                                 </div>
                             </div>
-                            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                <button type="button" onclick="selectDate()" class="btn btn-primary w-full sm:w-auto">Selecionar</button>
-                                <button type="button" onclick="closeModal()" class="btn btn-ghost mt-3 w-full sm:mt-0 sm:w-auto">Cancelar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <?php if (!empty($quadras_info)): ?>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <span class="text-3xl">🕒</span>
-                        Escolha sua Quadra e Horário
-                    </h2>
-                    <div class="space-y-4">
-                        <?php foreach ($quadras_info as $quadra): ?>
-                            <div class="collapse collapse-arrow bg-gray-50 rounded-lg border border-gray-200">
-                                <input type="checkbox" class="peer" />
-                                <div class="collapse-title text-lg font-semibold text-gray-800">
-                                    <div><?= htmlspecialchars($quadra['nome']) ?></div>
-                                    <div class="flex items-center gap-2 text-xs mt-1">
-                                        <span class="badge badge-success badge-outline badge-sm"><?= $quadra['disponiveis'] ?> disponíveis</span>
-                                        <span class="badge badge-error badge-outline badge-sm"><?= count($quadra['reservados']) ?> reservados</span>
-                                    </div>
-                                </div>
-                                <div class="collapse-content bg-white">
+                            <div class="collapse-content bg-white">
                                 <?php if (!empty($quadra['horarios'])): ?>
                                     <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 p-4">
                                         <?php
@@ -245,16 +234,16 @@ if ($quadras) {
                                 <?php else: ?>
                                     <p class="text-gray-500 p-4">Nenhum horário disponível.</p>
                                 <?php endif; ?>
-                                </div>
                             </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php else: ?>
-                    <p class="text-gray-500">Nenhuma quadra encontrada para esta arena.</p>
-                <?php endif; ?>
-            </section> <br><br>
-        </main>
-    </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p class="text-gray-500">Nenhuma quadra encontrada para esta arena.</p>
+            <?php endif; ?>
+        </section>
+        <br> <br>
+    </main>
 
     <script>
         // Função para simular a reserva (substitua pela sua lógica real)
@@ -294,7 +283,9 @@ if ($quadras) {
                 button.classList.remove('slot-selecionado', 'bg-blue-600', 'text-white');
                 button.classList.add('slot-disponivel', 'bg-green-100', 'text-green-800');
             } else {
-                horariosSelecionados.set(key, { preco });
+                horariosSelecionados.set(key, {
+                    preco
+                });
                 button.classList.remove('slot-disponivel', 'bg-green-100', 'text-green-800');
                 button.classList.add('slot-selecionado', 'bg-blue-600', 'text-white');
             }

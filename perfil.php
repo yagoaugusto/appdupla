@@ -98,7 +98,7 @@ require_once '#_global.php';
                         <div>
                             <label for="cpf" class="label"><span class="label-text">CPF</span></label>
                             <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" class="input input-bordered w-full force-white-bg" value="<?= htmlspecialchars($usuario['cpf'] ?? '') ?>" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" title="O CPF deve estar no formato 000.000.000-00." />
-                            <div class="label"><span class="label-text-alt">Seu CPF é usado para pagamentos e não é compartilhado.</span></div>
+                            <div style="font-size: 13px; color: #666; font-style: italic; margin-top: 5px;">Opcional — usado para pagamentos e nota fiscal</div>
                         </div>
 
                         <!-- Cidade -->

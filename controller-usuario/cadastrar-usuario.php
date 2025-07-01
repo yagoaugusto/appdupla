@@ -11,23 +11,29 @@ $senha_plain = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
 // Hash seguro para armazenar no banco
 $senha_hash  = password_hash($senha_plain, PASSWORD_BCRYPT);
 $cidade = $_POST['cidade'];
-$cpf = $_POST['cpf'];
+$cpf = isset($_POST['cpf']) ? $_POST['cpf'] : null;
 $sobrenome = $_POST['sobrenome'];
 $apelido = $_POST['apelido'];
 $sexo = $_POST['sexo'];
 $email = $_POST['email'];
 
 $novo_telefone = preg_replace('/\D/', '', $telefone);
-$novo_cpf = preg_replace('/\D/', '', $cpf);
+$novo_cpf = $cpf ? preg_replace('/\D/', '', $cpf) : null;
 
 /* --- Verificar existência de CPF ou telefone antes de cadastrar --- */
 $conexao = Conexao::pegarConexao();
-$dupCheck = $conexao->prepare("SELECT id FROM usuario WHERE telefone = :tel OR cpf = :cpf OR email = :email LIMIT 1");
-$dupCheck->execute([
+$sql = "SELECT id FROM usuario WHERE telefone = :tel OR email = :email";
+$params = [
   ':tel' => $novo_telefone,
-  ':cpf' => $novo_cpf,
   ':email' => $email
-]);
+];
+if ($novo_cpf) {
+  $sql .= " OR cpf = :cpf";
+  $params[':cpf'] = $novo_cpf;
+}
+$sql .= " LIMIT 1";
+$dupCheck = $conexao->prepare($sql);
+$dupCheck->execute($params);
 if ($dupCheck->rowCount() > 0) {
   $_SESSION['DuplaLogin'] = "Usuário já cadastrado. Utilize o login ou recupere a senha.";
   $_SESSION['DuplaLoginTipo'] = 'error';
