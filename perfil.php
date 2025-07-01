@@ -44,6 +44,41 @@ require_once '#_global.php';
                     $texto = $_SESSION['mensagem'][1];
                     $alert_class = ($tipo === 'success') ? 'alert-success' : 'alert-error';
                     echo "<div class='alert {$alert_class} shadow-lg mb-4'><div><span>" . htmlspecialchars($texto) . "</span></div></div>";
+
+                    if ($tipo === 'success') { ?>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', () => {
+                                // Verifica se há uma reserva pendente no localStorage após o login
+                                const pendingReservation = localStorage.getItem('agendamento_pendente');
+
+                                if (pendingReservation) {
+                                    // Temos uma reserva pendente, vamos prosseguir para a confirmação.
+
+                                    // 1. Limpa o item do localStorage para evitar reativação
+                                    localStorage.removeItem('agendamento_pendente');
+
+                                    // 2. Cria um formulário para enviar os dados para a página de confirmação
+                                    const form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = 'confirmar-agendamento.php';
+                                    form.style.display = 'none'; // O formulário fica oculto
+
+                                    const slotsInput = document.createElement('input');
+                                    slotsInput.type = 'hidden';
+                                    slotsInput.name = 'slots';
+                                    slotsInput.value = pendingReservation; // Os dados já estão em formato JSON string
+
+                                    form.appendChild(slotsInput);
+                                    document.body.appendChild(form);
+
+                                    // 3. Envia o formulário para redirecionar o usuário
+                                    form.submit();
+                                }
+                            });
+                        </script>
+                <?php
+                    }
+
                     unset($_SESSION['mensagem']); // Limpa a mensagem após exibir
                 }
                 ?>
@@ -68,10 +103,10 @@ require_once '#_global.php';
                             <label for="apelido" class="label"><span class="label-text">Apelido</span></label>
                             <div class="flex gap-2">
                                 <input type="text" id="apelido" name="apelido"
-                                       placeholder="Escolha um apelido"
-                                       class="input input-bordered w-full force-white-bg cursor-not-allowed bg-gray-100"
-                                       value="<?= htmlspecialchars($usuario['apelido'] ?? '') ?>"
-                                       maxlength="20" required readonly />
+                                    placeholder="Escolha um apelido"
+                                    class="input input-bordered w-full force-white-bg cursor-not-allowed bg-gray-100"
+                                    value="<?= htmlspecialchars($usuario['apelido'] ?? '') ?>"
+                                    maxlength="20" required readonly />
                                 <button type="button" id="gerarApelido"
                                     class="btn btn-outline btn-info whitespace-nowrap">
                                     🎲 Aleatório
