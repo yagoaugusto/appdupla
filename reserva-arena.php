@@ -327,6 +327,20 @@ if ($quadras) {
             slotsInput.value = JSON.stringify(slotsData);
             form.appendChild(slotsInput);
 
+            // ID da Arena
+            const arenaIdInput = document.createElement('input');
+            arenaIdInput.type = 'hidden';
+            arenaIdInput.name = 'arena_id';
+            arenaIdInput.value = '<?= $arena_id ?>';
+            form.appendChild(arenaIdInput);
+
+            // Nome da Arena
+            const arenaNomeInput = document.createElement('input');
+            arenaNomeInput.type = 'hidden';
+            arenaNomeInput.name = 'arena_nome';
+            arenaNomeInput.value = '<?= htmlspecialchars($arena_nome, ENT_QUOTES) ?>';
+            form.appendChild(arenaNomeInput);
+
             // Adiciona o formulário ao corpo da página e o submete
             document.body.appendChild(form);
             form.submit();

@@ -21,9 +21,11 @@ try {
     // --- 1. Validação dos Dados de Entrada ---
     $usuario_id = $_SESSION['DuplaUserId'] ?? null;
     $slots_json = $_POST['slots'] ?? null;
+    $arena_nome = $_POST['arena_nome'] ?? null;
+    $taxa_servico = isset($_POST['taxa_servico']) ? (float)$_POST['taxa_servico'] : 0;
     $cupom_code = isset($_POST['cupom']) ? strtoupper(trim($_POST['cupom'])) : null;
 
-    if (!$usuario_id || !$slots_json) {
+    if (!$usuario_id || !$slots_json || !$arena_nome) {
         throw new Exception('Dados insuficientes para processar o pagamento.');
     }
 
@@ -31,23 +33,30 @@ try {
     if (json_last_error() !== JSON_ERROR_NONE || empty($slots)) {
         throw new Exception('Formato de horários selecionados inválido.');
     }
+    if ($taxa_servico < 0) {
+        throw new Exception('O valor da taxa de serviço é inválido.');
+    }
 
     // --- 2. Configuração do SDK do Mercado Pago ---
     // A constante MP_ACCESS_TOKEN deve ser definida no seu arquivo de configuração.
     MercadoPago\SDK::setAccessToken(MP_ACCESS_TOKEN);
 
     // --- 3. Cálculo de Valores (Segurança no Backend) ---
-    $valor_total = 0;
+    $valor_total_slots = 0;
     foreach ($slots as $slot) {
-        $valor_total += (float)$slot['preco'];
+        $valor_total_slots += (float)$slot['preco'];
     }
+    
+    // O valor bruto é a soma dos slots mais a taxa de serviço
+    $valor_bruto = $valor_total_slots + $taxa_servico;
 
     // Lógica de aplicação de cupom (exemplo)
     $desconto = 0;
     if ($cupom_code === 'DUPLA10') {
-        $desconto = $valor_total * 0.10;
+        // O desconto é aplicado sobre o valor dos slots, não sobre a taxa de serviço.
+        $desconto = $valor_total_slots * 0.10;
     }
-    $valor_final = $valor_total - $desconto;
+    $valor_final = $valor_bruto - $desconto;
 
     // --- 4. Criação da Reserva Pendente no Banco de Dados ---
     $reserva_pendente_id = Agendamento::criarReservaPendente($usuario_id, $slots_json, $valor_final, $cupom_code);
@@ -100,11 +109,21 @@ try {
     // Adiciona cada slot como um item detalhado na preferência
     foreach ($slots as $slot) {
         $item = new MercadoPago\Item();
-        $item->title = "Reserva: " . $slot['quadra_nome'] . " - " . date('d/m/Y', strtotime($slot['data'])) . " às " . $slot['horario'];
+        $item->title = "Reserva " . htmlspecialchars($arena_nome) . ": " . $slot['quadra_nome'] . " - " . date('d/m/Y', strtotime($slot['data'])) . " às " . $slot['horario'];
         $item->quantity = 1;
         $item->unit_price = (float)$slot['preco'];
         $item->currency_id = "BRL";
         $items[] = $item;
+    }
+
+    // Adiciona a taxa de serviço como um item, se houver
+    if ($taxa_servico > 0) {
+        $item_taxa = new MercadoPago\Item();
+        $item_taxa->title = "Taxa de Serviço";
+        $item_taxa->quantity = 1;
+        $item_taxa->unit_price = (float)$taxa_servico;
+        $item_taxa->currency_id = "BRL";
+        $items[] = $item_taxa;
     }
 
     // Adiciona o desconto como um item com valor negativo, se aplicável

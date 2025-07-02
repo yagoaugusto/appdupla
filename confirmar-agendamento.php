@@ -4,8 +4,46 @@ require_once '#_global.php';
 <!DOCTYPE html>
 <html lang="pt-br">
 
-    <?php require_once '_head.php'; ?>
+<?php require_once '_head.php'; ?>
+    <style>
+        /* --- CSS PARA A TELA DE CARREGAMENTO --- */
 
+        /* O container do overlay que cobre a tela inteira */
+        #loading-overlay {
+            position: fixed; /* Fica fixo na tela, mesmo com scroll */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Fundo preto semi-transparente */
+            display: flex; /* Usamos flexbox para centralizar o spinner */
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Garante que fique por cima de tudo */
+        }
+
+        /* O spinner (círculo giratório) */
+        .spinner {
+            border: 8px solid #f3f3f3; /* Cinza claro */
+            border-top: 8px solid #3498db; /* Azul */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1.5s linear infinite;
+        }
+
+        /* Animação de rotação */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Classe para esconder o overlay */
+        .hidden {
+            display: none;
+        }
+    </style>
+    
 <?php
 // 1. Receber e validar os dados dos slots
 $slots_json = $_POST['slots'] ?? null;
@@ -22,6 +60,9 @@ if (empty($slots)) {
     header('Location: reserva-arena.php');
     exit;
 }
+// Captura os dados da arena
+$arena_id = $_POST['arena_id'] ?? null;
+$arena_nome = $_POST['arena_nome'] ?? ($slots[0]['arena_nome'] ?? '');
 
 // 2. Calcular o valor total
 $valor_total = 0;
@@ -61,6 +102,9 @@ if ($usuario_id) {
                 <form id="formPagamento" action="controller-pagamento/pagamento-reserva.php" method="POST" class="w-full grid grid-cols-1 lg:grid-cols-3 lg:gap-12">
                     <!-- Passa os slots selecionados para a próxima etapa -->
                     <input type="hidden" name="slots" value="<?= htmlspecialchars($slots_json) ?>">
+                    <input type="hidden" name="arena_nome" value="<?= htmlspecialchars($arena_nome) ?>">
+                    <input type="hidden" name="arena_id" value="<?= htmlspecialchars($arena_id) ?>">
+                    <input type="hidden" name="taxa_servico" id="taxa_servico_input" value="">
 
                     <!-- Coluna Esquerda: Dados e Pagamento -->
                     <div class="lg:col-span-2">
@@ -134,6 +178,7 @@ if ($usuario_id) {
                             <!-- Detalhes do Preço -->
                             <div class="space-y-2 border-t pt-4 text-sm">
                                 <div class="flex justify-between"><span>Subtotal</span><span id="subtotalValor">R$ <?= number_format($valor_total, 2, ',', '.') ?></span></div>
+                                <div class="flex justify-between text-gray-700"><span>Taxa Operacional</span><span id="taxaAdmin">R$ 0,00</span></div>
                                 <div id="descontoLinha" class="flex justify-between text-red-600 hidden"><span>Desconto</span><span id="descontoValor">- R$ 0,00</span></div>
                                 <div class="flex justify-between font-bold text-lg border-t pt-2 mt-2"><span>Total</span><span id="totalValor" class="text-green-600">R$ <?= number_format($valor_total, 2, ',', '.') ?></span></div>
                             </div>
@@ -144,6 +189,14 @@ if ($usuario_id) {
                                     <span class="loading loading-spinner hidden"></span>
                                     Confirmar e Pagar
                                 </button>
+                            </div>
+                            <br>
+                            <hr>
+                            <br>
+                            <div class="pt-3">
+                                <a href="reserva-arena.php?arena=<?= urlencode($arena_id) ?>" class="btn btn-outline w-full text-sm">
+                                    Alterar Reserva
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -167,6 +220,9 @@ if ($usuario_id) {
         const submitButtonSpinner = submitButton.querySelector('.loading');
 
         const subtotalNumerico = <?= $valor_total ?>;
+        const taxaAdmin = document.getElementById('taxaAdmin');
+        const metodoPagamentoRadios = document.querySelectorAll('input[name="metodo_pagamento"]');
+        let taxaPercentual = 0.01; // padrão PIX
         let descontoAplicado = 0;
 
         function formatCurrency(value) {
@@ -200,6 +256,10 @@ if ($usuario_id) {
         });
 
         function atualizarTotal() {
+            const taxaValor = subtotalNumerico * taxaPercentual;
+            taxaAdmin.textContent = formatCurrency(taxaValor);
+            document.getElementById('taxa_servico_input').value = taxaValor.toFixed(2);
+
             if (descontoAplicado > 0) {
                 descontoValor.textContent = '- ' + formatCurrency(descontoAplicado);
                 descontoLinha.classList.remove('hidden');
@@ -207,9 +267,18 @@ if ($usuario_id) {
                 descontoLinha.classList.add('hidden');
             }
 
-            const totalFinal = subtotalNumerico - descontoAplicado;
+            const totalFinal = subtotalNumerico - descontoAplicado + taxaValor;
             totalValor.textContent = formatCurrency(totalFinal);
         }
+
+        metodoPagamentoRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                taxaPercentual = radio.value === 'cartao' ? 0.0495 : 0.01;
+                atualizarTotal();
+            });
+        });
+
+        atualizarTotal();
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
