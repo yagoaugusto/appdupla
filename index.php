@@ -52,6 +52,9 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   <meta name="keywords" content="beach tennis, dupla, ranking, partidas, esportes, app, comunidades, torneios, validação de partidas">
   <meta name="author" content="DUPLA">
 
+  <!-- Fonte Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
   <!-- Open Graph (Facebook, WhatsApp) -->
   <meta property="og:title" content="DUPLA - Seu Ranking de Beach Tennis">
   <meta property="og:description" content="Registre partidas e acompanhe rankings personalizados.">
@@ -69,7 +72,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Poppins', sans-serif;
     }
 
     body {
@@ -77,8 +80,22 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background: linear-gradient(135deg, #0abde3, #10ac84);
+      background: linear-gradient(-45deg, #0abde3, #10ac84, #5f27cd, #54a0ff);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
       padding: 20px;
+    }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     .container {
@@ -86,9 +103,10 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       width: 100%;
       max-width: 400px;
       border-radius: 20px;
-      padding: 30px;
+      padding: 30px 20px;
       box-shadow: 0 10px 20px rgba(0,0,0,0.2);
       text-align: center;
+      box-sizing: border-box;
     }
 
     .logo {
@@ -198,9 +216,11 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     <?php endif; ?>
 
     <!-- Destaque para Login com Google -->
-          <br><br>
-          <div id="google-signin-button" class="flex justify-center"></div>
-          <br>
+    <br><br>
+    <div style="display: flex; justify-content: center;">
+      <div id="google-signin-button" style="width: 100%; max-width: 338px;"></div>
+    </div>
+    <br>
 
     <!-- Divisor "ou" -->
     <div style="display: flex; align-items: center; text-align: center; color: #aaa; margin: 20px 0;">
@@ -270,7 +290,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       });
       google.accounts.id.renderButton(
         document.getElementById("google-signin-button"),
-        { theme: "outline", size: "large", width: "338" } // Personalize a aparência do botão
+        { theme: "outline", size: "large" }
       );
     };
   </script>
