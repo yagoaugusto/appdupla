@@ -5,7 +5,6 @@ require_once '#_global.php';
 // Recebendo data e arena via GET
 $data = $_GET['data'] ?? date('Y-m-d');
 $arena_id = isset($_GET['arena']) ? $_GET['arena'] : null;
-$arena_nome = isset($_GET['arena_nome']) ? $_GET['arena_nome'] : 'Arena';
 
 // Validação básica
 if (!$arena_id || !is_numeric($arena_id)) {
@@ -338,7 +337,7 @@ if ($quadras) {
             const arenaNomeInput = document.createElement('input');
             arenaNomeInput.type = 'hidden';
             arenaNomeInput.name = 'arena_nome';
-            arenaNomeInput.value = '<?= htmlspecialchars($arena_nome, ENT_QUOTES) ?>';
+            arenaNomeInput.value = '<?= htmlspecialchars($arena['titulo'], ENT_QUOTES) ?>';
             form.appendChild(arenaNomeInput);
 
             // Adiciona o formulário ao corpo da página e o submete
