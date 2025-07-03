@@ -80,17 +80,16 @@ if (isset($notification['type']) && $notification['type'] === 'payment') {
                         foreach($slots_info as $slot) {
                             $data_formatada = date('d/m/Y', strtotime($slot['data']));
                             $detalhes_reserva .= "✅ Quadra: *{$slot['quadra_nome']}*\n";
-                            $detalhes_reserva .= "   🗓️ Dia: {$data_formatada}\n";
-                            $detalhes_reserva .= "   ⏰ Hora: {$slot['horario']}\n\n";
+                            $detalhes_reserva .= "🗓️ Dia: {$data_formatada}\n";
+                            $detalhes_reserva .= "⏰ Hora: {$slot['horario']}\n\n";
                         }
 
                         // Versão mais humanizada e completa
-                        $mensagem = "E aí, *{$nome_usuario}*! Tudo pronto para o jogo? 🎾\n\n";
+                        $mensagem = "E aí, *{$nome_usuario}*! Tudo pronto para o jogo?\n\n";
                         $mensagem .= "Sua reserva está confirmadíssima! Já estamos preparando a quadra e deixando tudo no ponto para receber vocês.\n\n";
-                        $mensagem .= "Agora é só avisar a turma e se aquecer! 😉\n\n";
+                        $mensagem .= "Agora é só avisar a turma e aquecer!\n\n";
                         $mensagem .= "Ah, uma dica importante: não esqueça de levar sua garrafinha com água para manter a hidratação em dia. 💧\n\n";
                         $mensagem .= "Confira os detalhes do seu agendamento:\n";       
-                        $mensagem .= "-----------------------\n";
                         $mensagem .= $detalhes_reserva;
                         $mensagem .= "Nos vemos na quadra. Tenham um ótimo jogo!\n\n";
                         $mensagem .= "Deu game? Dá Ranking! 🏆\n— Equipe DUPLA";      
