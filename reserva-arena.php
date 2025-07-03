@@ -216,6 +216,8 @@ if ($quadras) {
                 <?php endif; ?>
             </section> <br><br>
         </main>
+
+
     </div>
 
     <script>
