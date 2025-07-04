@@ -25,7 +25,7 @@ class Usuario
             'cidade',
             'empunhadura'
         ];
-
+        
         $set_parts = [];
         $params = [];
 
@@ -744,134 +744,56 @@ WHERE u.id ={$id}";
         }
     }
 
-     /**
-     * MELHORADO: Busca os usuários com o maior ganho de rating em um período.
-     * A nova consulta é mais performática e precisa, focando apenas em jogadores ativos no período.
+    /**
+     * Busca os usuários com o maior ganho de rating em um período.
+     * Considera o rating atual e o rating mais recente antes do início do período.
+     * Se o usuário não tinha rating antes do período, considera o rating inicial como 1500 (ou o primeiro registro).
      *
-     * @param int $days O número de dias para considerar o ganho (ex: 7).
-     * @param int $limit O número de usuários a serem retornados (ex: 5).
-     * @return array Retorna um array com os dados dos usuários e seu ganho de rating.
+     * @param int $days O número de dias para considerar o ganho (ex: 7 para os últimos 7 dias).
+     * @param int $limit O número de usuários a serem retornados (ex: top 5).
+     * @return array Retorna um array de arrays associativos com os dados dos usuários e seu ganho de rating.
      */
     public static function getTopRatingGainers($days = 7, $limit = 5)
     {
         try {
             $conn = Conexao::pegarConexao();
 
-            // Usamos uma Common Table Expression (WITH) para otimizar a consulta.
-            // Isso torna a consulta mais legível e muito mais rápida.
             $stmt = $conn->prepare("
-                WITH PlayerPeriodRatings AS (
-                    -- Passo 1: Identificar o rating inicial e final APENAS para jogadores que jogaram no período.
-                    SELECT
-                        hr.jogador_id,
-                        -- O rating atual do usuário é o nosso ponto final.
-                        u.rating AS end_rating,
-                        -- Lógica aprimorada para encontrar o rating inicial:
-                        COALESCE(
-                            -- 1º: Tentamos achar o último rating do jogador ANTES do período começar.
-                            (SELECT hr_before.rating_novo
-                             FROM historico_rating hr_before
-                             WHERE hr_before.jogador_id = hr.jogador_id
-                               AND hr_before.data < (CURDATE() - INTERVAL :days DAY)
-                             ORDER BY hr_before.data DESC, hr_before.id DESC
-                             LIMIT 1),
-                            -- 2º: Se não acharmos (jogador novo), pegamos o rating ANTERIOR à sua primeira partida.
-                            (SELECT hr_first.rating_anterior
-                             FROM historico_rating hr_first
-                             WHERE hr_first.jogador_id = hr.jogador_id
-                             ORDER BY hr_first.data ASC, hr_first.id ASC
-                             LIMIT 1),
-                            -- 3º: Em último caso, se não houver nenhum histórico, usamos 1500.
-                            1500.00
-                        ) AS start_rating
-                    FROM historico_rating hr
-                    JOIN usuario u ON hr.jogador_id = u.id -- Pegamos o rating atual aqui
-                    WHERE hr.data >= (CURDATE() - INTERVAL :days DAY) -- << Filtro principal que garante a performance!
-                    GROUP BY hr.jogador_id, u.rating
-                )
-                -- Passo 2: Calculamos o ganho e selecionamos os melhores.
                 SELECT
                     u.id,
                     u.nome,
                     u.sobrenome,
                     u.apelido,
-                    ppr.end_rating AS current_rating,
-                    (ppr.end_rating - ppr.start_rating) AS rating_gain
-                FROM PlayerPeriodRatings ppr
-                JOIN usuario u ON ppr.jogador_id = u.id
-                WHERE (ppr.end_rating - ppr.start_rating) > 0 -- Filtra apenas quem teve ganho real
-                ORDER BY rating_gain DESC
+                    u.rating AS current_rating,
+                    (u.rating - COALESCE(
+                        (SELECT hr_start.rating_novo
+                         FROM historico_rating hr_start
+                         WHERE hr_start.jogador_id = u.id
+                           AND hr_start.data < CURDATE() - INTERVAL :days_ago_start DAY
+                         ORDER BY hr_start.data DESC
+                         LIMIT 1),
+                        (SELECT hr_first.rating_novo
+                         FROM historico_rating hr_first
+                         WHERE hr_first.jogador_id = u.id
+                         ORDER BY hr_first.data ASC
+                         LIMIT 1),
+                        1500 -- Default starting rating if no history found
+                    )) AS rating_gain
+                FROM
+                    usuario u
+                WHERE
+                    u.rating IS NOT NULL
+                ORDER BY
+                    rating_gain DESC
                 LIMIT :limit_val
             ");
 
-            $stmt->bindValue(':days', $days, PDO::PARAM_INT);
+            $stmt->bindValue(':days_ago_start', $days, PDO::PARAM_INT);
             $stmt->bindValue(':limit_val', $limit, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Erro ao buscar maiores ganhadores de rating (v2): " . $e->getMessage());
-            return [];
-        }
-    }
-
-    /**
-     * MELHORADO: Busca os usuários com a maior perda de rating em um período.
-     * Utiliza a mesma consulta otimizada, apenas ajustando o filtro e a ordenação.
-     *
-     * @param int $days O número de dias para considerar a perda (ex: 7).
-     * @param int $limit O número de usuários a serem retornados (ex: 5).
-     * @return array Retorna um array com os dados dos usuários e sua perda de rating.
-     */
-    public static function getTopRatingLosers($days = 7, $limit = 5)
-    {
-        try {
-            $conn = Conexao::pegarConexao();
-
-            // A estrutura da consulta é idêntica à de ganhadores, mudando apenas as duas últimas linhas.
-            $stmt = $conn->prepare("
-                WITH PlayerPeriodRatings AS (
-                    SELECT
-                        hr.jogador_id,
-                        u.rating AS end_rating,
-                        COALESCE(
-                            (SELECT hr_before.rating_novo
-                             FROM historico_rating hr_before
-                             WHERE hr_before.jogador_id = hr.jogador_id
-                               AND hr_before.data < (CURDATE() - INTERVAL :days DAY)
-                             ORDER BY hr_before.data DESC, hr_before.id DESC
-                             LIMIT 1),
-                            (SELECT hr_first.rating_anterior
-                             FROM historico_rating hr_first
-                             WHERE hr_first.jogador_id = hr.jogador_id
-                             ORDER BY hr_first.data ASC, hr_first.id ASC
-                             LIMIT 1),
-                            1500.00
-                        ) AS start_rating
-                    FROM historico_rating hr
-                    JOIN usuario u ON hr.jogador_id = u.id
-                    WHERE hr.data >= (CURDATE() - INTERVAL :days DAY)
-                    GROUP BY hr.jogador_id, u.rating
-                )
-                SELECT
-                    u.id,
-                    u.nome,
-                    u.sobrenome,
-                    u.apelido,
-                    ppr.end_rating AS current_rating,
-                    (ppr.end_rating - ppr.start_rating) AS rating_change -- Renomeado para clareza
-                FROM PlayerPeriodRatings ppr
-                JOIN usuario u ON ppr.jogador_id = u.id
-                WHERE (ppr.end_rating - ppr.start_rating) < 0 -- Filtra apenas quem teve PERDA real
-                ORDER BY rating_change ASC -- Ordena ASC para pegar os mais negativos (maiores perdas)
-                LIMIT :limit_val
-            ");
-
-            $stmt->bindValue(':days', $days, PDO::PARAM_INT);
-            $stmt->bindValue(':limit_val', $limit, PDO::PARAM_INT);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Erro ao buscar maiores perdedores de rating (v2): " . $e->getMessage());
+            error_log("Erro ao buscar maiores ganhadores de rating: " . $e->getMessage());
             return [];
         }
     }
@@ -972,6 +894,60 @@ WHERE u.id ={$id}";
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Erro ao buscar maiores sequências de derrotas: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Busca os usuários com a maior perda de rating em um período.
+     * Considera o rating atual e o rating mais recente antes do início do período.
+     * Se o usuário não tinha rating antes do período, considera o rating inicial como 1500 (ou o primeiro registro).
+     *
+     * @param int $days O número de dias para considerar a perda (ex: 7 para os últimos 7 dias).
+     * @param int $limit O número de usuários a serem retornados (ex: top 5).
+     * @return array Retorna um array de arrays associativos com os dados dos usuários e sua perda de rating.
+     */
+    public static function getTopRatingLosers($days = 7, $limit = 5)
+    {
+        try {
+            $conn = Conexao::pegarConexao();
+
+            $stmt = $conn->prepare("
+                SELECT
+                    u.id,
+                    u.nome,
+                    u.sobrenome,
+                    u.apelido,
+                    u.rating AS current_rating,
+                    (u.rating - COALESCE(
+                        (SELECT hr_start.rating_novo
+                         FROM historico_rating hr_start
+                         WHERE hr_start.jogador_id = u.id
+                           AND hr_start.data < CURDATE() - INTERVAL :days_ago_start DAY
+                         ORDER BY hr_start.data DESC
+                         LIMIT 1),
+                        (SELECT hr_first.rating_novo
+                         FROM historico_rating hr_first
+                         WHERE hr_first.jogador_id = u.id
+                         ORDER BY hr_first.data ASC
+                         LIMIT 1),
+                        1500 -- Default starting rating if no history found
+                    )) AS rating_gain -- This will be negative for losers
+                FROM
+                    usuario u
+                WHERE
+                    u.rating IS NOT NULL
+                ORDER BY
+                    rating_gain ASC -- Order by ASC to get the biggest negative gains (losses)
+                LIMIT :limit_val
+            ");
+
+            $stmt->bindValue(':days_ago_start', $days, PDO::PARAM_INT);
+            $stmt->bindValue(':limit_val', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar maiores perdedores de rating: " . $e->getMessage());
             return [];
         }
     }
