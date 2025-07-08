@@ -10,6 +10,10 @@ $is_pagina_central_dupla_ativa = in_array(basename($_SERVER['PHP_SELF']), $pagin
 $paginas_quadras = ['criar-quadra.php', 'funcionamento-quadra.php', 'agendamento-quadra.php', 'relatorios-quadra.php'];
 $is_pagina_quadras_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_quadras);
 
+// Novas páginas para o menu Loja
+$paginas_loja = ['produtos.php', 'venda.php', 'relatorios.php', 'entradas.php'];
+$is_pagina_loja_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_loja);
+
 // Novas páginas para o menu Alunos
 $paginas_alunos = ['cadastro-aluno.php', 'listar-alunos.php', 'relatorios-aluno.php'];
 $is_pagina_alunos_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_alunos);
@@ -101,6 +105,7 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
         </ul>
       </div>
     </div>
+
 <hr>
 <?php if (isset($_SESSION['DuplaUserTipo']) && ($_SESSION['DuplaUserTipo'] === 'gestor' || $_SESSION['DuplaUserTipo'] === 'super')): ?>
     <!-- Menu Dropdown Quadras -->
@@ -136,6 +141,40 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
       </div>
     </div>
     <?php endif; ?>
+
+    <!-- Menu Dropdown Loja -->
+    <div class="collapse collapse-arrow">
+      <?php $paginas_loja = ['cadastro.php', 'estoque.php', 'venda.php', 'relatorios.php']; ?>
+      <input type="checkbox" <?= in_array(basename($_SERVER['PHP_SELF']), $paginas_loja) ? 'checked' : '' ?> />
+      <div class="collapse-title flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium">
+        <span class="text-lg">🛒</span>
+        <span class="whitespace-nowrap">Loja</span>
+      </div>
+      <div class="collapse-content !p-0">
+        <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
+          <li><a href="estoque.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'estoque.php' ? 'active' : '' ?>">Produtos</a></li>
+          <li><a href="venda.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'venda.php' ? 'active' : '' ?>">Venda</a></li>
+          <li><a href="entradas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'entradas.php' ? 'active' : '' ?>">Entradas</a></li>
+          <li><a href="relatorios.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'relatorios.php' ? 'active' : '' ?>">Relatórios</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Menu Dropdown Fiscal -->
+    <div class="collapse collapse-arrow">
+      <?php $paginas_fiscal = ['notas-emitidas.php', 'relatorios.php']; ?>
+      <input type="checkbox" <?= in_array(basename($_SERVER['PHP_SELF']), $paginas_fiscal) ? 'checked' : '' ?> />
+      <div class="collapse-title flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium">
+        <span class="text-lg">📄</span>
+        <span class="whitespace-nowrap">Fiscal</span>
+      </div>
+      <div class="collapse-content !p-0">
+        <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
+          <li><a href="notas-emitidas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'notas-emitidas.php' ? 'active' : '' ?>">Notas Emitidas</a></li>
+          <li><a href="relatorios.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'relatorios.php' ? 'active' : '' ?>">Relatórios</a></li>
+        </ul>
+      </div>
+    </div>
 
     <?php if (isset($_SESSION['DuplaUserTipo']) && $_SESSION['DuplaUserTipo'] === 'super'): ?>
     <!-- Menu Dropdown Yago -->
