@@ -14,14 +14,21 @@ $is_pagina_quadras_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_qua
 $paginas_loja = ['produtos.php', 'venda.php', 'relatorios.php', 'entradas.php'];
 $is_pagina_loja_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_loja);
 
+// Novas páginas para o menu Turmas
+$paginas_turma = ['turmas.php'];
+$is_pagina_turma_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_turma);
+
 // Novas páginas para o menu Alunos
-$paginas_alunos = ['cadastro-aluno.php', 'listar-alunos.php', 'relatorios-aluno.php'];
+$paginas_alunos = ['cadastro-aluno.php', 'gestao_alunos.php', 'relatorio_turmas.php'];
 $is_pagina_alunos_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_alunos);
 
 // Novas páginas para o menu Yago
 $paginas_yago = ['usuarios-yago.php', 'arenas-yago.php'];
 $is_pagina_yago_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_yago);
 
+// Novas páginas para o menu Despesas
+$paginas_despesas = ['gestao_despesas.php', 'despesa_categorias.php'];
+$is_pagina_despesas_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_despesas);
 
 $paginas_arena = ['criar-arena.php', 'arenas.php', 'arena-page.php', 'minhas-reservas.php'];
 $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena);
@@ -125,18 +132,18 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
       </div>
     </div>
 
-    <!-- Menu Dropdown Alunos -->
+    <!-- Menu Dropdown Turmas -->
     <div class="collapse collapse-arrow">
-      <input type="checkbox" <?= $is_pagina_alunos_ativa ? 'checked' : '' ?> /> 
+      <input type="checkbox" <?= $is_pagina_turma_ativa ? 'checked' : '' ?> /> 
       <div class="collapse-title flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium">
-        <span class="text-lg">🧑‍🎓</span> <!-- Icone para Alunos -->
-        <span class="whitespace-nowrap">Alunos</span>
+        <span class="text-lg">🧑‍🎓</span> <!-- Icone para Turmas -->
+        <span class="whitespace-nowrap">Turmas</span>
       </div>
       <div class="collapse-content !p-0"> 
         <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
-          <li><a href="cadastro-aluno.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'cadastro-aluno.php' ? 'active' : '' ?>">Cadastro</a></li>
-          <li><a href="listar-alunos.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'listar-alunos.php' ? 'active' : '' ?>">Alunos</a></li>
-          <li><a href="relatorios-aluno.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'relatorios-aluno.php' ? 'active' : '' ?>">Relatórios</a></li>
+          <li><a href="turmas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'turmas.php' ? 'active' : '' ?>">Turmas</a></li>
+          <li><a href="gestao_alunos.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'gestao_alunos.php' ? 'active' : '' ?>">Alunos</a></li>
+          <li><a href="relatorio_turmas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'relatorio_turmas.php' ? 'active' : '' ?>">Relatórios</a></li>
         </ul>
       </div>
     </div>
@@ -154,7 +161,7 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
         <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
           <li><a href="estoque.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'estoque.php' ? 'active' : '' ?>">Produtos</a></li>
           <li><a href="venda.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'venda.php' ? 'active' : '' ?>">Venda</a></li>
-          <li><a href="entradas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'entradas.php' ? 'active' : '' ?>">Entradas</a></li>
+          <li><a href="entradas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'entradas.php' ? 'active' : '' ?>">Entrada</a></li>
           <li><a href="relatorios.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'relatorios.php' ? 'active' : '' ?>">Relatórios</a></li>
         </ul>
       </div>
@@ -172,6 +179,22 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
         <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
           <li><a href="notas-emitidas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'notas-emitidas.php' ? 'active' : '' ?>">Notas Emitidas</a></li>
           <li><a href="relatorios.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'relatorios.php' ? 'active' : '' ?>">Relatórios</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Menu Dropdown Despesas -->
+    <div class="collapse collapse-arrow">
+      <?php $paginas_despesas = ['gestao_despesas.php', 'despesa_categorias.php']; ?>
+      <input type="checkbox" <?= in_array(basename($_SERVER['PHP_SELF']), $paginas_despesas) ? 'checked' : '' ?> />
+      <div class="collapse-title flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-gray-700 text-sm font-medium">
+        <span class="text-lg">💰</span>
+        <span class="whitespace-nowrap">Despesas</span>
+      </div>
+      <div class="collapse-content !p-0">
+        <ul class="menu menu-sm bg-base-100 rounded-box -mt-2 space-y-0.5">
+          <li><a href="gestao_despesas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'gestao_despesas.php' ? 'active' : '' ?>">Lançamentos</a></li>
+          <li><a href="despesa_categorias.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'despesa_categorias.php' ? 'active' : '' ?>">Categorias</a></li>
         </ul>
       </div>
     </div>
