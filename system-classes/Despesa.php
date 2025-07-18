@@ -206,5 +206,63 @@ class Despesa
         }
         return $stats;
     }
-    
+
+
+    /**
+     * NOVO: Regista o pagamento de uma despesa específica.
+     * @param int $despesa_id
+     * @param string $data_pagamento
+     * @return bool
+     */
+    public static function registrarPagamentoDespesa(int $despesa_id, string $data_pagamento)
+    {
+        $conn = Conexao::pegarConexao();
+        $stmt = $conn->prepare("UPDATE despesas SET status = 'paga', data_pagamento = ? WHERE id = ?");
+        return $stmt->execute([$data_pagamento, $despesa_id]);
+    }
+
+    /**
+     * NOVO (AUTOMAÇÃO): Atualiza o status de despesas pendentes para vencidas.
+     * @return int O número de despesas atualizadas.
+     */
+    public static function scriptAtualizarDespesasVencidas()
+    {
+        $conn = Conexao::pegarConexao();
+        $stmt = $conn->prepare("UPDATE despesas SET status = 'vencida' WHERE status = 'pendente' AND data_vencimento < CURDATE()");
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
+
+    /**
+     * NOVO (AUTOMAÇÃO): Busca despesas próximas do vencimento para enviar alertas.
+     * @param int $dias_antecedencia
+     * @return array Um array agrupado por gestor com as despesas a vencer.
+     */
+    public static function scriptBuscarDespesasParaAlertar(int $dias_antecedencia = 3)
+    {
+        $conn = Conexao::pegarConexao();
+        $sql = "SELECT 
+                    d.descricao, d.valor, d.data_vencimento,
+                    u.nome as gestor_nome, u.telefone as gestor_telefone
+                FROM despesas d
+                JOIN arenas ar ON d.arena_id = ar.id
+                JOIN usuario u ON ar.fundador = u.id
+                WHERE d.status = 'pendente' 
+                  AND d.data_vencimento BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL ? DAY)
+                ORDER BY u.id, d.data_vencimento ASC";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$dias_antecedencia]);
+        $despesas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Agrupa as despesas por número de telefone para enviar uma única mensagem por gestor
+        $alertas_agrupados = [];
+        foreach ($despesas as $despesa) {
+            $alertas_agrupados[$despesa['gestor_telefone']]['nome'] = $despesa['gestor_nome'];
+            $alertas_agrupados[$despesa['gestor_telefone']]['despesas'][] = $despesa;
+        }
+
+        return $alertas_agrupados;
+    }
+
 }

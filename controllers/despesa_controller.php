@@ -121,6 +121,21 @@ try {
             }
             break;
 
+        // NOVO CASE PARA REGISTAR PAGAMENTO
+        case 'registrar_pagamento_despesa':
+            $despesa_id = filter_input(INPUT_POST, 'despesa_id', FILTER_VALIDATE_INT);
+            $data_pagamento = filter_input(INPUT_POST, 'data_pagamento', FILTER_SANITIZE_STRING);
+
+            if (!$despesa_id || empty($data_pagamento)) {
+                throw new Exception("Dados inválidos para registar o pagamento.");
+            }
+            if (Despesa::registrarPagamentoDespesa($despesa_id, $data_pagamento)) {
+                $_SESSION['mensagem'] = ['success', 'Pagamento da despesa registado com sucesso!'];
+            } else {
+                throw new Exception("Falha ao registar o pagamento da despesa.");
+            }
+            break;
+
         default:
             throw new Exception("Ação desconhecida.");
     }
