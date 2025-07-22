@@ -69,43 +69,6 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   <meta name="twitter:description" content="Valide partidas, suba no ranking e jogue com amigos!">
   <meta name="twitter:image" content="https://beta.appdupla.com/img/og.jpg">
   <style>
-    /* Adicione este CSS dentro da sua tag <style> */
-
-    .google-login-button {
-      display: flex;
-      /* Para alinhar o ícone e o texto */
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      max-width: 338px;
-      margin: 0 auto;
-      /* Centraliza o botão */
-      font-weight: 600;
-      color: #555;
-      background-color: transparent;
-      /* Fundo transparente */
-      border: 1px solid #ddd;
-      /* Borda cinza igual ao outro botão */
-      padding: 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.2s;
-    }
-
-    .google-login-button:hover {
-      background-color: #f0f0f0;
-      /* Efeito ao passar o mouse */
-    }
-
-    .google-login-button img {
-      width: 18px;
-      height: 18px;
-      margin-right: 10px;
-      /* Espaço entre a imagem e o texto */
-    }
-
-    /* Fim do novo CSS */
     * {
       margin: 0;
       padding: 0;
@@ -233,45 +196,6 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       /* Remove a seta padrão */
       transition: background-color 0.2s;
     }
-
-
-    /* Adicione este CSS dentro da sua tag <style> */
-
-    .google-login-button {
-      display: flex;
-      /* Para alinhar o ícone e o texto */
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      max-width: 338px;
-      margin: 0 auto;
-      /* Centraliza o botão */
-      font-weight: 600;
-      color: #555;
-      background-color: transparent;
-      /* Fundo transparente */
-      border: 1px solid #ddd;
-      /* Borda cinza igual ao outro botão */
-      padding: 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.2s;
-    }
-
-    .google-login-button:hover {
-      background-color: #f0f0f0;
-      /* Efeito ao passar o mouse */
-    }
-
-    .google-login-button img {
-      width: 18px;
-      height: 18px;
-      margin-right: 10px;
-      /* Espaço entre a imagem e o texto */
-    }
-
-    /* Fim do novo CSS */
   </style>
 </head>
 
@@ -301,10 +225,10 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     <?php endif; ?>
 
     <!-- Destaque para Login com Google -->
-    <button id="custom-google-btn" class="google-login-button">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Logo Google">
-      Fazer Login com o Google
-    </button>
+    <br>
+    <div style="display: flex; justify-content: center;">
+      <div id="google-signin-button" style="width: 100%; max-width: 338px;"></div>
+    </div>
 
     <!-- Divisor "ou" -->
     <div style="display: flex; align-items: center; text-align: center; color: #aaa; margin: 20px 0;">
@@ -337,58 +261,52 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     </div>
   </div>
 
-
+  <!-- Scripts para Login Social -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
-  // 1. Define a função de callback primeiro
-  function handleCredentialResponse(response) {
-    fetch('system-autenticacao/social-login-controller.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        token: response.credential,
-        provider: 'google'
-      }),
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        window.location.href = 'principal.php';
-      } else {
-        alert('Erro no login com Google: ' + data.message);
-      }
-    })
-    .catch(error => {
-      console.error('Erro na comunicação com o backend:', error);
-      alert('Não foi possível conectar ao servidor. Tente novamente.');
-    });
-  }
-
-  // 2. Inicializa quando a lib Google terminar de carregar
-  function initGoogleLogin() {
-    google.accounts.id.initialize({
-      client_id: "718722463767-kadfm0scdru0blvhkfd61mdij55rgo6b.apps.googleusercontent.com",
-      callback: handleCredentialResponse
-    });
-
-    const customButton = document.getElementById('custom-google-btn');
-    if (customButton) {
-      customButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        google.accounts.id.prompt(); // chama o "one tap"
-      });
+    // Função para lidar com a resposta do Google
+    function handleCredentialResponse(response) {
+      // Envia o token para o seu backend
+      fetch('system-autenticacao/social-login-controller.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            token: response.credential,
+            provider: 'google'
+          }),
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // Redireciona para a página principal em caso de sucesso
+            window.location.href = 'principal.php';
+          } else {
+            // Exibe uma mensagem de erro
+            alert('Erro no login com Google: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Erro na comunicação com o backend:', error);
+          alert('Não foi possível conectar ao servidor. Tente novamente.');
+        });
     }
-  }
-</script>
 
-<!-- Carrega a biblioteca do Google e chama initGoogleLogin() quando terminar -->
-<script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleLogin()"></script>
-
-
-
-</body>
-
+    // Inicialização do Google Sign-In
+    window.onload = function() {
+      google.accounts.id.initialize({
+        client_id: "718722463767-kadfm0scdru0blvhkfd61mdij55rgo6b.apps.googleusercontent.com", // 🚨 SUBSTITUA PELO SEU CLIENT ID DO GOOGLE
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.renderButton(
+        document.getElementById("google-signin-button"), {
+          theme: "outline",
+          size: "large"
+        }
+      );
+    };
+  </script>
 </body>
 
 </html>
