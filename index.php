@@ -1,4 +1,4 @@
-<?php 
+<?php
 session_start();
 
 // 1. Se já está logado via session, redireciona
@@ -44,6 +44,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
@@ -68,6 +69,43 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
   <meta name="twitter:description" content="Valide partidas, suba no ranking e jogue com amigos!">
   <meta name="twitter:image" content="https://beta.appdupla.com/img/og.jpg">
   <style>
+    /* Adicione este CSS dentro da sua tag <style> */
+
+    .google-login-button {
+      display: flex;
+      /* Para alinhar o ícone e o texto */
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 338px;
+      margin: 0 auto;
+      /* Centraliza o botão */
+      font-weight: 600;
+      color: #555;
+      background-color: transparent;
+      /* Fundo transparente */
+      border: 1px solid #ddd;
+      /* Borda cinza igual ao outro botão */
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+
+    .google-login-button:hover {
+      background-color: #f0f0f0;
+      /* Efeito ao passar o mouse */
+    }
+
+    .google-login-button img {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      /* Espaço entre a imagem e o texto */
+    }
+
+    /* Fim do novo CSS */
     * {
       margin: 0;
       padding: 0;
@@ -90,9 +128,11 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       0% {
         background-position: 0% 50%;
       }
+
       50% {
         background-position: 100% 50%;
       }
+
       100% {
         background-position: 0% 50%;
       }
@@ -104,7 +144,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
       max-width: 400px;
       border-radius: 20px;
       padding: 30px 20px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
       text-align: center;
       box-sizing: border-box;
     }
@@ -173,23 +213,68 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     }
 
     .link-cadastro .btn-cadastro:hover {
-      background-color: #e0f7fa; /* Light cyan */
+      background-color: #e0f7fa;
+      /* Light cyan */
     }
 
     .link-cadastro .btn-esqueci-senha {
-      border: 1px solid transparent; /* No border initially */
-      color: #777; /* Slightly darker gray */
+      border: 1px solid transparent;
+      /* No border initially */
+      color: #777;
+      /* Slightly darker gray */
       background-color: transparent;
-      font-size: 13px; /* Slightly smaller */
+      font-size: 13px;
+      /* Slightly smaller */
     }
 
     /* Estilos para o <details> */
-    details > summary {
-      list-style: none; /* Remove a seta padrão */
+    details>summary {
+      list-style: none;
+      /* Remove a seta padrão */
       transition: background-color 0.2s;
     }
+
+
+    /* Adicione este CSS dentro da sua tag <style> */
+
+    .google-login-button {
+      display: flex;
+      /* Para alinhar o ícone e o texto */
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 338px;
+      margin: 0 auto;
+      /* Centraliza o botão */
+      font-weight: 600;
+      color: #555;
+      background-color: transparent;
+      /* Fundo transparente */
+      border: 1px solid #ddd;
+      /* Borda cinza igual ao outro botão */
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+
+    .google-login-button:hover {
+      background-color: #f0f0f0;
+      /* Efeito ao passar o mouse */
+    }
+
+    .google-login-button img {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      /* Espaço entre a imagem e o texto */
+    }
+
+    /* Fim do novo CSS */
   </style>
 </head>
+
 <body>
   <div class="container">
     <img src="img/dupla.png" alt="Logo Dupla" class="logo">
@@ -209,18 +294,17 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     <?php if (!empty($_SESSION['DuplaLogin'])): ?>
       <div style="background:#ffeef0;border:1px solid #ffbdbd;color:#c0392b;padding:10px;border-radius:8px;margin-bottom:18px;font-size:14px;">
         <?php
-          echo htmlspecialchars($_SESSION['DuplaLogin']);
-          unset($_SESSION['DuplaLogin']);
+        echo htmlspecialchars($_SESSION['DuplaLogin']);
+        unset($_SESSION['DuplaLogin']);
         ?>
       </div>
     <?php endif; ?>
 
     <!-- Destaque para Login com Google -->
-    <br><br>
-    <div style="display: flex; justify-content: center;">
-      <div id="google-signin-button" style="width: 100%; max-width: 338px;"></div>
-    </div>
-    <br>
+    <button id="custom-google-btn" class="google-login-button">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Logo Google">
+      Fazer Login com o Google
+    </button>
 
     <!-- Divisor "ou" -->
     <div style="display: flex; align-items: center; text-align: center; color: #aaa; margin: 20px 0;">
@@ -260,39 +344,53 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     function handleCredentialResponse(response) {
       // Envia o token para o seu backend
       fetch('system-autenticacao/social-login-controller.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token: response.credential, provider: 'google' }),
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          // Redireciona para a página principal em caso de sucesso
-          window.location.href = 'principal.php';
-        } else {
-          // Exibe uma mensagem de erro
-          alert('Erro no login com Google: ' + data.message);
-        }
-      })
-      .catch(error => {
-        console.error('Erro na comunicação com o backend:', error);
-        alert('Não foi possível conectar ao servidor. Tente novamente.');
-      });
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            token: response.credential,
+            provider: 'google'
+          }),
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // Redireciona para a página principal em caso de sucesso
+            window.location.href = 'principal.php';
+          } else {
+            // Exibe uma mensagem de erro
+            alert('Erro no login com Google: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Erro na comunicação com o backend:', error);
+          alert('Não foi possível conectar ao servidor. Tente novamente.');
+        });
     }
 
     // Inicialização do Google Sign-In
-    window.onload = function () {
+    // Inicialização do Google Sign-In (CORRIGIDO)
+    window.onload = function() {
+      // 1. A inicialização continua a mesma
       google.accounts.id.initialize({
-        client_id: "718722463767-kadfm0scdru0blvhkfd61mdij55rgo6b.apps.googleusercontent.com", // 🚨 SUBSTITUA PELO SEU CLIENT ID DO GOOGLE
+        client_id: "718722463767-kadfm0scdru0blvhkfd61mdij55rgo6b.apps.googleusercontent.com",
         callback: handleCredentialResponse
       });
-      google.accounts.id.renderButton(
-        document.getElementById("google-signin-button"),
-        { theme: "outline", size: "large" }
-      );
+
+      // 2. REMOVEMOS o google.accounts.id.renderButton()
+      //    e adicionamos um evento de clique ao nosso botão customizado.
+
+      const customButton = document.getElementById('custom-google-btn');
+
+      if (customButton) { // Garante que o botão exista antes de adicionar o evento
+        customButton.addEventListener('click', (e) => {
+          e.preventDefault(); // Previne o comportamento padrão do botão, se houver
+          google.accounts.id.prompt(); // Inicia o fluxo de login do Google ao clicar
+        });
+      }
     };
   </script>
 </body>
+
 </html>
