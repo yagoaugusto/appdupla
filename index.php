@@ -337,55 +337,56 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     </div>
   </div>
 
-<script src="https://accounts.google.com/gsi/client" defer></script>
-  <script>
-    // Função para lidar com a resposta do Google
-    function handleCredentialResponse(response) {
-      // Envia o token para o seu backend
-      fetch('system-autenticacao/social-login-controller.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            token: response.credential,
-            provider: 'google'
-          }),
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            // Redireciona para a página principal em caso de sucesso
-            window.location.href = 'principal.php';
-          } else {
-            // Exibe uma mensagem de erro
-            alert('Erro no login com Google: ' + data.message);
-          }
-        })
-        .catch(error => {
-          console.error('Erro na comunicação com o backend:', error);
-          alert('Não foi possível conectar ao servidor. Tente novamente.');
-        });
-    }
 
-    // A inicialização do Google agora roda depois que o script acima for carregado
-    // com segurança, graças ao 'defer'.
-    
-    // 1. Inicializa a biblioteca do Google
+  <script>
+  // 1. Define a função de callback primeiro
+  function handleCredentialResponse(response) {
+    fetch('system-autenticacao/social-login-controller.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token: response.credential,
+        provider: 'google'
+      }),
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = 'principal.php';
+      } else {
+        alert('Erro no login com Google: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Erro na comunicação com o backend:', error);
+      alert('Não foi possível conectar ao servidor. Tente novamente.');
+    });
+  }
+
+  // 2. Inicializa quando a lib Google terminar de carregar
+  function initGoogleLogin() {
     google.accounts.id.initialize({
       client_id: "718722463767-kadfm0scdru0blvhkfd61mdij55rgo6b.apps.googleusercontent.com",
       callback: handleCredentialResponse
     });
 
-    // 2. Adiciona o evento de clique ao botão customizado
     const customButton = document.getElementById('custom-google-btn');
     if (customButton) {
       customButton.addEventListener('click', (e) => {
-        e.preventDefault(); 
-        google.accounts.id.prompt(); // Inicia o fluxo de login do Google ao clicar
+        e.preventDefault();
+        google.accounts.id.prompt(); // chama o "one tap"
       });
     }
-  </script>
+  }
+</script>
+
+<!-- Carrega a biblioteca do Google e chama initGoogleLogin() quando terminar -->
+<script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleLogin()"></script>
+
+
+
 </body>
 
 </body>
