@@ -337,8 +337,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     </div>
   </div>
 
-  <!-- Scripts para Login Social -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client" defer></script>
   <script>
     // Função para lidar com a resposta do Google
     function handleCredentialResponse(response) {
@@ -369,28 +368,26 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
         });
     }
 
-    // Inicialização do Google Sign-In
-    // Inicialização do Google Sign-In (CORRIGIDO)
-    window.onload = function() {
-      // 1. A inicialização continua a mesma
-      google.accounts.id.initialize({
-        client_id: "718722463767-kadfm0scdru0blvhkfd61mdij55rgo6b.apps.googleusercontent.com",
-        callback: handleCredentialResponse
+    // A inicialização do Google agora roda depois que o script acima for carregado
+    // com segurança, graças ao 'defer'.
+    
+    // 1. Inicializa a biblioteca do Google
+    google.accounts.id.initialize({
+      client_id: "718722463767-kadfm0scdru0blvhkfd61mdij55rgo6b.apps.googleusercontent.com",
+      callback: handleCredentialResponse
+    });
+
+    // 2. Adiciona o evento de clique ao botão customizado
+    const customButton = document.getElementById('custom-google-btn');
+    if (customButton) {
+      customButton.addEventListener('click', (e) => {
+        e.preventDefault(); 
+        google.accounts.id.prompt(); // Inicia o fluxo de login do Google ao clicar
       });
-
-      // 2. REMOVEMOS o google.accounts.id.renderButton()
-      //    e adicionamos um evento de clique ao nosso botão customizado.
-
-      const customButton = document.getElementById('custom-google-btn');
-
-      if (customButton) { // Garante que o botão exista antes de adicionar o evento
-        customButton.addEventListener('click', (e) => {
-          e.preventDefault(); // Previne o comportamento padrão do botão, se houver
-          google.accounts.id.prompt(); // Inicia o fluxo de login do Google ao clicar
-        });
-      }
-    };
+    }
   </script>
+</body>
+
 </body>
 
 </html>
