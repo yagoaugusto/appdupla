@@ -201,7 +201,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
 
 <body>
   <div class="container">
-    <img src="img/dupla.png" alt="Logo Dupla" class="logo">
+    <img src="img/duplalogo.png" alt="Logo Dupla" class="logo">
 
     <?php if (!empty($_GET['redirect']) && $_GET['redirect'] === 'confirmar-agendamento') : ?>
       <div id="mensagem-reserva" style="background: #e3fcef; color: #207d4c; padding: 12px; border-radius: 10px; font-size: 15px; margin-bottom: 18px; border: 1px solid #c7eacc;">
