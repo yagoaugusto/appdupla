@@ -227,7 +227,7 @@ if (!isset($_SESSION['DuplaUserId']) && isset($_COOKIE['DuplaLoginToken'])) {
     <!-- Destaque para Login com Google -->
     <br>
     <div style="display: flex; justify-content: center;">
-      <div id="google-signin-button" style="width: 100%; max-width: 338px;"></div>
+      <div id="google-signin-button" style="width: 100%; max-width: 100%;"></div>
     </div>
 
     <!-- Divisor "ou" -->
