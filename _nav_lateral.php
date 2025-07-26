@@ -144,6 +144,7 @@ $is_pagina_arena_ativa = in_array(basename($_SERVER['PHP_SELF']), $paginas_arena
           <li><a href="turmas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'turmas.php' ? 'active' : '' ?>">Turmas</a></li>
           <li><a href="gestao_alunos.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'gestao_alunos.php' ? 'active' : '' ?>">Alunos</a></li>
           <li><a href="relatorio_turmas.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'relatorio_turmas.php' ? 'active' : '' ?>">Relatórios</a></li>
+          <li><a href="gestao_repasses.php" class="text-gray-700 px-3 py-1.5 <?= basename($_SERVER['PHP_SELF']) == 'gestao_repasses.php' ? 'active' : '' ?>">Repasses</a></li>
         </ul>
       </div>
     </div>

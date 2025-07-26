@@ -7,162 +7,159 @@ require_once '#_global.php';
 require_once '_head.php';
 
 // --- LÓGICA DA PÁGINA ---
-if (!isset($_SESSION['DuplaUserTipo']) || !in_array($_SESSION['DuplaUserTipo'], ['gestor', 'super'])) { /* ... (verificação de permissão) */ }
+if (!isset($_SESSION['DuplaUserTipo']) || !in_array($_SESSION['DuplaUserTipo'], ['gestor', 'super'])) { header("Location: principal.php"); exit; }
 
 $turma_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-if (!$turma_id) { /* ... (redirecionamento de erro) */ }
+if (!$turma_id) { $_SESSION['mensagem'] = ['error', 'ID da turma inválido.']; header("Location: turmas.php"); exit; }
 
-// Busca os dados da turma, dos alunos e do histórico financeiro
 $turma = Turma::getTurmaById($turma_id);
-$alunos_ativos = array_filter(Turma::getAlunosDaTurma($turma_id), fn($a) => $a['status'] == 'ativo');
-$mensalidades = Turma::getMensalidadesDaTurma($turma_id);
+if (!$turma) { $_SESSION['mensagem'] = ['error', 'Turma não encontrada.']; header("Location: turmas.php"); exit; }
 
-if (!$turma) { /* ... (redirecionamento se a turma não for encontrada) */ }
+$alunos_ativos = array_filter(Turma::getAlunosDaTurma($turma_id), fn($a) => $a['status'] == 'ativo');
 ?>
 
-<body class="bg-gray-100 flex flex-col min-h-screen">
-    <?php require_once '_nav_superior.php'; ?>
-    <div class="flex flex-1 pt-16">
-        <?php require_once '_nav_lateral.php'; ?>
-        <main class="flex-1 p-4 sm:p-6">
-            <section class="max-w-7xl mx-auto">
+<body class="bg-gray-100 flex flex-col min-h-screen" x-data="paymentManager()">
 
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <a href="turmas.php?arena_id=<?= $turma['arena_id'] ?>" class="text-sm text-gray-500 hover:underline">Turmas</a>
-                        <span class="text-sm text-gray-500 mx-2">/</span>
-                        <a href="turma_detalhes.php?id=<?= $turma_id ?>" class="text-sm text-gray-500 hover:underline">Detalhes da Turma</a>
-                    </div>
-                </div>
+  <?php require_once '_nav_superior.php'; ?>
+  <div class="flex flex-1 pt-16">
+    <?php require_once '_nav_lateral.php'; ?>
+    <main class="flex-1 p-4 sm:p-6">
+      <section class="max-w-4xl mx-auto space-y-6">
 
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight">Financeiro: <?= htmlspecialchars($turma['nome']) ?></h1>
-                    <button class="btn btn-primary" onclick="modalPagar.showModal()">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                        Registar Pagamento
-                    </button>
-                </div>
-                
-                <?php // Bloco para exibir mensagens de sucesso/erro ?>
-
-                <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md border border-gray-200">
-                    <div class="overflow-x-auto">
-                        <table class="table w-full">
-                            <thead><tr><th>Aluno</th><th>Competência</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Data Pag.</th></tr></thead>
-                            <tbody>
-                                <?php foreach ($mensalidades as $m): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($m['aluno_nome'] . ' ' . $m['aluno_sobrenome']) ?></td>
-                                    <td><?= date('m/Y', strtotime($m['competencia'])) ?></td>
-                                    <td><?= date('d/m/Y', strtotime($m['data_vencimento'])) ?></td>
-                                    <td class="font-mono">R$ <?= number_format($m['valor'], 2, ',', '.') ?></td>
-                                    <td>
-                                        <span class="badge 
-                                            <?= $m['status'] == 'paga' ? 'badge-success' : '' ?>
-                                            <?= $m['status'] == 'pendente' ? 'badge-warning' : '' ?>
-                                            <?= $m['status'] == 'vencida' ? 'badge-error' : '' ?>
-                                        "><?= ucfirst($m['status']) ?></span>
-                                    </td>
-                                    <td><?= $m['data_pagamento'] ? date('d/m/Y H:i', strtotime($m['data_pagamento'])) : '-' ?></td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </section>
-        </main>
-    </div>
-
-    <dialog id="modalPagar" class="modal">
-        <div class="modal-box">
-            <h3 class="font-bold text-lg">Registar Pagamento de Plano</h3>
-            <form method="POST" action="controllers/turma_controller.php">
-                <input type="hidden" name="action" value="registrar_pagamento_plano">
-                <input type="hidden" name="turma_id" value="<?= $turma_id ?>">
-                <input type="hidden" id="aluno_selecionado_data" name="aluno_selecionado_data">
-
-                <div class="form-control py-4 space-y-4">
-                    <div>
-                        <label class="label"><span class="label-text">Aluno</span></label>
-                        <select id="alunoSelect" name="matricula_id" class="select select-bordered w-full" required>
-                            <option disabled selected value="">Selecione um aluno</option>
-                            <?php foreach ($alunos_ativos as $aluno): ?>
-                                <option value="<?= $aluno['matricula_id'] ?>" 
-                                        data-info='<?= htmlspecialchars(json_encode(["aluno_id" => $aluno['id'], "data_matricula" => $aluno['data_matricula']]), ENT_QUOTES, 'UTF-8') ?>'>
-                                    <?= htmlspecialchars($aluno['nome'] . ' ' . $aluno['sobrenome']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="label">
-                            <span class="label-text">Início da Competência do Plano</span>
-                            <span class="label-text-alt">Mude apenas para pagamentos antigos</span>
-                        </label>
-                        <input type="month" 
-                               name="data_inicio_plano" 
-                               class="input input-bordered w-full" 
-                               value="<?= date('Y-m') ?>">
-                    </div>
-                    <div>
-                        <label class="label"><span class="label-text">Plano</span></label>
-                        <select id="planoSelect" name="plano" class="select select-bordered w-full">
-                            <option value="mensal">Mensal (1 mês)</option>
-                            <option value="trimestral">Trimestral (3 meses)</option>
-                            <option value="semestral">Semestral (6 meses)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="label"><span class="label-text">Valor Total a Pagar</span></label>
-                        <input type="text" id="valorPago" name="valor_pago" class="input input-bordered w-full font-bold text-lg" value="<?= number_format($turma['valor_mensalidade'], 2, ',', '.') ?>">
-                    </div>
-                    <div>
-                        <label class="label"><span class="label-text">Forma de Pagamento</span></label>
-                        <select name="forma_pagamento" class="select select-bordered w-full">
-                            <option value="pix">PIX</option>
-                            <option value="dinheiro">Dinheiro</option>
-                            <option value="credito">Cartão de Crédito</option>
-                            <option value="debito">Cartão de Débito</option>
-                            <option value="cortesia">Cortesia</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="modal-action">
-                    <button type="button" class="btn" onclick="modalPagar.close()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Confirmar Pagamento</button>
-                </div>
-            </form>
+        <div>
+            <div class="text-sm breadcrumbs"><ul><li><a href="turmas.php?arena_id=<?= $turma['arena_id'] ?>">Turmas</a></li><li><a href="turma_detalhes.php?id=<?= $turma_id ?>">Detalhes</a></li><li>Financeiro</li></ul></div>
+            <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight mt-2">Assistente de Pagamento: <?= htmlspecialchars($turma['nome']) ?></h1>
         </div>
-    </dialog>
-    
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            const valorBase = <?= $turma['valor_mensalidade'] ?>;
-            const valorInput = $('#valorPago');
-            valorInput.mask('#.##0,00', {reverse: true});
+        
+        <?php if (isset($_SESSION['mensagem'])): list($tipo, $texto) = $_SESSION['mensagem']; ?>
+            <div class="alert <?= $tipo === 'success' ? 'alert-success' : 'alert-error' ?> shadow-lg"><div><span><?= htmlspecialchars($texto) ?></span></div></div>
+        <?php unset($_SESSION['mensagem']); endif; ?>
 
-            // Atualiza o valor total a pagar quando o plano muda
-            $('#planoSelect').on('change', function() {
-                let multiplicador = 1;
-                if (this.value === 'trimestral') multiplicador = 3;
-                if (this.value === 'semestral') multiplicador = 6;
+        <form method="POST" action="controllers/turma_controller.php">
+            <input type="hidden" name="action" value="registrar_pagamento_selecionado">
+            <input type="hidden" name="turma_id" value="<?= $turma_id ?>">
+            <input type="hidden" name="matricula_id" x-model="selectedMatriculaId">
+
+            <div class="bg-white p-6 rounded-xl shadow-md border space-y-6">
+                <div>
+                    <label class="label"><span class="label-text text-lg font-bold">1. Selecione o Aluno</span></label>
+                    <select id="alunoSelect" class="select select-bordered w-full" @change="fetchMensalidades($event.target.value)">
+                        <option disabled selected value="">Selecione um aluno para começar...</option>
+                        <?php foreach ($alunos_ativos as $aluno): ?>
+                            <option value="<?= $aluno['matricula_id'] ?>"><?= htmlspecialchars($aluno['nome'] . ' ' . $aluno['sobrenome']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
                 
-                const valorTotal = valorBase * multiplicador;
-                valorInput.val(valorTotal.toFixed(2).replace('.', ',')).trigger('input');
-            });
+                <div x-show="mensalidades.length > 0" x-cloak>
+                    <label class="label"><span class="label-text text-lg font-bold">2. Marque as mensalidades a serem pagas</span></label>
+                    <div class="border rounded-lg p-4 space-y-2">
+                        <template x-for="mensalidade in mensalidades" :key="mensalidade.id">
+                            <label class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" class="checkbox checkbox-primary" name="mensalidades_selecionadas[]" :value="mensalidade.id" x-model="selectedMensalidadesIds">
+                                <span class="flex-1 ml-4 font-semibold" x-text="formatCompetencia(mensalidade.competencia)"></span>
+                                <span class="font-mono mr-4" x-text="formatCurrency(mensalidade.valor)"></span>
+                                <span class="badge" :class="{'badge-warning': mensalidade.status === 'pendente', 'badge-error': mensalidade.status === 'vencida'}" x-text="mensalidade.status"></span>
+                            </label>
+                        </template>
+                    </div>
+                </div>
+                <div x-show="loading" class="text-center">Carregando mensalidades...</div>
+                <div x-show="!loading && hasFetched && mensalidades.length === 0" class="text-center italic text-success p-4">Este aluno está com todas as mensalidades em dia!</div>
 
-            // Guarda os dados do aluno num campo escondido quando ele é selecionado
-            $('#alunoSelect').on('change', function() {
-                const selectedData = $(this).find('option:selected').data('info');
-                $('#aluno_selecionado_data').val(JSON.stringify(selectedData));
-            });
-        });
-    </script>
+                <div x-show="selectedMensalidadesIds.length > 0" x-cloak>
+                    <label class="label"><span class="label-text text-lg font-bold">3. Confirme os detalhes do pagamento</span></label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Valor Total Pago (R$)</span></label>
+                            <input type="text" id="valorTotalPago" name="valor_total_pago" x-model="totalPago" class="input input-bordered font-bold" required>
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Forma de Pagamento</span></label>
+                            <select name="forma_pagamento" class="select select-bordered w-full" required><option>PIX</option><option>Dinheiro</option><option>Crédito</option><option>Débito</option></select>
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Data do Pagamento</span></label>
+                            <input type="date" name="data_pagamento" class="input input-bordered w-full" value="<?= date('Y-m-d') ?>" required>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="pt-4 text-right">
+                    <button type="submit" class="btn btn-primary btn-lg" :disabled="selectedMensalidadesIds.length === 0">Confirmar Pagamento</button>
+                </div>
+            </div>
+        </form>
+      </section>
+    </main>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+  <script>
+    function paymentManager() {
+      return {
+        loading: false,
+        hasFetched: false,
+        selectedMatriculaId: null,
+        mensalidades: [],
+        selectedMensalidadesIds: [],
+        totalPago: '0,00',
+
+        // Função chamada quando um aluno é selecionado
+        fetchMensalidades(matriculaId) {
+          if (!matriculaId) return;
+          this.loading = true;
+          this.hasFetched = true;
+          this.selectedMatriculaId = matriculaId;
+          this.resetPayment();
+
+          $.getJSON(`controllers/ajax_get_mensalidades.php?matricula_id=${matriculaId}`)
+            .done(data => {
+              if (data.error) {
+                  alert(data.error);
+                  this.mensalidades = [];
+              } else {
+                  this.mensalidades = data;
+              }
+            })
+            .fail(() => alert('Ocorreu um erro ao buscar as mensalidades.'))
+            .always(() => this.loading = false);
+        },
+
+        // Função para resetar os campos quando o aluno muda
+        resetPayment() {
+            this.selectedMensalidadesIds = [];
+            this.totalPago = '0,00';
+        },
+        
+        // Formatação de valores e datas
+        formatCurrency(value) {
+            return parseFloat(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        },
+        formatCompetencia(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        },
+
+        // Observador para atualizar o valor total quando os checkboxes mudam
+        init() {
+            $('#valorTotalPago').mask('#.##0,00', {reverse: true});
+            
+            this.$watch('selectedMensalidadesIds', () => {
+                let total = 0;
+                this.selectedMensalidadesIds.forEach(id => {
+                    const mensalidade = this.mensalidades.find(m => m.id == id);
+                    if (mensalidade) total += parseFloat(mensalidade.valor);
+                });
+                // Atualiza o valor no input formatado
+                $('#valorTotalPago').val(total.toFixed(2).replace('.', ',')).trigger('input');
+                this.totalPago = $('#valorTotalPago').val();
+            });
+        }
+      }
+    }
+  </script>
 </body>
 </html>

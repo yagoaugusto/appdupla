@@ -1,4 +1,10 @@
 {
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://repo.packagist.org"
+        }
+    ],
     "require": {
         "phpmailer/phpmailer": "^6.10",
         "mercadopago/dx-php": "^2.6",

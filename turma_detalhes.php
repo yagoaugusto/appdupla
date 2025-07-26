@@ -91,7 +91,7 @@ if (!$turma) {
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-bold">Alunos Matriculados</h2>
                         <div class="flex gap-2">
-                            <a href="turma_financeiro.php?id=<?= $turma_id ?>" class="btn btn-outline">Ver Financeiro</a>
+                            <a href="turma_financeiro.php?id=<?= $turma_id ?>" class="btn btn-outline">Assist. Pagamento</a>
                             <button class="btn btn-primary" onclick="modalMatricular.showModal()">Matricular Aluno</button>
                         </div>
                     </div>
@@ -118,10 +118,23 @@ if (!$turma) {
                             <tbody>
                                 <?php foreach ($alunos as $aluno): ?>
                                     <tr>
-                                        <td>
-                                            <div class="font-bold"><?= htmlspecialchars($aluno['nome'] . ' ' . $aluno['sobrenome']) ?></div>
-                                            <div class="text-sm opacity-60"><?= htmlspecialchars($aluno['apelido'] ?: 'N/A') ?></div>
-                                        </td>
+                                <td>
+                                    <div class="font-bold"><?= htmlspecialchars($aluno['nome'] . ' ' . $aluno['sobrenome']) ?></div>
+                                    <div class="text-sm opacity-60 flex items-center gap-2">
+                                        <span><?= htmlspecialchars($aluno['apelido'] ?: 'N/A') ?></span>
+                                        <div class="divider divider-horizontal m-0"></div>
+                                        
+                                        <?php if (!empty($aluno['resumo_financeiro']['paga'])): ?>
+                                            <div class="tooltip" data-tip="Pagas"><span class="badge badge-xs badge-success"><?= $aluno['resumo_financeiro']['paga'] ?></span></div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($aluno['resumo_financeiro']['pendente'])): ?>
+                                            <div class="tooltip" data-tip="Pendentes"><span class="badge badge-xs badge-warning"><?= $aluno['resumo_financeiro']['pendente'] ?></span></div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($aluno['resumo_financeiro']['vencida'])): ?>
+                                            <div class="tooltip" data-tip="Vencidas"><span class="badge badge-xs badge-error"><?= $aluno['resumo_financeiro']['vencida'] ?></span></div>
+                                        <?php endif; ?>
+                                    </div>
+                                    </td>
                                         <td><?= date('d/m/Y', strtotime($aluno['data_matricula'])) ?></td>
                                         <td>
                                             <div class="badge <?= $aluno['status'] == 'ativo' ? 'badge-success' : 'badge-ghost' ?>">
@@ -134,7 +147,6 @@ if (!$turma) {
                                             <?php else: ?>
                                                 <a href="controllers/turma_controller.php?action=alterar_status_matricula&matricula_id=<?= $aluno['matricula_id'] ?>&status=ativo&turma_id=<?= $turma_id ?>" class="btn btn-xs btn-outline btn-success">Ativar</a>
                                             <?php endif; ?>
-                                            <a onclick="confirmarRemocao(<?= $aluno['matricula_id'] ?>, '<?= htmlspecialchars(addslashes($aluno['nome'])) ?>')" class="btn btn-xs btn-outline btn-error">Remover</a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -157,8 +169,20 @@ if (!$turma) {
                     <label class="label"><span class="label-text">1. Selecione o Aluno</span></label>
                     <select name="aluno_id" class="select2-aluno w-full" required></select>
                 </div>
+
+    <div>
+        <label class="label"><span class="label-text">2. Valor da Mensalidade Acordado (R$)</span></label>
+        <input type="text" id="valorMensalidadeMatricula" name="valor_mensalidade_acordado" 
+               class="input input-bordered w-full" 
+               value="<?= number_format($turma['valor_mensalidade'], 2, ',', '.') ?>" required>
+    </div>
+
                 <div>
-                    <label class="label"><span class="label-text">2. Defina o Plano Inicial</span></label>
+                    <label class="label"><span class="label-text">3. Percentual de Repasse do Professor (%)</span></label>
+                    <input type="number" name="percentual_repasse" class="input input-bordered w-full" placeholder="Ex: 40" min="0" max="100" step="0.5" value="40" required>
+                </div>
+                <div>
+                    <label class="label"><span class="label-text">4. Defina o Plano Inicial</span></label>
                     <select name="plano_inicial" class="select select-bordered w-full">
                         <option value="mensal" selected>Mensal (Gera 1 cobrança)</option>
                         <option value="trimestral">Trimestral (Gera 3 cobranças)</option>
@@ -167,7 +191,7 @@ if (!$turma) {
                 </div>
                 <div>
                     <label class="label">
-                        <span class="label-text">3. Início da Competência</span>
+                        <span class="label-text">5. Início da Competência</span>
                         <span class="label-text-alt">Mude apenas para matrículas antigas</span>
                     </label>
                     <select name="data_inicio_competencia" class="select select-bordered w-full">
@@ -193,7 +217,7 @@ if (!$turma) {
                         ];
 
                         // Gera as opções do select
-                        for ($i = -6; $i <= 3; $i++) {
+                        for ($i = -3; $i <= 3; $i++) {
                             $data_opcao = clone $data_atual;
                             $data_opcao->modify("$i month");
 
